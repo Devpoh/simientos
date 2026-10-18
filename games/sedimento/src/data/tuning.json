@@ -152,7 +152,13 @@
       "separacionMin": 0.34,
       "escalaMin": 1.1,
       "escalaMax": 1.6,
-      "probRoca": 0.3
+      "probRoca": 0.3,
+      "probDuna": 0.22,
+      "probMataYerma": 0.3,
+      "matasMin": 2,
+      "matasMax": 4,
+      "guijarrosMax": 3,
+      "variantes": 3
     },
     "suelo": {
       "grano": 0.3,

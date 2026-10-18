@@ -62,7 +62,8 @@
         "shot": "errores 0, drawCalls 11",
         "captura": "F01b-lejos, F01b-suelo-cerca y F01b-rasante miradas con Read"
       },
-      "fin": "2026-10-18T23:10:30.975Z"
+      "fin": "2026-10-18T23:10:30.975Z",
+      "commit": "ce7fed4"
     },
     {
       "id": "F01c",
@@ -121,8 +122,12 @@
     },
     {
       "id": "F01e",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Árboles con copas facetadas e irregulares, troncos que se estrechan y rama; coníferas por pisos; palmeras con tronco curvo anillado, hojas curvadas y cocos; 3 variantes de forma por especie",
+        "Rocas en grupos medio enterradas con cara superior clara y guijarros",
+        "Matas de hierba por fertilidad y dunas bajas en el desierto"
+      ],
       "creada": "2026-10-18T23:10:31.243Z",
       "titulo": "Árboles, rocas y matas de calidad de cerca",
       "objetivo": "Vegetación y detalles de suelo que aguanten el zoom cercano",
@@ -132,7 +137,14 @@
         "Rocas en grupos, medio enterradas y con la cara superior más clara",
         "Matas de hierba y guijarros instanciados en llanura y estepa; dunas en desierto",
         "Captura de cerca mirada y draw calls < 60"
-      ]
+      ],
+      "inicio": "2026-10-18T23:10:44.600Z",
+      "verificacion": {
+        "check": "vitest 81/81 (un fallo aislado por carga, pasa al repetir), tsc limpio",
+        "shot": "errores 0, drawCalls 29, triangulos 466k, vegetacion 4787 ejemplares",
+        "captura": "F01e-cerca, F01e-bosque y F01e-desierto miradas con Read"
+      },
+      "fin": "2026-10-18T23:17:14.298Z"
     },
     {
       "id": "F02",
@@ -668,6 +680,13 @@
       "fase": "F01b",
       "texto": "El borde del mapa baja en 2,5 hexágonos hasta una playa (altura de playa + color arena) en lugar de acabar en pared; la tierra marisma pasa a verde oscuro húmedo",
       "porque": "Las caras de caja del borde y la marisma clara hacían el mapa artificial; la playa deja que el mapa muera en el mar"
+    },
+    {
+      "id": "D026",
+      "t": "2026-10-18T23:17:14.115Z",
+      "fase": "F01e",
+      "texto": "Matas, guijarros y dunas se instancian por fertilidad: hierba verde donde hay regadío, seca y escasa en el desierto; dunas solo en suelo yermo y lejos de la playa; las especies pequeñas no proyectan sombra",
+      "porque": "Dan escala y detalle al zoom cercano sin disparar los triángulos (466k) ni las llamadas de dibujo (29)"
     }
   ],
   "conceptos": [
@@ -790,9 +809,45 @@
       "t": "2026-10-18T23:10:30.577Z",
       "concepto": "Detalle de superficie sin texturas (shader de ruido)",
       "explicacion": "En vez de pintar una textura, el fragment shader calcula ruido de valor con la posición en el mundo: oscurece o aclara el color (granos y manchas) y perturba la normal con el gradiente del ruido, de modo que la luz dibuja ondulaciones. Como depende de la posición y no del hexágono, es continuo entre celdas y no repite patrón visible."
+    },
+    {
+      "id": "C021",
+      "t": "2026-10-18T23:17:13.704Z",
+      "concepto": "Variantes de forma con instancias",
+      "explicacion": "Un InstancedMesh repite la misma forma, y mil palmeras idénticas delatan el truco. Se generan 3 variantes de cada especie con un RNG con semilla (ramas, curvatura y número de hojas distintos) y cada una es su propia malla instanciada; sumando escala, giro y color por instancia el bosque parece natural con pocas llamadas de dibujo."
+    },
+    {
+      "id": "C022",
+      "t": "2026-10-18T23:17:13.883Z",
+      "concepto": "Falsa oclusión con color de vértice",
+      "explicacion": "Oscurecer los vértices de abajo de una copa o de una mata (y aclarar los de arriba) imita la sombra de ambient occlusion sin coste en tiempo de ejecución: el color ya viene en la geometría. Es el truco típico del estilo low-poly."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-18T23:17:14.334Z",
+      "texto": "Fase F01e → hecha: Árboles, rocas y matas de calidad de cerca"
+    },
+    {
+      "t": "2026-10-18T23:17:14.117Z",
+      "texto": "Decisión: Matas, guijarros y dunas se instancian por fertilidad: hierba verde donde hay regadío, seca y escasa en el desierto; dunas solo en suelo yermo y lejos de la playa; las especies pequeñas no proyectan sombra"
+    },
+    {
+      "t": "2026-10-18T23:17:13.884Z",
+      "texto": "Concepto: Falsa oclusión con color de vértice"
+    },
+    {
+      "t": "2026-10-18T23:17:13.706Z",
+      "texto": "Concepto: Variantes de forma con instancias"
+    },
+    {
+      "t": "2026-10-18T23:10:44.639Z",
+      "texto": "Fase F01e → en-curso: Árboles, rocas y matas de calidad de cerca"
+    },
+    {
+      "t": "2026-10-18T23:10:32.167Z",
+      "texto": "Fase F01b actualizada: Pulido visual del mapa (suelo, borde, pestañeo)"
+    },
     {
       "t": "2026-10-18T23:10:31.277Z",
       "texto": "Fase F01e creada: Árboles, rocas y matas de calidad de cerca"
@@ -1258,5 +1313,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T23:10:31.277Z"
+  "actualizado": "2026-10-18T23:17:14.334Z"
 }
