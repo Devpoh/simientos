@@ -1,7 +1,7 @@
 {
   "juego": {
     "slug": "imperium",
-    "nombre": "IMPERIUM",
+    "nombre": "SEDIMENTO",
     "pitch": "Gobierna una ciudad-estado sumeria viva en tiempo real: cada cosecha, ley y crecida tiene consecuencias que se propagan por toda la sociedad.",
     "motor": "Phaser 4",
     "genero": "city-builder / simulación de civilización",
@@ -315,6 +315,18 @@
       "t": "2026-10-18T15:04:15.309Z",
       "texto": "Escala temporal: 1 día ≈ 1 s a ×1, año de 360 días (~6 min); el desplazamiento local se comprime a propósito",
       "porque": "Vuelve compatibles las obras (días), las estaciones (meses) y la población (años); que la logística se vea lenta hace que importe"
+    },
+    {
+      "id": "D006",
+      "t": "2026-10-18T15:07:18.251Z",
+      "texto": "Nombre del juego: SEDIMENTO (el slug sigue siendo imperium)",
+      "porque": "Lo eligió el usuario"
+    },
+    {
+      "id": "D007",
+      "t": "2026-10-18T15:07:18.412Z",
+      "texto": "Dureza de la v0.1: exigente pero justa. Se puede perder en el año 2 o 3 si se ignoran canales y reservas, pero las crisis siempre se anuncian",
+      "porque": "Lo eligió el usuario; guía los valores iniciales de tuning y las bandas de balance de los tests headless"
     }
   ],
   "conceptos": [
@@ -332,6 +344,18 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-18T15:07:18.414Z",
+      "texto": "Decisión: Dureza de la v0.1: exigente pero justa. Se puede perder en el año 2 o 3 si se ignoran canales y reservas, pero las crisis siempre se anuncian"
+    },
+    {
+      "t": "2026-10-18T15:07:18.253Z",
+      "texto": "Decisión: Nombre del juego: SEDIMENTO (el slug sigue siendo imperium)"
+    },
+    {
+      "t": "2026-10-18T15:07:18.078Z",
+      "texto": "Metadatos del juego actualizados"
+    },
     {
       "t": "2026-10-18T15:05:34.240Z",
       "texto": "No hay skill de género city-builder en .claude/skill-library/genres; las fases se apoyan en docs/gdd/."
@@ -449,5 +473,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T15:05:34.240Z"
+  "actualizado": "2026-10-18T15:07:18.414Z"
 }

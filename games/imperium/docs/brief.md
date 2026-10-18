@@ -1,9 +1,9 @@
-# IMPERIUM — Brief (v0.1 «La aldea junto al río»)
+# SEDIMENTO — Brief (v0.1 «La aldea junto al río»)
 
 **Pitch (1 frase):** Gobierna una ciudad-estado sumeria viva en tiempo real: cada cosecha, cada ley y cada crecida tienen consecuencias que se propagan por toda la sociedad.
 **Referencia:** Songs of Syx (población y logística física) + Frostpunk (presión constante y decisiones duras). De Songs of Syx tomamos el ~10 % de «los bienes se mueven a hombros y todo se puede inspeccionar». De Frostpunk, el «el entorno aprieta más cada año y crecer cuesta».
 **Motor:** Phaser 4 (2D cenital). Permite miles de habitantes visibles, iteración rápida y la lógica pura en `src/logic/`, portable a Godot o Unity (ver GDD §12).
-**Nombre:** IMPERIUM es provisional. Propuesta: **SEDIMENTO** (el limo del río que da vida a Sumer y que también colmata sus canales; las civilizaciones como capas que se acumulan y se entierran).
+**Nombre:** **SEDIMENTO** (elegido por el usuario; IMPERIUM era el provisional). El limo del río da vida a Sumer y también colmata sus canales; las civilizaciones son capas que se acumulan y se entierran.
 
 ## Fantasía del jugador
 Eres el *ensi* de una ciudad-estado junto al Éufrates. Repartes la cebada del templo, cavas canales y decides quién come cuando la crecida falla, sabiendo que el éxito de este año es el problema del siguiente.

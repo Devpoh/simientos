@@ -1,4 +1,4 @@
-# IMPERIUM
+# SEDIMENTO (slug: imperium)
 
 > Gobierna una ciudad-estado sumeria viva en tiempo real: cada cosecha, ley y crecida tiene consecuencias que se propagan por toda la sociedad.
 
