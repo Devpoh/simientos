@@ -39,6 +39,8 @@ export interface ConfigMapa {
   /** Probabilidad de un segundo río que confluye con el primero o llega al mar. */
   probSegundoRio: number;
   anchoMarisma: number;
+  /** Hasta cuántos saltos de la desembocadura se extiende la marisma costera (el delta). */
+  radioDelta: number;
   probPalmeral: number;
   probArboleda: number;
   fertilidadRibera: number;
@@ -118,6 +120,10 @@ export function generarMapa(base: ConfigMapa, climaBase: ConfigClima): Mapa {
   }
   const distAgua = rejilla.distanciasDesde(dulce);
   const distMar = rejilla.distanciasDesde(salada);
+  // El delta: los tramos de río que ya rozan el mar. La marisma costera solo crece alrededor de ellos;
+  // el resto de la costa queda como playa (una franja continua de pantano se veía artificial).
+  const delta = dulce.filter((i) => terreno[i] === 'rio' && distMar[i] <= cfg.anchoMarisma);
+  const distDelta = rejilla.distanciasDesde(delta);
 
   // Relieve y usos del suelo.
   const rngSuelo = crearRng(derivarSemilla(cfg.semilla, 'suelo'));
@@ -126,7 +132,7 @@ export function generarMapa(base: ConfigMapa, climaBase: ConfigClima): Mapa {
     const h = altura[i];
     if (h >= cfg.umbralMontana) terreno[i] = 'montana';
     else if (h >= cfg.umbralColina) terreno[i] = 'colina';
-    else if (distMar[i] <= cfg.anchoMarisma && h < cfg.nivelMar + 0.12) terreno[i] = 'marisma';
+    else if (distMar[i] <= cfg.anchoMarisma && distDelta[i] <= cfg.radioDelta && h < cfg.nivelMar + 0.12) terreno[i] = 'marisma';
     else if (distAgua[i] === 1 && vecinoDe(rejilla, terreno, i, 'lago') && rngSuelo() < 0.5) terreno[i] = 'marisma';
   }
 

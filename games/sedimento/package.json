@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run --reporter=dot",
     "check": "tsc --noEmit && vitest run --reporter=dot",
-    "shot": "node scripts/shot.mjs"
+    "shot": "node scripts/shot.mjs",
+    "modelos": "node scripts/exportar-modelos.mjs"
   },
   "dependencies": {
     "three": "^0.186.1"

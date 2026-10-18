@@ -83,6 +83,22 @@ Ese es el ritmo emocional que pides: calma constructiva en verano y tensión en 
 - **Evolución visual (v0.2+):** las casas mejoran si el hogar prospera (choza de caña → casa de adobe → casa con patio) y empeoran si no.
 - **Mantenimiento:** los canales se **colmatan** de limo y hay que dragarlos cada año; el adobe se erosiona. *Crecer obliga a mantener más.*
 
+### 7.1 Construcción libre y carreteras (R17, 2026-10-18)
+
+**Dos capas.** Los **hexágonos** son el terreno (bioma, fertilidad, agua, altura) y el mapa estratégico (territorio, viajes largos y, en la v0.5, el combate). La **ciudad** se construye en coordenadas libres, como en Imperium, Pharaoh o Tropico: un edificio no ocupa «un hexágono», ocupa su huella real.
+
+- **Colocación libre:** posición continua y giro libre (pasos de 15°; con Mayús, sin pasos). Cada tipo tiene una **huella** (rectángulo ancho × fondo): choza 0,5 × 0,35, casa 0,6 × 0,55, almacén 1,0 × 0,8, templo 1,6 × 1,2… Los campos se **dibujan arrastrando** un rectángulo: el área determina el rendimiento y el trabajo.
+- **Validez:** la huella no puede solaparse con otras huellas ni con carreteras, todo el terreno bajo ella tiene que estar permitido y no puede cruzar un escalón de terraza. Los requisitos («junto al agua», «arcilla cerca») se miden en distancia real desde la huella. El fantasma se pinta verde o rojo y **dice por qué**.
+- **Carreteras:** el jugador las traza como una línea con varios puntos que se suaviza en curva.
+  - Tipos: senda (solo trabajo), camino de tierra apisonada y, en la v0.2+, calzada de ladrillo. Hay **puentes** de caña o madera sobre canales y ríos.
+  - Coste por tramo, que se construye como cualquier obra.
+  - Efecto físico: quien va por carretera camina ×1,5 (senda) o ×2 (camino) más rápido, lo que acorta los acarreos.
+- **Orden sin rejilla:** si colocas un edificio cerca de una carretera, se **alinea a ella** (giro paralelo y puerta hacia el camino), como en Tropico. Así la ciudad sale ordenada por calles sin imponer una cuadrícula.
+- **Movimiento:** las personas usan el grafo de carreteras cuando les compensa y, si no, van a campo traviesa con A* sobre los hexágonos (`rutas.ts`).
+- **Fundación:** el almacén junto al río, una senda inicial hacia el agua y las chozas alineadas a ambos lados. La aldea empieza ordenada.
+
+**Por qué:** con un edificio por hexágono la ciudad se veía desordenada y rígida (lo dijo el usuario). La colocación libre con calles da ciudades orgánicas y legibles, y deja los hexágonos para lo que hacen bien: el terreno y la estrategia.
+
 ## 8. Sociedad: capas de satisfacción (no hay una barra única)
 
 | Capa | Qué mide | Fuente | Versión |

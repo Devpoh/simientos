@@ -147,6 +147,21 @@
       "commit": "bee935f"
     },
     {
+      "id": "F01f",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:23:37.655Z",
+      "titulo": "Modelos CC0 integrados",
+      "objetivo": "Cargar y usar los modelos CC0 de public/modelos (Kenney y KayKit) recoloreados a la paleta: más riqueza y calidad de cerca (R16)",
+      "criterios": [
+        "Cargador GLTF con caché e instancias por malla (pocos draw calls); el juego arranca aunque falte un modelo (aviso, no error)",
+        "Marisma con nenúfares y plantas acuáticas; río y lago con rocas de río; llanura y estepa con arbustos, flores y troncos dispersos",
+        "Modelos recoloreados con colores de tuning.render (sin turquesas ni naranjas de paquete que rompan el estilo)",
+        "Nubes KayKit altas que derivan despacio y proyectan sombra suave (opcional si cuesta rendimiento)",
+        "Capturas de cerca y de lejos MIRADAS; drawCalls < 60; shot sin errores ni avisos nuevos"
+      ]
+    },
+    {
       "id": "F02",
       "estado": "hecha",
       "hecho": [
@@ -233,9 +248,10 @@
     },
     {
       "id": "F05",
-      "estado": "en-curso",
+      "estado": "hecha",
       "hecho": [
-        "Lógica: motivoNoConstruible/puedeConstruir/colocarObra, fundarAsentamiento (almacén junto al agua + una choza por hogar), Rejilla.entorno; constructores limitados al trabajo pendiente; tests/obras.test.ts (11) en verde. Falta: fantasma con ratón, andamio visible y captura (tras F01/F02)"
+        "Lógica: motivoNoConstruible/puedeConstruir/colocarObra, fundarAsentamiento (almacén junto al agua + una choza por hogar), Rejilla.entorno; constructores limitados al trabajo pendiente; tests/obras.test.ts (11) en verde. Falta: fantasma con ratón, andamio visible y captura (tras F01/F02)",
+        "dividida en F05a/F05b/F05c/F05d por el cambio a construcción libre (R17); la lógica de etapas de obra (cimientos → materiales → trabajo) y sus tests se mantienen"
       ],
       "creada": "2026-10-18T15:05:31.448Z",
       "titulo": "Construcción por etapas",
@@ -246,7 +262,67 @@
         "estado shot: tras colocar una obra con el ratón aparece en obras[] con su etapa",
         "captura: se ven las etapas de la obra (cimientos, andamio, terminada)"
       ],
-      "inicio": "2026-10-18T22:29:53.194Z"
+      "inicio": "2026-10-18T22:29:53.194Z",
+      "fin": "2026-10-18T23:26:02.683Z"
+    },
+    {
+      "id": "F05a",
+      "estado": "en-curso",
+      "hecho": [],
+      "creada": "2026-10-18T23:26:02.918Z",
+      "titulo": "Urbanismo libre (lógica)",
+      "objetivo": "Edificios con posición, giro y huella; colisiones; carreteras como polilíneas; alineación a carretera; fundación ordenada",
+      "criterios": [
+        "test: dos huellas giradas que se solapan → ocupado; separadas → válido (SAT)",
+        "test: huella sobre agua o cruzando un escalón de terraza → motivo terreno o pendiente",
+        "test: un edificio colocado junto a una carretera se alinea a ella (giro paralelo, puerta al camino)",
+        "test: la fundación deja el almacén, una senda y las chozas alineadas sin solapes en 10 semillas",
+        "tests de obras existentes adaptados y en verde"
+      ],
+      "inicio": "2026-10-18T23:26:02.920Z"
+    },
+    {
+      "id": "F05b",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:26:03.129Z",
+      "titulo": "Colocar edificios con el ratón",
+      "objetivo": "Menú de construcción, fantasma verde o rojo con el motivo, giro con teclas y alineación a carreteras",
+      "criterios": [
+        "Menú con los edificios de la v0.1 y su coste",
+        "Fantasma que sigue al ratón, verde o rojo, con el motivo en un texto flotante",
+        "Giro con Z/X (15°) y Mayús para giro libre; clic coloca la obra y Esc cancela",
+        "estado shot: tras colocar con el ratón aparece en obras[] con x, z y giro",
+        "Captura MIRADA del fantasma válido e inválido"
+      ]
+    },
+    {
+      "id": "F05c",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:26:03.337Z",
+      "titulo": "Carreteras",
+      "objetivo": "Trazar sendas y caminos arrastrando, con curva suave, coste y obra; se dibujan como cintas de tierra sobre el terreno",
+      "criterios": [
+        "Modo carretera: clic y arrastre añade puntos; doble clic termina; vista previa con coste",
+        "Cinta de tierra apisonada que sigue el relieve, con bordes irregulares y sin z-fighting",
+        "Los edificios colocados cerca se alinean a la carretera",
+        "test: la velocidad por carretera es ×1,5 o ×2 en rutas",
+        "Capturas MIRADAS de una aldea con calles"
+      ]
+    },
+    {
+      "id": "F05d",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:26:03.557Z",
+      "titulo": "Obras visibles",
+      "objetivo": "Las obras se ven por etapas con los modelos de KayKit (solar, andamio, etapas A/B/C) hasta el edificio terminado",
+      "criterios": [
+        "Cimientos = solar de tierra; materiales = andamio con material apilado; trabajo = etapas A → B → C según el progreso",
+        "Icono o rótulo flotante si la obra está detenida (esperando:adobe, sin-trabajadores)",
+        "Captura MIRADA de cada etapa"
+      ]
     },
     {
       "id": "F06",
@@ -472,6 +548,93 @@
         "estado shot: benchmark con 500 agentes → perf.fpsMedio ≥ 55, perf.tickMs < 4 y drawCalls < 150",
         "test: hash determinista tras 10 años igual en dos ejecuciones"
       ]
+    },
+    {
+      "id": "G1",
+      "estado": "en-curso",
+      "hecho": [],
+      "creada": "2026-10-18T23:37:53.158Z",
+      "titulo": "Terreno continuo",
+      "objetivo": "Sustituir los prismas hexagonales por una malla de alturas continua y suave generada desde el mapa: llanuras, colinas, montañas, cauces excavados y costa que baja al mar",
+      "criterios": [
+        "Malla de alturas (≈4 vértices por unidad) sin escalones ni bordes de hexágono visibles",
+        "Ríos como cauces excavados y continuos; lagos y mar con lecho y orilla en pendiente",
+        "sueloEn(x,z) exacto sobre la malla para apoyar árboles, edificios y personas",
+        "La rejilla hexagonal solo como superposición opcional (tecla G)",
+        "Capturas de cerca y de lejos MIRADAS; shot sin errores"
+      ],
+      "inicio": "2026-10-18T23:37:53.160Z"
+    },
+    {
+      "id": "G2",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:37:53.415Z",
+      "titulo": "Texturas PBR del terreno",
+      "objetivo": "Terreno con texturas fotográficas CC0 (hierba, hierba seca, arena, barro, roca y nieve) mezcladas por bioma, pendiente y altura, sin repetición visible",
+      "criterios": [
+        "Texturas CC0 descargadas en public/texturas con su licencia (difusa, normal y rugosidad, 1K)",
+        "Shader de mezcla (splat) con roca triplanar en pendientes y ruido de transición",
+        "Anti-repetición: dos escalas o mezcla estocástica",
+        "De cerca se ven detalle y relieve (normal map); de lejos, sin patrón repetido",
+        "Capturas MIRADAS"
+      ]
+    },
+    {
+      "id": "G3",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:37:53.622Z",
+      "titulo": "Cielo e iluminación realista",
+      "objetivo": "Cielo HDRI CC0 con iluminación por imagen, sol que encaje con el HDRI, sombras suaves, oclusión ambiental y gradación de color",
+      "criterios": [
+        "HDRI CC0 (Poly Haven) como fondo y entorno (PMREM)",
+        "Sol direccional alineado con el del HDRI; sombras suaves que siguen la cámara",
+        "SSAO o N8AO y tone mapping AgX o ACES ajustados",
+        "Niebla atmosférica de distancia que no difumina de cerca",
+        "Capturas MIRADAS de cerca y de lejos; fps razonables"
+      ]
+    },
+    {
+      "id": "G4",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:37:53.817Z",
+      "titulo": "Agua realista",
+      "objetivo": "Agua con normal maps animados, reflejo del cielo HDRI, color por profundidad, espuma de orilla con textura y ríos que fluyen por los cauces",
+      "criterios": [
+        "Normal map de agua animado en dos direcciones",
+        "Reflejo del entorno (PMREM) con fresnel; color somero → profundo por profundidad real",
+        "Espuma de orilla con textura y ríos con corriente",
+        "Capturas MIRADAS"
+      ]
+    },
+    {
+      "id": "G5",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:37:54.067Z",
+      "titulo": "Vegetación y rocas realistas",
+      "objetivo": "Palmeras, arbustos, cañas, hierba y rocas con texturas CC0 realistas e instanciadas",
+      "criterios": [
+        "Modelos CC0 texturizados (Poly Haven y otros CC0) o propios con texturas reales",
+        "Instanciado y LOD (o impostores lejanos) para mantener los fps",
+        "Hierba con viento suave",
+        "Capturas MIRADAS"
+      ]
+    },
+    {
+      "id": "G6",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:37:54.341Z",
+      "titulo": "Edificios con texturas",
+      "objetivo": "Choza de juncos y almacén de adobe con texturas reales (adobe, caña, madera) y materiales PBR",
+      "criterios": [
+        "Texturas CC0 de adobe, caña y madera",
+        "Choza y almacén remodelados con UV y materiales PBR",
+        "Capturas MIRADAS de cerca"
+      ]
     }
   ],
   "errores": [
@@ -687,6 +850,30 @@
       "fase": "F01e",
       "texto": "Matas, guijarros y dunas se instancian por fertilidad: hierba verde donde hay regadío, seca y escasa en el desierto; dunas solo en suelo yermo y lejos de la playa; las especies pequeñas no proyectan sombra",
       "porque": "Dan escala y detalle al zoom cercano sin disparar los triángulos (466k) ni las llamadas de dibujo (29)"
+    },
+    {
+      "id": "D027",
+      "t": "2026-10-18T23:23:16.447Z",
+      "texto": "Se adoptan modelos CC0 de Kenney (Nature Kit) y KayKit (Medieval Hexagon). Se recolorean a la paleta del juego; lo procedural se mantiene donde ya es mejor (palmeras, árboles, montañas y agua)",
+      "porque": "Petición del usuario (R16). Los paquetes aportan andamios y etapas de obra, objetos, cultivos y plantas acuáticas de calidad sin coste. Recolorearlos mantiene la dirección de arte cálida que le gusta"
+    },
+    {
+      "id": "D028",
+      "t": "2026-10-18T23:23:16.700Z",
+      "texto": "La marisma costera solo aparece en el delta (radioDelta 4 desde los tramos de río junto al mar); el resto de la costa es playa",
+      "porque": "Al usuario le resultaba raro el pantano en toda la costa. Históricamente la marisma sumeria está en los deltas del Tigris y el Éufrates"
+    },
+    {
+      "id": "D029",
+      "t": "2026-10-18T23:26:02.504Z",
+      "texto": "Construcción libre: los edificios tienen posición continua, giro y huella rectangular; las carreteras son polilíneas suavizadas. Los hexágonos quedan para el terreno y el mapa estratégico",
+      "porque": "Petición explícita del usuario (R17): la ciudad se veía desorganizada y quiere construir donde quiera, como en Imperium y Tropico, y trazar carreteras. Detalle en gdd/README.md §7.1"
+    },
+    {
+      "id": "D030",
+      "t": "2026-10-18T23:37:52.986Z",
+      "texto": "Nueva dirección de arte: realista con texturas. Terreno continuo (malla de alturas suave, sin prismas ni terrazas), texturas PBR CC0 (Poly Haven y ambientCG) mezcladas por bioma, pendiente y altura, cielo HDRI con iluminación por imagen, oclusión ambiental y agua realista. Los hexágonos quedan como rejilla de datos invisible (y superposición opcional al construir)",
+      "porque": "El usuario lo eligió de forma explícita (R19): el estilo hexagonal low-poly no le convence, ni el propio ni el de los paquetes, y prefiere gráficos primero"
     }
   ],
   "conceptos": [
@@ -824,6 +1011,70 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-18T23:37:54.372Z",
+      "texto": "Fase G6 creada: Edificios con texturas"
+    },
+    {
+      "t": "2026-10-18T23:37:54.100Z",
+      "texto": "Fase G5 creada: Vegetación y rocas realistas"
+    },
+    {
+      "t": "2026-10-18T23:37:53.847Z",
+      "texto": "Fase G4 creada: Agua realista"
+    },
+    {
+      "t": "2026-10-18T23:37:53.656Z",
+      "texto": "Fase G3 creada: Cielo e iluminación realista"
+    },
+    {
+      "t": "2026-10-18T23:37:53.447Z",
+      "texto": "Fase G2 creada: Texturas PBR del terreno"
+    },
+    {
+      "t": "2026-10-18T23:37:53.243Z",
+      "texto": "Fase G1 creada: Terreno continuo"
+    },
+    {
+      "t": "2026-10-18T23:37:52.988Z",
+      "texto": "Decisión: Nueva dirección de arte: realista con texturas. Terreno continuo (malla de alturas suave, sin prismas ni terrazas), texturas PBR CC0 (Poly Haven y ambientCG) mezcladas por bioma, pendiente y altura, cielo HDRI con iluminación por imagen, oclusión ambiental y agua realista. Los hexágonos quedan como rejilla de datos invisible (y superposición opcional al construir)"
+    },
+    {
+      "t": "2026-10-18T23:26:03.589Z",
+      "texto": "Fase F05d creada: Obras visibles"
+    },
+    {
+      "t": "2026-10-18T23:26:03.369Z",
+      "texto": "Fase F05c creada: Carreteras"
+    },
+    {
+      "t": "2026-10-18T23:26:03.163Z",
+      "texto": "Fase F05b creada: Colocar edificios con el ratón"
+    },
+    {
+      "t": "2026-10-18T23:26:02.952Z",
+      "texto": "Fase F05a creada: Urbanismo libre (lógica)"
+    },
+    {
+      "t": "2026-10-18T23:26:02.719Z",
+      "texto": "Fase F05 → hecha: Construcción por etapas"
+    },
+    {
+      "t": "2026-10-18T23:26:02.507Z",
+      "texto": "Decisión: Construcción libre: los edificios tienen posición continua, giro y huella rectangular; las carreteras son polilíneas suavizadas. Los hexágonos quedan para el terreno y el mapa estratégico"
+    },
+    {
+      "t": "2026-10-18T23:23:37.687Z",
+      "texto": "Fase F01f creada: Modelos CC0 integrados"
+    },
+    {
+      "t": "2026-10-18T23:23:16.702Z",
+      "texto": "Decisión: La marisma costera solo aparece en el delta (radioDelta 4 desde los tramos de río junto al mar); el resto de la costa es playa"
+    },
+    {
+      "t": "2026-10-18T23:23:16.449Z",
+      "texto": "Decisión: Se adoptan modelos CC0 de Kenney (Nature Kit) y KayKit (Medieval Hexagon). Se recolorean a la paleta del juego; lo procedural se mantiene donde ya es mejor (palmeras, árboles, montañas y agua)"
+    },
     {
       "t": "2026-10-18T23:21:35.219Z",
       "texto": "Fase F01e actualizada: Árboles, rocas y matas de calidad de cerca"
@@ -1321,5 +1572,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T23:21:35.219Z"
+  "actualizado": "2026-10-18T23:37:54.372Z"
 }

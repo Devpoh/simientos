@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel del Estudio</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='4' fill='%235b4bdb'/></svg>">
+<style>
+:root {
+  --bg: #f6f5f1; --surface: #ffffff; --surface-2: #f0eee8; --text: #1d1c19; --muted: #6b675e;
+  --line: #e2dfd6; --accent: #5b4bdb; --accent-soft: #ebe8ff;
+  --ok: #1f8a4c; --ok-soft: #e3f4ea; --warn: #b26a00; --warn-soft: #fbf0dc;
+  --bad: #c2362f; --bad-soft: #fbe5e3; --info: #2266b8; --info-soft: #e2eefb;
+  --radius: 12px; --shadow: 0 1px 2px rgba(0,0,0,.05), 0 2px 8px rgba(0,0,0,.04);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131316; --surface: #1c1c21; --surface-2: #24242b; --text: #ecebe8; --muted: #9a978f;
+    --line: #2f2f37; --accent: #9d93ff; --accent-soft: #2a2747;
+    --ok: #55c785; --ok-soft: #173325; --warn: #e3a64a; --warn-soft: #362a16;
+    --bad: #ef7a72; --bad-soft: #3a1d1b; --info: #78aef0; --info-soft: #172a40;
+    --shadow: none; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131316; --surface: #1c1c21; --surface-2: #24242b; --text: #ecebe8; --muted: #9a978f;
+  --line: #2f2f37; --accent: #9d93ff; --accent-soft: #2a2747;
+  --ok: #55c785; --ok-soft: #173325; --warn: #e3a64a; --warn-soft: #362a16;
+  --bad: #ef7a72; --bad-soft: #3a1d1b; --info: #78aef0; --info-soft: #172a40;
+  --shadow: none; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 20px 16px 60px; }
+header.top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+.brand { font-weight: 700; font-size: 17px; letter-spacing: -.01em; }
+.brand span { color: var(--muted); font-weight: 500; }
+.games { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.game-tab { border: 1px solid var(--line); background: var(--surface); color: var(--text); border-radius: 999px; padding: 5px 12px; cursor: pointer; font: inherit; font-size: 13px; }
+.game-tab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.live { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+.dot.stale { background: var(--muted); }
+.theme-btn { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 8px; padding: 4px 8px; cursor: pointer; font-size: 12px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; }
+.hero { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: end; margin-bottom: 16px; }
+.hero h1 { margin: 0 0 4px; font-size: 26px; letter-spacing: -.02em; }
+.pitch { color: var(--muted); margin: 0; max-width: 70ch; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.chip { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: var(--surface-2); color: var(--muted); }
+.progress-num { text-align: right; }
+.progress-num b { font-size: 30px; letter-spacing: -.02em; }
+.bar { height: 8px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-top: 14px; grid-column: 1 / -1; display: flex; }
+.bar i { display: block; height: 100%; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat { padding: 12px 14px; }
+.stat .n { font-size: 22px; font-weight: 700; }
+.stat .l { font-size: 12px; color: var(--muted); }
+
+.now { border-left: 4px solid var(--accent); margin-bottom: 16px; }
+.now.blocked { border-left-color: var(--bad); }
+.now h2 { margin: 2px 0 6px; font-size: 19px; }
+.eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; }
+.criteria { margin: 8px 0 0; padding-left: 18px; }
+
+.grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; align-items: start; }
+section h3 { margin: 0 0 12px; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+section h3 .count { font-size: 12px; color: var(--muted); font-weight: 500; }
+.stack { display: grid; gap: 16px; }
+
+.phase { border-top: 1px solid var(--line); }
+.phase:first-of-type { border-top: 0; }
+.phase summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; padding: 10px 0; align-items: center; }
+.phase summary::-webkit-details-marker { display: none; }
+.pid { font: 600 12px ui-monospace, Consolas, monospace; color: var(--muted); }
+.ptitle { font-weight: 550; }
+.pbody { padding: 0 0 14px 62px; font-size: 14px; }
+.pbody ul { margin: 4px 0 8px; padding-left: 18px; }
+.pbody .meta { color: var(--muted); font-size: 13px; }
+.thumb { display: block; width: 100%; max-width: 420px; border-radius: 8px; border: 1px solid var(--line); margin-top: 8px; }
+
+.badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.b-hecha, .b-resuelto, .b-baja { background: var(--ok-soft); color: var(--ok); }
+.b-en-curso, .b-media { background: var(--info-soft); color: var(--info); }
+.b-pendiente { background: var(--surface-2); color: var(--muted); }
+.b-bloqueada, .b-abierto, .b-alta { background: var(--bad-soft); color: var(--bad); }
+
+.item { padding: 10px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.item:first-of-type { border-top: 0; padding-top: 0; }
+.item .why { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.item .row { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
+.item.closed { opacity: .5; }
+
+.err { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.err:first-of-type { border-top: 0; padding-top: 0; }
+.err .k { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
+.err-head { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); }
+
+.feed { font-size: 13px; max-height: 360px; overflow: auto; }
+.feed div { padding: 5px 0; border-top: 1px dashed var(--line); display: grid; grid-template-columns: 74px 1fr; gap: 8px; }
+.feed div:first-child { border-top: 0; }
+.feed time { color: var(--muted); font-variant-numeric: tabular-nums; }
+.concept b { display: block; }
+.empty { color: var(--muted); font-size: 14px; font-style: italic; }
+.welcome { text-align: center; padding: 60px 20px; }
+.welcome code { background: var(--surface-2); padding: 2px 6px; border-radius: 6px; }
+
+.view-tab { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 8px; padding: 4px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+.view-tab[aria-pressed="true"] { color: var(--text); border-color: var(--accent); }
+.guide { columns: 2; column-gap: 16px; }
+.guide > .card { break-inside: avoid; margin-bottom: 16px; }
+.guide .intro { column-span: all; }
+.guide .intro p { margin: 4px 0 0; color: var(--muted); }
+.where { font-size: 12px; color: var(--muted); margin: -6px 0 10px; }
+.cmd { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; border-top: 1px solid var(--line); align-items: center; }
+.cmd:first-of-type { border-top: 0; padding-top: 0; }
+.cmd code { font: 13px ui-monospace, Consolas, monospace; background: var(--surface-2); padding: 3px 7px; border-radius: 6px; overflow-wrap: anywhere; justify-self: start; }
+.cmd .what { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+.copy { border: 1px solid var(--line); background: var(--surface); color: var(--muted); border-radius: 6px; padding: 2px 8px; cursor: pointer; font-size: 12px; }
+.copy.ok { color: var(--ok); border-color: var(--ok); }
+.tips { margin: 0; padding-left: 18px; font-size: 14px; }
+.tips li { margin: 4px 0; }
+@media (max-width: 860px) { .guide { columns: 1; } }
+
+@media (max-width: 860px) {
+  .grid { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .err { grid-template-columns: 1fr; }
+  .hero { grid-template-columns: 1fr; }
+  .progress-num { text-align: left; }
+  .pbody { padding-left: 0; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div class="brand">Estudio <span>· panel</span></div>
+    <nav class="games" id="games" aria-label="Juegos"></nav>
+    <button class="view-tab" id="v-progreso" type="button">Progreso</button>
+    <button class="view-tab" id="v-guia" type="button">Comandos</button>
+    <button class="view-tab" id="v-modelos" type="button">Modelos</button>
+    <div class="live"><span class="dot" id="dot"></span><span id="updated">—</span></div>
+    <button class="theme-btn" id="theme" type="button" title="Cambiar tema">◐</button>
+  </header>
+  <main id="app"><p class="empty">Cargando…</p></main>
+</div>
+<script>
+const $ = (s) => document.querySelector(s);
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+let juego = store.get('panel.juego');
+let ultimo = null;
+
+const t = store.get('panel.tema'); if (t) document.documentElement.dataset.theme = t;
+$('#theme').onclick = () => {
+  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const cur = document.documentElement.dataset.theme || (dark ? 'dark' : 'light');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next; store.set('panel.tema', next);
+};
+
+function hace(iso) {
+  if (!iso) return '—';
+  const s = Math.round((Date.now() - new Date(iso)) / 1000);
+  if (s < 60) return 'hace un momento';
+  if (s < 3600) return `hace ${Math.round(s / 60)} min`;
+  if (s < 86400) return `hace ${Math.round(s / 3600)} h`;
+  return new Date(iso).toLocaleDateString('es', { day: 'numeric', month: 'short' });
+}
+const hora = (iso) => new Date(iso).toLocaleString('es', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+function dur(a, b) {
+  if (!a || !b) return '';
+  const m = Math.round((new Date(b) - new Date(a)) / 60000);
+  return m < 60 ? `${m} min` : `${Math.floor(m / 60)} h ${m % 60} min`;
+}
+const badge = (txt) => `<span class="badge b-${esc(txt)}">${esc(txt)}</span>`;
+const prio = { alta: 0, media: 1, baja: 2 };
+const porPrio = (a, b) => (a.cerrado - b.cerrado) || ((prio[a.prioridad] ?? 1) - (prio[b.prioridad] ?? 1));
+
+function fase(f, slug) {
+  const v = f.verificacion || {};
+  const capturas = [].concat(v.captura || v.capturas || []);
+  return `<details class="phase" data-id="${esc(f.id)}">
+    <summary><span class="pid">${esc(f.id)}</span><span class="ptitle">${esc(f.titulo)}</span>${badge(f.estado)}</summary>
+    <div class="pbody">
+      ${f.objetivo ? `<div>${esc(f.objetivo)}</div>` : ''}
+      ${f.criterios?.length ? `<div class="meta" style="margin-top:6px">Criterios</div><ul>${f.criterios.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
+      ${f.hecho?.length ? `<div class="meta">Hecho</div><ul>${f.hecho.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
+      ${f.motivo ? `<div class="meta">Motivo del bloqueo: ${esc(f.motivo)}</div>` : ''}
+      <div class="meta">${[v.tests && `Tests: ${esc(v.tests)}`, v.resultado && esc(v.resultado), dur(f.inicio, f.fin) && `Duración: ${dur(f.inicio, f.fin)}`, f.commit && `Commit ${esc(f.commit)}`].filter(Boolean).join(' · ')}</div>
+      ${capturas.map((c) => `<a href="/evidencia/${esc(slug)}/${esc(c)}" target="_blank"><img class="thumb" loading="lazy" src="/evidencia/${esc(slug)}/${esc(c)}" alt="Captura ${esc(f.id)}"></a>`).join('')}
+    </div></details>`;
+}
+
+function lista(items, render, vacio) {
+  return items.length ? items.map(render).join('') : `<p class="empty">${vacio}</p>`;
+}
+
+function render(e) {
+  const slug = e.juego.slug;
+  const F = e.fases || [];
+  const n = (s) => F.filter((f) => f.estado === s).length;
+  const total = F.length || 1;
+  const actual = F.find((f) => f.estado === 'en-curso') || F.find((f) => f.estado === 'bloqueada');
+  const sig = F.find((f) => f.estado === 'pendiente');
+  const errAb = e.errores.filter((x) => x.estado === 'abierto').length;
+  const faltAb = e.faltantes.filter((x) => !x.cerrado);
+  const recoAb = e.recomendaciones.filter((x) => !x.cerrado);
+  const abiertos = new Set([...document.querySelectorAll('details.phase[open]')].map((d) => d.dataset.id));
+
+  $('#app').innerHTML = `
+  <div class="card hero">
+    <div>
+      <h1>${esc(e.juego.nombre)}</h1>
+      ${e.juego.pitch ? `<p class="pitch">${esc(e.juego.pitch)}</p>` : ''}
+      <div class="chips">${[e.juego.motor, e.juego.genero, ...(e.juego.pilares || [])].filter(Boolean).map((c) => `<span class="chip">${esc(c)}</span>`).join('')}</div>
+    </div>
+    <div class="progress-num"><b>${n('hecha')}</b> <span style="color:var(--muted)">/ ${F.length} fases</span></div>
+    <div class="bar" title="hechas · en curso · bloqueadas">
+      <i style="width:${(n('hecha') / total) * 100}%;background:var(--ok)"></i>
+      <i style="width:${(n('en-curso') / total) * 100}%;background:var(--info)"></i>
+      <i style="width:${(n('bloqueada') / total) * 100}%;background:var(--bad)"></i>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="card stat"><div class="n">${e.errores.length}</div><div class="l">errores encontrados · ${errAb} abiertos</div></div>
+    <div class="card stat"><div class="n">${faltAb.length}</div><div class="l">cosas que faltan</div></div>
+    <div class="card stat"><div class="n">${recoAb.length}</div><div class="l">recomendaciones</div></div>
+    <div class="card stat"><div class="n">${e.decisiones.length}</div><div class="l">decisiones para revisar</div></div>
+  </div>
+
+  ${actual ? `<div class="card now ${actual.estado === 'bloqueada' ? 'blocked' : ''}">
+      <div class="eyebrow">${actual.estado === 'bloqueada' ? 'Bloqueada — necesita tu atención' : 'Ahora mismo'} · ${esc(actual.id)}</div>
+      <h2>${esc(actual.titulo)}</h2>
+      <div>${esc(actual.objetivo)}</div>
+      ${actual.motivo ? `<div style="color:var(--bad);margin-top:6px">${esc(actual.motivo)}</div>` : ''}
+      ${actual.criterios?.length ? `<ul class="criteria">${actual.criterios.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
+    </div>` : `<div class="card now"><div class="eyebrow">Ahora mismo</div><h2>Sin fase en curso</h2><div>${sig ? `Siguiente: <b>${esc(sig.id)} ${esc(sig.titulo)}</b>` : 'No hay fases pendientes.'}</div></div>`}
+
+  <div class="grid">
+    <div class="stack">
+      <section class="card"><h3>Fases <span class="count">${n('hecha')} hechas · ${n('pendiente')} pendientes</span></h3>
+        ${lista(F, (f) => fase(f, slug), 'Todavía no hay roadmap. Usa /roadmap.')}
+      </section>
+      <section class="card"><h3>Errores y cómo se resolvieron <span class="count">${e.errores.length}</span></h3>
+        ${lista([...e.errores].reverse(), (x) => `<div class="err">
+          <div class="err-head"><span class="pid">${esc(x.id)}</span>${x.fase ? `<span>${esc(x.fase)}</span>` : ''}${badge(x.estado)}<span>${hora(x.t)}</span></div>
+          <div><div class="k">Síntoma</div>${esc(x.sintoma)}</div>
+          <div><div class="k">Causa</div>${esc(x.causa || '—')}</div>
+          <div><div class="k">Solución</div>${esc(x.solucion || '—')}</div></div>`, 'Sin errores registrados.')}
+      </section>
+      <section class="card"><h3>Decisiones que tomó Claude <span class="count">revísalas cuando puedas</span></h3>
+        ${lista([...e.decisiones].reverse(), (x) => `<div class="item"><div class="row"><span>${esc(x.texto)}</span>${x.fase ? `<span class="pid">${esc(x.fase)}</span>` : ''}</div>${x.porque ? `<div class="why">${esc(x.porque)}</div>` : ''}</div>`, 'Sin decisiones registradas.')}
+      </section>
+    </div>
+    <div class="stack">
+      <section class="card"><h3>Lo que falta <span class="count">${faltAb.length} abiertos</span></h3>
+        ${lista([...e.faltantes].sort(porPrio), (x) => `<div class="item ${x.cerrado ? 'closed' : ''}"><div class="row"><span>${esc(x.texto)}</span>${badge(x.prioridad)}</div>${x.area ? `<div class="why">${esc(x.area)}</div>` : ''}</div>`, 'Nada pendiente detectado.')}
+      </section>
+      <section class="card"><h3>Recomendaciones <span class="count">${recoAb.length} abiertas</span></h3>
+        ${lista([...e.recomendaciones].sort(porPrio), (x) => `<div class="item ${x.cerrado ? 'closed' : ''}"><div class="row"><span><b>${esc(x.area || 'general')}</b> · ${esc(x.texto)}</span>${badge(x.prioridad)}</div>${x.porque ? `<div class="why">${esc(x.porque)}</div>` : ''}</div>`, 'Sin recomendaciones todavía.')}
+      </section>
+      <section class="card"><h3>Conceptos que vas aprendiendo <span class="count">${e.conceptos.length}</span></h3>
+        ${lista([...e.conceptos].reverse(), (x) => `<div class="item concept"><b>${esc(x.concepto)}</b><span class="why">${esc(x.explicacion)}</span></div>`, 'Aquí aparecerán conceptos de gamedev explicados.')}
+      </section>
+      <section class="card"><h3>Actividad reciente</h3>
+        <div class="feed">${lista(e.actividad.slice(0, 40), (a) => `<div><time>${hora(a.t)}</time><span>${esc(a.texto)}</span></div>`, 'Sin actividad.')}</div>
+      </section>
+    </div>
+  </div>`;
+  abiertos.forEach((id) => document.querySelector(`details.phase[data-id="${CSS.escape(id)}"]`)?.setAttribute('open', ''));
+}
+
+let vista = ['guia', 'modelos'].includes(store.get('panel.vista')) ? store.get('panel.vista') : 'progreso';
+function marcarVista() {
+  $('#v-progreso').setAttribute('aria-pressed', vista === 'progreso');
+  $('#v-guia').setAttribute('aria-pressed', vista === 'guia');
+  $('#v-modelos').setAttribute('aria-pressed', vista === 'modelos');
+}
+for (const v of ['progreso', 'guia', 'modelos']) $(`#v-${v}`).onclick = () => { vista = v; store.set('panel.vista', v); ultimo = null; marcarVista(); tick(); };
+marcarVista();
+
+const cmd = (c, what) => `<div class="cmd"><code>${esc(c)}</code><button class="copy" type="button" data-c="${esc(c)}">copiar</button><div class="what">${what}</div></div>`;
+function guia(slug) {
+  const s = slug || '<juego>';
+  $('#app').innerHTML = `<div class="guide">
+    <div class="card intro"><h2 style="margin:0">Comandos para trabajar con el estudio</h2>
+      <p>Los comandos con <b>/</b> se escriben en Claude Code. Los demás, en una terminal (Git Bash o PowerShell). El juego activo es <b>${esc(s)}</b>.</p></div>
+
+    <section class="card"><h3>Sesiones A · B · C</h3><div class="where">Tres sesiones de Claude Code abiertas en D:\Proyectos GC</div>
+      ${cmd('Eres la sesión A del estudio. Lee .claude/docs/sesiones.md y coordina a B y C.', '<b>A · Opus 5.5 alto:</b> habla contigo, diseña y reparte el trabajo. Es con quien hablas tú.')}
+      ${cmd('Eres la sesión B del estudio. Lee .claude/docs/sesiones.md y preséntate a A.', '<b>B · Sonnet 5.5 alto:</b> implementa las fases que le pasa A.')}
+      ${cmd('Eres la sesión C del estudio. Lee .claude/docs/sesiones.md y preséntate a A.', '<b>C · Sonnet 5 medio:</b> verificaciones, ajustes, documentación y bitácora.')}
+      <div class="what" style="margin-top:8px">Cuando una sesión se llena de contexto (o lo avisa), ciérrala, abre otra con el mismo modelo y pégale su frase. No se pierde nada: la memoria está en la bitácora.</div>
+    </section>
+
+    <section class="card"><h3>Trabajar con Claude</h3><div class="where">En Claude Code, abierto en D:\\Proyectos GC</div>
+      ${cmd('/autopiloto', 'Deja a Claude encadenando fases solo durante horas. Para hasta n fases o al primer bloqueo: <code>/autopiloto 5</code>.')}
+      ${cmd('/fase', 'Ejecuta la siguiente fase completa: implementa, verifica, registra y hace commit. Puedes indicar una concreta: <code>/fase F03</code>.')}
+      ${cmd('/playtest', 'Claude juega con scripts en un navegador real y anota bugs, sensaciones y huecos de diseño.')}
+      ${cmd('/bug ', 'Describe un fallo que hayas visto: lo reproduce, crea un test, lo arregla y lo registra.')}
+      ${cmd('/carencias', 'Auditoría de diseño: qué falta, qué sobra y qué recomienda, con prioridades.')}
+      ${cmd('/explicar ', 'Te enseña un concepto de gamedev con el código del juego, por ejemplo <code>/explicar InstancedMesh</code>.')}
+      ${cmd('/roadmap replanificar', 'Reorganiza las fases pendientes, por ejemplo al empezar una versión nueva (v0.2, v0.3…).')}
+      ${cmd('/prototipo ', 'Prueba una idea de mecánica en menos de un día y da un veredicto: SEGUIR, CAMBIAR o DESCARTAR.')}
+      ${cmd('/postmortem', 'Cierra una versión o un juego y guarda las lecciones en studio/aprendizajes.md.')}
+    </section>
+
+    <section class="card"><h3>Jugar y probar el juego</h3><div class="where">Terminal, desde D:\\Proyectos GC</div>
+      ${cmd(`cd games/${s} && npm run dev`, 'Arranca el juego. Ábrelo en <b>http://localhost:5173</b>. Se recarga solo cuando Claude cambia el código.')}
+      ${cmd(`cd games/${s} && npm run check`, 'Comprueba los tipos y pasa todos los tests. Si sale en verde, la lógica está bien.')}
+      ${cmd(`cd games/${s} && npm run shot -- --sin-captura`, 'Abre el juego en un navegador invisible y devuelve su estado y sus errores en JSON.')}
+      ${cmd(`cd games/${s} && npm run build`, 'Genera la versión publicable en <code>dist/</code>.')}
+    </section>
+
+    <section class="card"><h3>Panel y bitácora</h3><div class="where">Terminal, desde D:\\Proyectos GC</div>
+      ${cmd('npm run panel', 'Abre este panel en <b>http://localhost:4400</b>. Se actualiza solo cada 5 s.')}
+      ${cmd('node studio/bitacora.mjs estado', 'Resumen rápido del juego activo: fase en curso y siguiente.')}
+      ${cmd('node studio/bitacora.mjs juegos', 'Lista todos los juegos del estudio con su progreso.')}
+      ${cmd('node studio/bitacora.mjs usar ' + s, 'Cambia el juego activo con el que trabaja Claude.')}
+      ${cmd('git log --oneline -15', 'Historial: hay un commit por fase cerrada.')}
+    </section>
+
+    <section class="card"><h3>Claude Code: atajos útiles</h3><div class="where">Dentro de Claude Code</div>
+      ${cmd('Esc', 'Interrumpe a Claude en mitad de lo que está haciendo, sin perder el trabajo.')}
+      ${cmd('! npm run dev', 'Con <b>!</b> delante, ejecutas un comando de terminal sin salir de Claude Code.')}
+      ${cmd('/clear', 'Empieza una conversación limpia. Claude retoma desde la bitácora, así que no se pierde nada.')}
+      ${cmd('/resume', 'Vuelve a una conversación anterior.')}
+      ${cmd('/model', 'Cambia el modelo. Para fases largas, el más capaz.')}
+      ${cmd('/effort', 'Ajusta cuánto piensa Claude: más esfuerzo es más calidad, pero gasta más.')}
+    </section>
+
+    <section class="card intro"><h3>Cómo trabajar mejor</h3><ul class="tips">
+      <li>Lanza <code>/autopiloto</code> antes de irte y revisa aquí al volver: <b>Progreso → Decisiones</b> te dice qué decidió Claude sin preguntarte.</li>
+      <li>Si algo no te gusta al jugar, descríbelo con <code>/bug</code> (si es un fallo) o en lenguaje normal (si es una idea de diseño).</li>
+      <li>Antes de empezar cada versión nueva (v0.2…), pide <code>/carencias</code> y después <code>/roadmap replanificar</code>.</li>
+      <li>Los documentos de diseño están en <code>games/${esc(s)}/docs/</code>: vision.md, gdd/ y versiones.md.</li>
+    </ul></section>
+  </div>`;
+  document.querySelectorAll('.copy').forEach((b) => b.onclick = async () => {
+    try { await navigator.clipboard.writeText(b.dataset.c.trim()); b.textContent = 'copiado'; b.classList.add('ok'); }
+    catch { b.textContent = 'selecciónalo'; }
+    setTimeout(() => { b.textContent = 'copiar'; b.classList.remove('ok'); }, 1500);
+  });
+}
+
+async function tick() {
+  try {
+    const js = await (await fetch('/api/juegos')).json();
+    if (!js.length) {
+      $('#games').innerHTML = '';
+      $('#app').innerHTML = `<div class="card welcome"><h2>Aún no hay juegos</h2><p>En Claude Code ejecuta <code>/nuevo-juego</code> para crear el primero.</p></div>`;
+      $('#updated').textContent = 'esperando'; return;
+    }
+    if (!juego || !js.some((g) => g.slug === juego)) juego = (js.find((g) => g.activo) || js[0]).slug;
+    $('#games').innerHTML = js.map((g) => `<button class="game-tab" type="button" data-slug="${esc(g.slug)}" aria-pressed="${g.slug === juego}">${esc(g.nombre)} · ${g.hechas}/${g.fases}${g.activo ? ' ●' : ''}</button>`).join('');
+    document.querySelectorAll('.game-tab').forEach((b) => b.onclick = () => { juego = b.dataset.slug; store.set('panel.juego', juego); ultimo = null; tick(); });
+    if (vista === 'modelos') {
+      // La pestaña se pinta una vez por juego: no se repinta en cada tick (perdería filtros y foco).
+      if (ultimo !== 'modelos:' + juego && window.panelModelos) { window.panelModelos.mostrar(juego, $('#app')); ultimo = 'modelos:' + juego; }
+      $('#updated').textContent = 'modelos'; return;
+    }
+    if (vista === 'guia') { if (ultimo !== 'guia:' + juego) { guia(juego); ultimo = 'guia:' + juego; } $('#updated').textContent = 'guía'; return; }
+    const r = await fetch(`/api/estado/${encodeURIComponent(juego)}`);
+    if (!r.ok) { $('#app').innerHTML = `<div class="card welcome"><p>Este juego aún no tiene bitácora.</p></div>`; return; }
+    const e = await r.json();
+    if (e.actualizado !== ultimo) { render(e); ultimo = e.actualizado; }
+    $('#updated').textContent = `actualizado ${hace(e.actualizado)}`;
+    $('#dot').classList.toggle('stale', Date.now() - new Date(e.actualizado) > 30 * 60 * 1000);
+  } catch {
+    $('#updated').textContent = 'sin conexión con el servidor';
+    $('#dot').classList.add('stale');
+  }
+}
+tick();
+setInterval(tick, 5000);
+</script>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+<script type="module">
+// Pestaña «Modelos»: todos los modelos 3D del juego (propios y descargados CC0) con filtros,
+// miniaturas, visor interactivo y comparación lado a lado.
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const $m = (s, r = document) => r.querySelector(s);
+const escM = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const guardar = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const leer = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+
+const estilo = document.createElement('style');
+estilo.textContent = `
+.mod-bar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px }
+.mod-bar input[type=search] { flex:1 1 220px; min-width:0; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text); font:inherit }
+.mod-grupo { display:flex; flex-wrap:wrap; gap:6px; align-items:center }
+.mod-grupo .lbl { font-size:12px; color:var(--muted); margin-right:2px }
+.chip { padding:4px 10px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--text); font:inherit; font-size:13px; cursor:pointer }
+.chip[aria-pressed=true] { background:var(--accent-soft); border-color:var(--accent); color:var(--accent) }
+.mod-acc { margin-left:auto; display:flex; gap:6px }
+.btn { padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text); font:inherit; cursor:pointer }
+.btn.prim { background:var(--accent); border-color:var(--accent); color:#fff }
+.btn:disabled { opacity:.45; cursor:default }
+.mod-cuenta { font-size:13px; color:var(--muted); margin:4px 0 10px }
+.mod-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:10px }
+.mod-card { background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column }
+.mod-card.sel { outline:2px solid var(--accent); outline-offset:-2px }
+.mod-mini { aspect-ratio: 6/5; background:linear-gradient(180deg, #e9dcc0, #cdb88c); display:block; width:100%; cursor:zoom-in; border:0; padding:0 }
+.mod-mini img { width:100%; height:100%; object-fit:contain; display:block }
+.mod-info { padding:8px 10px; display:flex; flex-direction:column; gap:4px; font-size:12px }
+.mod-nombre { font-weight:650; font-size:13px; overflow-wrap:anywhere }
+.mod-tags { display:flex; flex-wrap:wrap; gap:4px }
+.tag { padding:1px 7px; border-radius:999px; background:var(--surface-2); color:var(--muted) }
+.tag.propio { background:var(--ok-soft); color:var(--ok) } .tag.descargado { background:var(--info-soft); color:var(--info) }
+.mod-cmp { display:flex; align-items:center; gap:6px; color:var(--muted); cursor:pointer }
+.visor { position:fixed; inset:0; background:rgba(10,10,12,.72); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px }
+.visor-caja { background:var(--surface); border-radius:var(--radius); width:min(1100px, 100%); height:min(760px, 100%); display:flex; flex-direction:column; overflow:hidden }
+.visor-cab { display:flex; gap:8px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line); flex-wrap:wrap }
+.visor-cab h3 { margin:0; font-size:15px; flex:1 1 200px; min-width:0; overflow-wrap:anywhere }
+.visor-lienzo { flex:1; min-height:0; position:relative; background:linear-gradient(180deg, #f3e3c4, #d2bb8e) }
+.visor-lienzo canvas { display:block; width:100%; height:100% }
+.visor-rot { position:absolute; transform:translate(-50%,0); font:600 12px system-ui,sans-serif; color:#2a2016; white-space:nowrap; pointer-events:none; text-shadow:0 1px 0 rgba(255,255,255,.7) }
+.visor-pie { padding:8px 12px; font-size:12px; color:var(--muted); border-top:1px solid var(--line) }
+`;
+document.head.appendChild(estilo);
+
+// ── Escena común: la misma luz cálida que el juego ───────────────────────────────────────
+function luces(escena) {
+  escena.add(new THREE.HemisphereLight('#cfe2ff', '#b08a5a', 1.1));
+  const sol = new THREE.DirectionalLight('#ffe6b8', 2.4);
+  sol.position.set(-4, 8, 5);
+  escena.add(sol);
+}
+const cargador = new GLTFLoader();
+const cacheModelo = new Map();
+function cargar(url) {
+  if (!cacheModelo.has(url)) cacheModelo.set(url, cargador.loadAsync(url).then((g) => g.scene));
+  return cacheModelo.get(url).then((s) => s.clone(true));
+}
+/** Coloca el objeto con la base en y=0, centrado, y devuelve su tamaño. */
+function asentar(obj, altoObjetivo) {
+  const caja = new THREE.Box3().setFromObject(obj);
+  const tam = caja.getSize(new THREE.Vector3());
+  const k = altoObjetivo ? altoObjetivo / Math.max(tam.y, 1e-3) : 1;
+  obj.scale.multiplyScalar(k);
+  const caja2 = new THREE.Box3().setFromObject(obj);
+  const c = caja2.getCenter(new THREE.Vector3());
+  obj.position.x -= c.x; obj.position.z -= c.z; obj.position.y -= caja2.min.y;
+  return caja2.getSize(new THREE.Vector3());
+}
+function encuadrar(camara, tam, centroY = tam.y / 2) {
+  const r = Math.max(tam.x, tam.y, tam.z) * 0.62;
+  const d = r / Math.tan(THREE.MathUtils.degToRad(camara.fov / 2)) * 1.15;
+  camara.position.set(d * 0.55, centroY + d * 0.45, d * 0.75);
+  camara.lookAt(0, centroY, 0);
+}
+
+// ── Miniaturas: un único renderer que dibuja en cola y guarda PNG ─────────────────────────
+const MINI = { w: 300, h: 250 };
+let rMini = null;
+const miniaturas = new Map();
+const cola = [];
+let trabajando = false;
+function pedirMiniatura(m, img) {
+  if (miniaturas.has(m.url)) { img.src = miniaturas.get(m.url); return; }
+  cola.push({ m, img });
+  if (!trabajando) procesar();
+}
+async function procesar() {
+  trabajando = true;
+  if (!rMini) {
+    rMini = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    rMini.setSize(MINI.w, MINI.h);
+    rMini.toneMapping = THREE.ACESFilmicToneMapping;
+    rMini.outputColorSpace = THREE.SRGBColorSpace;
+  }
+  while (cola.length) {
+    const { m, img } = cola.shift();
+    if (!img.isConnected) continue;
+    try {
+      const escena = new THREE.Scene();
+      luces(escena);
+      const obj = await cargar(m.url);
+      const tam = asentar(obj);
+      escena.add(obj);
+      const camara = new THREE.PerspectiveCamera(30, MINI.w / MINI.h, 0.01, 1000);
+      encuadrar(camara, tam);
+      rMini.render(escena, camara);
+      const url = rMini.domElement.toDataURL('image/png');
+      miniaturas.set(m.url, url);
+      img.src = url;
+    } catch (e) {
+      img.alt = 'No se pudo cargar';
+      console.warn('[modelos]', m.url, e);
+    }
+  }
+  trabajando = false;
+}
+
+// ── Visor interactivo (uno o varios modelos lado a lado) ──────────────────────────────────
+let visorActual = null;
+async function abrirVisor(lista) {
+  cerrarVisor();
+  const fondo = document.createElement('div');
+  fondo.className = 'visor';
+  fondo.innerHTML = `<div class="visor-caja" role="dialog" aria-label="Visor de modelos">
+    <div class="visor-cab"><h3>${lista.length === 1 ? escM(lista[0].nombre) : `Comparando ${lista.length} modelos`}</h3>
+      ${lista.length > 1 ? `<label class="mod-cmp"><input type="checkbox" id="v-igualar" checked> Igualar altura</label>` : ''}
+      <button class="btn" type="button" id="v-cerrar">Cerrar (Esc)</button></div>
+    <div class="visor-lienzo" id="v-lienzo"></div>
+    <div class="visor-pie">${lista.map((m) => `<b>${escM(m.nombre)}</b> · ${escM(m.paquete)} · ${escM(m.licencia)} · ${(m.bytes / 1024).toFixed(0)} KB`).join('<br>')}<br>Arrastra para girar, rueda para acercar y botón derecho para desplazar.</div></div>`;
+  document.body.appendChild(fondo);
+  const lienzo = $m('#v-lienzo', fondo);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  lienzo.appendChild(renderer.domElement);
+  const escena = new THREE.Scene();
+  luces(escena);
+  const camara = new THREE.PerspectiveCamera(35, 1, 0.01, 2000);
+  const control = new OrbitControls(camara, renderer.domElement);
+  control.enableDamping = true;
+  const objetos = await Promise.all(lista.map((m) => cargar(m.url).catch(() => new THREE.Group())));
+  const rotulos = lista.map((m) => { const d = document.createElement('div'); d.className = 'visor-rot'; d.textContent = m.nombre; lienzo.appendChild(d); return d; });
+  const grupo = new THREE.Group();
+  escena.add(grupo);
+  const anclas = [];
+  function colocar(igualar) {
+    grupo.clear(); anclas.length = 0;
+    const tams = objetos.map((o) => { o.scale.setScalar(1); o.position.set(0, 0, 0); return asentar(o, igualar ? 1 : 0); });
+    const ancho = tams.reduce((s, t) => s + Math.max(t.x, t.z) * 1.25, 0);
+    let x = -ancho / 2;
+    objetos.forEach((o, i) => { const w = Math.max(tams[i].x, tams[i].z) * 1.25; o.position.x += x + w / 2; grupo.add(o); anclas.push(new THREE.Vector3(x + w / 2, 0, tams[i].z * 0.6)); x += w; });
+    const caja = new THREE.Box3().setFromObject(grupo);
+    const tam = caja.getSize(new THREE.Vector3());
+    camara.aspect = lienzo.clientWidth / Math.max(1, lienzo.clientHeight); camara.updateProjectionMatrix();
+    encuadrar(camara, tam);
+    control.target.set(0, tam.y / 2, 0);
+  }
+  colocar(true);
+  $m('#v-igualar', fondo)?.addEventListener('change', (e) => colocar(e.target.checked));
+  const redimensionar = () => { renderer.setSize(lienzo.clientWidth, lienzo.clientHeight); camara.aspect = lienzo.clientWidth / Math.max(1, lienzo.clientHeight); camara.updateProjectionMatrix(); };
+  redimensionar();
+  const ro = new ResizeObserver(redimensionar); ro.observe(lienzo);
+  const v = new THREE.Vector3();
+  renderer.setAnimationLoop(() => {
+    control.update();
+    renderer.render(escena, camara);
+    anclas.forEach((a, i) => { v.copy(a).project(camara); rotulos[i].style.left = `${(v.x + 1) / 2 * lienzo.clientWidth}px`; rotulos[i].style.top = `${(1 - v.y) / 2 * lienzo.clientHeight + 6}px`; });
+  });
+  const teclas = (e) => { if (e.key === 'Escape') cerrarVisor(); };
+  addEventListener('keydown', teclas);
+  fondo.addEventListener('click', (e) => { if (e.target === fondo) cerrarVisor(); });
+  $m('#v-cerrar', fondo).onclick = cerrarVisor;
+  visorActual = () => { renderer.setAnimationLoop(null); ro.disconnect(); control.dispose(); renderer.dispose(); removeEventListener('keydown', teclas); fondo.remove(); };
+}
+function cerrarVisor() { visorActual?.(); visorActual = null; }
+
+// ── Pestaña ──────────────────────────────────────────────────────────────────────────────
+const filtros = leer('panel.modelos.filtros', { texto: '', paquetes: [], categorias: [], origen: 'todos' });
+let seleccion = new Set();
+let lista = [];
+let app = null;
+
+function filtrar() {
+  const t = filtros.texto.trim().toLowerCase();
+  return lista.filter((m) => (!t || `${m.nombre} ${m.paquete} ${m.categoria}`.toLowerCase().includes(t))
+    && (!filtros.paquetes.length || filtros.paquetes.includes(m.paquete))
+    && (!filtros.categorias.length || filtros.categorias.includes(m.categoria))
+    && (filtros.origen === 'todos' || m.origen === filtros.origen));
+}
+const chips = (valores, activos, data) => valores.map((v) => `<button class="chip" type="button" data-${data}="${escM(v)}" aria-pressed="${activos.includes(v)}">${escM(v)}</button>`).join('');
+
+function pintar() {
+  const unicos = (k) => [...new Set(lista.map((m) => m[k]))].sort();
+  const vis = filtrar();
+  app.innerHTML = `<div class="card" style="margin-bottom:10px">
+    <div class="mod-bar"><input type="search" id="m-texto" placeholder="Buscar modelo (palm, roca, choza…)" value="${escM(filtros.texto)}">
+      <div class="mod-acc"><button class="btn" type="button" id="m-limpiar">Limpiar filtros</button>
+      <button class="btn prim" type="button" id="m-comparar" ${seleccion.size < 1 ? 'disabled' : ''}>Comparar (${seleccion.size})</button></div></div>
+    <div class="mod-bar"><div class="mod-grupo"><span class="lbl">Origen</span>${['todos', 'propio', 'descargado'].map((o) => `<button class="chip" type="button" data-origen="${o}" aria-pressed="${filtros.origen === o}">${o}</button>`).join('')}</div></div>
+    <div class="mod-bar"><div class="mod-grupo"><span class="lbl">Paquete</span>${chips(unicos('paquete'), filtros.paquetes, 'paquete')}</div></div>
+    <div class="mod-bar"><div class="mod-grupo"><span class="lbl">Categoría</span>${chips(unicos('categoria'), filtros.categorias, 'categoria')}</div></div>
+    <div class="mod-cuenta">${vis.length} de ${lista.length} modelos · marca varios y pulsa «Comparar» para verlos juntos (p. ej. palmeras propias contra las de Kenney).</div>
+  </div>
+  <div class="mod-grid">${vis.map((m) => `<div class="mod-card ${seleccion.has(m.id) ? 'sel' : ''}" data-id="${escM(m.id)}">
+      <button class="mod-mini" type="button" data-ver="${escM(m.id)}" title="Ver en 3D"><img alt="${escM(m.nombre)}"></button>
+      <div class="mod-info"><div class="mod-nombre">${escM(m.nombre)}</div>
+        <div class="mod-tags"><span class="tag ${escM(m.origen)}">${escM(m.origen)}</span><span class="tag">${escM(m.paquete)}</span><span class="tag">${escM(m.categoria)}</span><span class="tag">${escM(m.licencia)}</span></div>
+        <label class="mod-cmp"><input type="checkbox" data-sel="${escM(m.id)}" ${seleccion.has(m.id) ? 'checked' : ''}> comparar</label></div></div>`).join('') || '<p class="empty">Ningún modelo con estos filtros.</p>'}</div>`;
+
+  vis.forEach((m) => pedirMiniatura(m, $m(`.mod-card[data-id="${CSS.escape(m.id)}"] img`, app)));
+  const alCambiar = () => { guardar('panel.modelos.filtros', filtros); pintar(); };
+  const texto = $m('#m-texto', app);
+  texto.oninput = () => { filtros.texto = texto.value; clearTimeout(texto._t); texto._t = setTimeout(() => { alCambiar(); const n = $m('#m-texto', app); n.focus(); n.setSelectionRange(n.value.length, n.value.length); }, 250); };
+  app.querySelectorAll('[data-origen]').forEach((b) => b.onclick = () => { filtros.origen = b.dataset.origen; alCambiar(); });
+  const alternar = (arr, v) => arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v];
+  app.querySelectorAll('[data-paquete]').forEach((b) => b.onclick = () => { filtros.paquetes = alternar(filtros.paquetes, b.dataset.paquete); alCambiar(); });
+  app.querySelectorAll('[data-categoria]').forEach((b) => b.onclick = () => { filtros.categorias = alternar(filtros.categorias, b.dataset.categoria); alCambiar(); });
+  $m('#m-limpiar', app).onclick = () => { Object.assign(filtros, { texto: '', paquetes: [], categorias: [], origen: 'todos' }); alCambiar(); };
+  app.querySelectorAll('[data-sel]').forEach((c) => c.onchange = () => { c.checked ? seleccion.add(c.dataset.sel) : seleccion.delete(c.dataset.sel); pintar(); });
+  app.querySelectorAll('[data-ver]').forEach((b) => b.onclick = () => abrirVisor(lista.filter((m) => m.id === b.dataset.ver)));
+  $m('#m-comparar', app).onclick = () => abrirVisor(lista.filter((m) => seleccion.has(m.id)));
+}
+
+async function mostrar(slug, contenedor) {
+  app = contenedor;
+  app.innerHTML = '<p class="empty">Cargando modelos…</p>';
+  try {
+    lista = await (await fetch(`/api/modelos/${encodeURIComponent(slug)}`)).json();
+  } catch { lista = []; }
+  if (!lista.length) { app.innerHTML = `<div class="card welcome"><p>Este juego aún no tiene modelos en <code>public/modelos</code>.</p></div>`; return; }
+  pintar();
+}
+window.panelModelos = { mostrar };
+</script>
+
+</body>
+</html>

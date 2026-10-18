@@ -1,0 +1,4 @@
+KayKit - Medieval Hexagon Pack 1.0, de Kay Lousberg (www.kaylousberg.com)
+Licencia: CC0 1.0 Universal (dominio público). Uso personal y comercial libre, sin atribución obligatoria.
+Fuente: https://github.com/KayKit-Game-Assets/KayKit-Medieval-Hexagon-Pack-1.0 (commit 84fa4e9)
+Listado: https://godotengine.org/asset-library/asset/2900 · https://kaylousberg.itch.io/kaykit-medieval-hexagon

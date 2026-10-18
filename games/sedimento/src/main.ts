@@ -5,6 +5,13 @@ import { contarBiomas, contarTerrenos, generarMapa, hashMapa } from './logic/map
 import { crearEscena } from './render/escena';
 import { alternarPausa, avanzar, crearReloj, fecha, fijarVelocidad } from './logic/reloj';
 import { crearMundo } from './render/mundo';
+import { crearEdificios } from './render/edificios';
+import { Rejilla } from './logic/hex';
+import { configDesdeTuning } from './logic/sim/config';
+import { fundarAsentamiento } from './logic/sim/obras';
+import { alimentoDisponible, fijarRacion, personas, reservaDias } from './logic/sim/raciones';
+import { avanzarTicks, crearEstado } from './logic/sim/simulacion';
+import { crearPanelCiudad, type DatosCiudad } from './ui/panelCiudad';
 import { crearSeleccion } from './render/seleccion';
 import { crearAtajosReloj } from './ui/atajos';
 import { crearHud, type AccionesHud } from './ui/hud';
@@ -57,6 +64,28 @@ const alDobleClic = (e: MouseEvent) => {
 };
 lienzo.addEventListener('dblclick', alDobleClic);
 
+// Simulación de la ciudad (lógica pura en logic/sim): avanza con los ticks del reloj; el render solo la lee.
+const cfgSim = configDesdeTuning(tuning);
+const sim = crearEstado(cfgSim, semilla);
+const hexAldea = fundarAsentamiento(sim, { mapa, rejilla: new Rejilla(mapa.columnas, mapa.filas) }, cfgSim);
+// Como en Civ, la partida empieza mirando a tu asentamiento.
+vista.control.irA(mundo.disposicion.x[hexAldea], mundo.disposicion.z[hexAldea]);
+const edificios = crearEdificios(mundo.disposicion, tuning.render, mundo.sueloEn, semilla);
+vista.escena.add(edificios.raiz);
+edificios.sincronizar(sim.edificios);
+
+const datosCiudad = (): DatosCiudad => ({
+  personas: personas(sim),
+  hogaresConHambre: sim.hogares.filter((h) => h.diasHambre > 0).length,
+  cebada: sim.almacen.cebada,
+  alimento: alimentoDisponible(sim, cfgSim),
+  reservaDias: reservaDias(sim, cfgSim),
+  racion: sim.racionObjetivo,
+});
+const panelCiudad = crearPanelCiudad(contenedor, tuning.economia.racionesPermitidas, tuning.economia.diasReservaBaja, {
+  fijarRacion: (r) => fijarRacion(sim, r, cfgSim),
+});
+
 // Reloj de juego (lógica pura en logic/reloj.ts): el HUD y las teclas solo piden cambios.
 let reloj = crearReloj(tuning.reloj);
 const acciones: AccionesHud = {
@@ -83,6 +112,8 @@ exponer('seleccion', () => {
   const i = seleccion.hex;
   return i === -1 ? { hex: -1 } : { hex: i, col: mundo.disposicion.rejilla.col(i), fila: mundo.disposicion.rejilla.fila(i), terreno: mapa.terreno[i], bioma: mapa.bioma[i] };
 });
+exponer('ciudad', () => ({ ...datosCiudad(), edificios: sim.edificios.length, obras: sim.obras.length, dia: sim.dia }));
+exponer('hud', () => ({ reservaDias: reservaDias(sim, cfgSim) }));
 exponer('tiempo', () => ({ dia: fecha(reloj.tick, tuning.reloj).diaTotal, tick: reloj.tick, pausa: reloj.pausado, velocidad: reloj.velocidad }));
 
 const temporizador = new THREE.Timer();
@@ -91,7 +122,11 @@ let primerFrame = true;
 vista.renderer.setAnimationLoop((ts: number) => {
   temporizador.update(ts);
   const dt = Math.min(temporizador.getDelta(), DELTA_MAXIMO);
-  reloj = avanzar(reloj, dt, tuning.reloj).reloj;
+  const paso = avanzar(reloj, dt, tuning.reloj);
+  reloj = paso.reloj;
+  avanzarTicks(sim, paso.ticks, cfgSim);
+  edificios.sincronizar(sim.edificios);
+  panelCiudad.actualizar(datosCiudad());
   vista.actualizar(dt);
   mundo.actualizar(dt);
   const caja = lienzo.getBoundingClientRect();
@@ -110,6 +145,8 @@ if (import.meta.hot) {
     temporizador.dispose();
     quitarAtajos();
     hud.liberar();
+    panelCiudad.liberar();
+    edificios.liberar();
     lienzo.removeEventListener('pointermove', alMoverRaton);
     lienzo.removeEventListener('pointerleave', alSalirRaton);
     lienzo.removeEventListener('dblclick', alDobleClic);

@@ -118,8 +118,9 @@ function crearMaterialAgua(cfg: ConfigRender, uniformes: Uniformes, opaco: boole
         float fase = fract(vOrilla * 1.6 - uTiempo * 0.35 + nEsp * 0.3);
         float lineas = smoothstep(0.82, 0.9, fase) * (1.0 - smoothstep(0.9, 0.98, fase)) * smoothstep(0.15, 0.5, vOrilla);
         float espuma = clamp(borde * mix(0.65, 1.0, encaje) + lineas * 0.6 * encaje, 0.0, 1.0);
-        // En un río las dos orillas están muy cerca: espuma más tenue para que se lea el agua.
-        espuma *= mix(1.0, 0.4, clamp(length(vFlujo), 0.0, 1.0));
+        // En un río las dos orillas están a un paso y ya llevan franja de barro: sin espuma (si no,
+        // las esquinas de cada tramo dibujan rayas que cruzan el cauce). Las cascadas son blancas por color.
+        espuma *= 1.0 - clamp(length(vFlujo) * 1.5, 0.0, 1.0);
         diffuseColor.rgb = mix(diffuseColor.rgb, uEspuma, espuma);
         diffuseColor.a = mix(diffuseColor.a, 1.0, espuma);`,
       )
@@ -148,8 +149,17 @@ function crearMaterialAgua(cfg: ConfigRender, uniformes: Uniformes, opaco: boole
   return material;
 }
 
+/** Charca de marisma: centro en su superficie y radio medio (para poner nenúfares y plantas). */
+export interface Charca {
+  x: number;
+  y: number;
+  z: number;
+  radio: number;
+}
+
 export interface Agua {
   readonly raiz: THREE.Group;
+  readonly charcas: readonly Charca[];
   actualizar(dt: number): void;
   liberar(): void;
 }
@@ -343,6 +353,7 @@ export function crearAgua(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, pale
 
   // Charcas de marisma: 2–4 manchas irregulares de agua quieta entre los juncos, nunca un hexágono.
   const rng = crearRng(derivarSemilla(mapa.semilla, 'render-agua'));
+  const charcasLista: Charca[] = [];
   for (const i of marisma) {
     const y = disp.cima[i] + ca.alzaCharca;
     const charcas = enteroEntre(rng, ca.charcasMin, ca.charcasMax);
@@ -352,6 +363,7 @@ export function crearAgua(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, pale
       const px = disp.x[i] + Math.cos(ang) * dist;
       const pz = disp.z[i] + Math.sin(ang) * dist;
       const radio = (ca.radioCharcaMin + rng() * (ca.radioCharcaMax - ca.radioCharcaMin)) * R;
+      charcasLista.push({ x: px, y, z: pz, radio });
       const centro = b.vertice(px, y, pz, paleta.marismaAgua, 0, 0, 0);
       const borde: number[] = [];
       for (let k = 0; k < LADOS_CHARCA; k++) {
@@ -390,6 +402,7 @@ export function crearAgua(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, pale
 
   return {
     raiz,
+    charcas: charcasLista,
     actualizar(dt) {
       uniformes.uTiempo.value += dt * ca.velocidadOlas;
     },

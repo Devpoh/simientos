@@ -350,6 +350,10 @@ const PROYECTA_SOMBRA: Record<Especie, boolean> = { palma: true, conifera: true,
 
 // ---------- Colocación ----------
 
+/** Las especies pequeñas y repetidas necesitan menos variantes: cada una cuesta una llamada de dibujo. */
+const MAXIMO_VARIANTES: Partial<Record<Especie, number>> = { guijarro: 1, duna: 1, mata: 2, roca: 2 };
+const variantesDe = (especie: Especie, general: number) => Math.min(general, MAXIMO_VARIANTES[especie] ?? general);
+
 interface Ejemplar {
   especie: Especie;
   variante: number;
@@ -446,7 +450,7 @@ function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng, sue
         const largo = especie === 'duna' ? 0.8 + rng() * 0.6 : 1;
         res.push({
           especie,
-          variante: Math.floor(rng() * v.variantes),
+          variante: Math.floor(rng() * variantesDe(especie, v.variantes)),
           hex: i,
           x: disp.x[i] + dx,
           // En colinas y montañas todo se apoya en la ladera, no en la tapa del prisma.
@@ -512,7 +516,7 @@ export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender
 
   const especies = Object.keys(CREADORES) as Especie[];
   for (const especie of especies) {
-    for (let variante = 0; variante < cfg.vegetacion.variantes; variante++) {
+    for (let variante = 0; variante < variantesDe(especie, cfg.vegetacion.variantes); variante++) {
       const lista = ejemplares.filter((e) => e.especie === especie && e.variante === variante);
       if (lista.length === 0) continue;
       const geometria = CREADORES[especie](crearRng(derivarSemilla(variante + 1, `veg-forma-${especie}`)));
@@ -542,5 +546,19 @@ export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender
       for (const m of mallas) m.dispose();
       material.dispose();
     },
+  };
+}
+
+/** Catálogo de modelos para la galería (?galeria): cada especie con la semilla dada. */
+export function catalogoVegetacion(rng: Rng): Record<string, THREE.BufferGeometry> {
+  return {
+    palmera: crearPalma(rng),
+    arbol: crearArbol(rng),
+    conifera: crearConifera(rng),
+    cana: crearCana(rng),
+    roca: crearRoca(rng),
+    guijarro: crearGuijarro(rng),
+    mata: crearMata(rng),
+    duna: crearDuna(rng),
   };
 }

@@ -162,6 +162,46 @@
       "guijarrosMax": 3,
       "variantes": 3
     },
+    "modelos": {
+      "carpeta": "modelos",
+      "colores": {
+        "grass": "#8cc65c",
+        "leafsGreen": "#82c258",
+        "leafsDark": "#3f7f3a",
+        "dirt": "#a98a63",
+        "dirtDark": "#7a5f40",
+        "stone": "#9c9487",
+        "woodBark": "#7a583a",
+        "woodInner": "#dcc18f",
+        "water": "#4fc3c9",
+        "colorRed": "#d8493a",
+        "colorYellow": "#f0b642",
+        "colorPurple": "#9a7ad8",
+        "_defaultMat": "#8f8a80"
+      }
+    },
+    "decorado": {
+      "probArbusto": 0.3,
+      "probFlores": 0.35,
+      "probTronco": 0.1,
+      "probRocasAgua": 0.45,
+      "probNenufares": 0.5,
+      "escalaArbusto": [1, 1.8],
+      "escalaFlor": [1.3, 2],
+      "escalaTronco": [1.1, 1.7],
+      "escalaRocaAgua": [0.9, 1.7],
+      "escalaNenufar": [1, 1.8],
+      "nubes": {
+        "activas": false,
+        "cantidad": 7,
+        "altura": 9,
+        "velocidad": 0.35,
+        "escalaMin": 1.6,
+        "escalaMax": 3,
+        "opacidad": 0.88,
+        "alturaCamaraAtenuacion": 60
+      }
+    },
     "suelo": {
       "grano": 0.3,
       "relieve": 1.4
