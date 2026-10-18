@@ -56,8 +56,14 @@
     },
     {
       "id": "F01c",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Agua en una sola malla continua: anillo exterior de 12 puntos que promedian color y corriente (sin costuras)",
+        "Ríos con corriente (flowmap de dos fases) en la dirección del cauce y cascadas donde el río baja de nivel",
+        "Espuma de orilla que respira y olas que llegan a la costa; reflejo del cielo con fresnel; detalle fino solo de cerca",
+        "Charcas de marisma irregulares en lugar de hexágonos; orillas de arena o barro en pendiente hacia el agua",
+        "Océano exterior justo bajo la lámina del mar: sin escalón en el borde y sin lecho lechoso; ruido quíntico y rotado (sin cuadrícula)"
+      ],
       "creada": "2026-10-18T22:39:50.266Z",
       "titulo": "Agua viva",
       "objetivo": "Agua mucho más viva (R13): ríos que fluyen, costas con espuma y oleaje, superficie continua que refleja el cielo",
@@ -68,12 +74,23 @@
         "Brillo especular del sol y reflejo del cielo (fresnel) sin texturas externas",
         "Capturas de cerca y de lejos MIRADAS; drawCalls < 60; sin errores en shot"
       ],
-      "inicio": "2026-10-18T22:39:50.268Z"
+      "inicio": "2026-10-18T22:39:50.268Z",
+      "verificacion": {
+        "tests": "81/81",
+        "resultado": "shot sin errores, drawCalls 10–12; capturas de cerca y de lejos miradas",
+        "captura": "F01c-costa-cerca.png"
+      },
+      "fin": "2026-10-18T23:08:18.077Z"
     },
     {
       "id": "F01d",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Montañas y colinas como una superficie continua: crestas ridged en coordenadas del mundo que forman cordilleras",
+        "Cumbres con fuerza variable (no hay rejilla de picos iguales); laderas que mueren en el llano",
+        "Color por cara: falda del bioma → roca con estratos (más oscura si es empinada) → nieve solo arriba y en caras poco inclinadas",
+        "relieve.sueloEn(): los árboles se apoyan en la ladera"
+      ],
       "creada": "2026-10-18T22:45:07.027Z",
       "titulo": "Montañas de calidad",
       "objetivo": "Montañas mucho menos básicas (R14): macizos con forma, crestas y laderas, roca con estratos, nieve con borde natural y colinas redondeadas",
@@ -84,7 +101,13 @@
         "Se ve bien de cerca y de lejos (capturas MIRADAS en los dos zooms)",
         "drawCalls < 60 y shot sin errores"
       ],
-      "inicio": "2026-10-18T22:45:07.029Z"
+      "inicio": "2026-10-18T22:45:07.029Z",
+      "verificacion": {
+        "tests": "81/81",
+        "resultado": "capturas de cerca y de lejos miradas en las semillas 20260418 y 7",
+        "captura": "F01d-montanas-cerca.png"
+      },
+      "fin": "2026-10-18T23:08:18.277Z"
     },
     {
       "id": "F02",
@@ -137,7 +160,8 @@
         "shot": "zoom hacia el cursor mantiene seleccion.hex 663 bajo el ratón; orbitar cambia guino e inclinación; R+Q llevan a 88° y 122°; dblclick centra la cámara en el hex (x 68,4 z 19,5)",
         "captura": "F02b-cerca-inclinado y F02b-lejos miradas con Read"
       },
-      "fin": "2026-10-18T23:07:27.498Z"
+      "fin": "2026-10-18T23:07:27.498Z",
+      "commit": "7ec2b3a"
     },
     {
       "id": "F03",
@@ -422,6 +446,15 @@
       "sintoma": "Las montañas forman un muro recto horizontal",
       "causa": "La altura base saltaba de 0,62 a 0,34 justo en la fila bordeMontanas, y la ondulación estiraba el perfil en vez de desplazarlo",
       "solucion": "Perfil continuo (smoothstep) y desplazamiento por columna con fbm de baja frecuencia (tuning.mapa.ondulacionBordes)"
+    },
+    {
+      "id": "E002",
+      "t": "2026-10-18T23:08:18.481Z",
+      "estado": "resuelto",
+      "fase": "F01c",
+      "sintoma": "Banda blanca lechosa en el mar pegado a la costa",
+      "causa": "Paleta.colorAgua aclaraba un 30 % hacia blanco el mar con distCosta<=1 (espuma falsa antigua) y el lecho beige se transparentaba",
+      "solucion": "Quitar ese lerp y poner el océano exterior justo bajo la lámina del mar, que tapa el lecho. Diagnóstico: pintar la espuma de rojo para ver qué era espuma y qué no"
     }
   ],
   "faltantes": [],
@@ -707,9 +740,45 @@
       "t": "2026-10-18T23:07:27.133Z",
       "concepto": "Plano cercano proporcional a la distancia (z-fighting)",
       "explicacion": "La precisión del z-buffer se reparte mal entre near y far: con near fijo y far grande, dos superficies casi coplanares parpadean (z-fighting). Poner near = distancia·0,02 mantiene la precisión alta a cualquier zoom."
+    },
+    {
+      "id": "C018",
+      "t": "2026-10-18T23:08:18.705Z",
+      "concepto": "Flowmap (mapa de flujo)",
+      "explicacion": "Para que un río «corra» sin animar geometría, el shader desplaza el dibujo de las olas en la dirección del cauce. Si lo desplazas sin fin, el dibujo se estira, así que se usan dos copias desfasadas medio ciclo que se alternan: mientras una se reinicia, la otra es la que se ve. En SEDIMENTO cada vértice del río guarda su dirección (aFlujo)."
+    },
+    {
+      "id": "C019",
+      "t": "2026-10-18T23:08:18.925Z",
+      "concepto": "Z-fighting (pestañeo)",
+      "explicacion": "Cuando dos superficies están casi a la misma altura, la GPU no distingue cuál va delante y parpadean al mover la cámara. Se evita separándolas lo suficiente (el océano va 5 cm bajo la lámina del mar) y ajustando el plano near de la cámara a la distancia, porque la precisión de profundidad depende de la razón near/far."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-18T23:08:18.927Z",
+      "texto": "Concepto: Z-fighting (pestañeo)"
+    },
+    {
+      "t": "2026-10-18T23:08:18.707Z",
+      "texto": "Concepto: Flowmap (mapa de flujo)"
+    },
+    {
+      "t": "2026-10-18T23:08:18.483Z",
+      "texto": "Error E002 (resuelto): Banda blanca lechosa en el mar pegado a la costa"
+    },
+    {
+      "t": "2026-10-18T23:08:18.309Z",
+      "texto": "Fase F01d → hecha: Montañas de calidad"
+    },
+    {
+      "t": "2026-10-18T23:08:18.110Z",
+      "texto": "Fase F01c → hecha: Agua viva"
+    },
+    {
+      "t": "2026-10-18T23:07:28.510Z",
+      "texto": "Fase F02b actualizada: Cámara libre"
+    },
     {
       "t": "2026-10-18T23:07:27.561Z",
       "texto": "Fase F02b → hecha: Cámara libre"
@@ -1135,5 +1204,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T23:07:27.561Z"
+  "actualizado": "2026-10-18T23:08:18.927Z"
 }

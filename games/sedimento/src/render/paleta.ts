@@ -24,6 +24,7 @@ export class Paleta {
   readonly marMedio: Color;
   readonly marProfundo: Color;
   readonly espuma: Color;
+  readonly playa: Color;
   readonly ladoSuperior: Color;
   readonly ladoInferior: Color;
 
@@ -42,6 +43,7 @@ export class Paleta {
     this.marMedio = new Color(c.marMedio);
     this.marProfundo = new Color(c.marProfundo);
     this.espuma = new Color(c.espuma);
+    this.playa = new Color(cfg.borde.colorPlaya);
     this.ladoSuperior = new Color(c.ladoSuperior);
     this.ladoInferior = new Color(c.ladoInferior);
   }
@@ -80,7 +82,6 @@ export class Paleta {
       const t = Math.min(1, Math.max(0, (d - 1) / (this.cfg.agua.profundidadMaxMar - 1)));
       if (t < 0.5) salida.copy(this.marCosta).lerp(this.marMedio, t * 2);
       else salida.copy(this.marMedio).lerp(this.marProfundo, (t - 0.5) * 2);
-      if (d <= 1) salida.lerp(this.espuma, 0.3);
     }
     return salida.multiplyScalar(1 + variacion);
   }

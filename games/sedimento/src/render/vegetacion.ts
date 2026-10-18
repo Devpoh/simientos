@@ -123,10 +123,8 @@ function especieDe(mapa: Mapa, i: number, rng: Rng, probRoca: number): Especie |
 }
 
 /** Reparte los ejemplares dentro de cada hexágono, sin que se amontonen. */
-function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng): Ejemplar[] {
+function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng, suelo: SueloEn): Ejemplar[] {
   const v = cfg.vegetacion;
-  const alturaColina = cfg.relieve.alturaColina;
-  const radioColina = cfg.relieve.radioColina;
   const res: Ejemplar[] = [];
   for (let i = 0; i < disp.rejilla.total; i++) {
     const especie = especieDe(mapa, i, rng, v.probRoca);
@@ -140,14 +138,12 @@ function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng): Ej
       const dz = Math.sin(ang) * radio;
       if (puestos.some((p) => Math.hypot(p.x - dx, p.z - dz) < v.separacionMin)) continue;
       puestos.push({ x: dx, z: dz });
-      // En las colinas el suelo es un domo: el árbol se apoya en su superficie.
-      const r = Math.hypot(dx, dz) / radioColina;
-      const domo = mapa.terreno[i] === 'colina' ? alturaColina * Math.sqrt(Math.max(0, 1 - r * r)) : 0;
       res.push({
         especie,
         hex: i,
         x: disp.x[i] + dx,
-        y: disp.cima[i] + domo,
+        // En colinas y montañas el árbol se apoya en la ladera, no en la tapa del prisma.
+        y: suelo(i, disp.x[i] + dx, disp.z[i] + dz),
         z: disp.z[i] + dz,
         escala: v.escalaMin + rng() * (v.escalaMax - v.escalaMin),
         giro: rng() * Math.PI * 2,
@@ -159,9 +155,12 @@ function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng): Ej
 }
 
 /** Palmeras, coníferas, árboles redondos y cañas: una malla instanciada por especie. */
-export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, paleta: Paleta): Vegetacion {
+/** Altura del suelo en un punto de un hexágono (la da el relieve). */
+export type SueloEn = (hex: number, x: number, z: number) => number;
+
+export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, paleta: Paleta, suelo: SueloEn): Vegetacion {
   const rng = crearRng(derivarSemilla(mapa.semilla, 'render-veg'));
-  const ejemplares = colocar(mapa, disp, cfg, rng);
+  const ejemplares = colocar(mapa, disp, cfg, rng, suelo);
 
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9, metalness: 0 });
   const geometrias: THREE.BufferGeometry[] = [];
