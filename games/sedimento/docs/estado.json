@@ -40,7 +40,7 @@
     },
     {
       "id": "F01b",
-      "estado": "pendiente",
+      "estado": "en-curso",
       "hecho": [],
       "creada": "2026-10-18T22:37:34.675Z",
       "titulo": "Pulido visual del mapa",
@@ -51,7 +51,8 @@
         "Desierto con dunas o detalles más visibles",
         "Marisma y costa más legibles",
         "Captura mirada y draw calls < 60"
-      ]
+      ],
+      "inicio": "2026-10-18T22:57:37.976Z"
     },
     {
       "id": "F01c",
@@ -109,7 +110,34 @@
         "shot": "errores 0; KeyW:500 mueve camara.z 29,25→17,2 dentro de límites; seleccion.hex cambia con el ratón (1080, 984, 368…); tiempo.dia avanza a x1 y no en pausa; drawCalls 12",
         "captura": "F02-cerca, F02-zoom-medio, F02-lejos, F02-rotado en docs/evidencia (miradas con Read)"
       },
-      "fin": "2026-10-18T22:56:47.541Z"
+      "fin": "2026-10-18T22:56:47.541Z",
+      "commit": "e0f1499"
+    },
+    {
+      "id": "F02b",
+      "estado": "hecha",
+      "hecho": [
+        "Cámara libre: sin límite de pan más que el borde del mapa",
+        "Giro 360° (Q/E y botón central) e inclinación manual (R/F, Alt+arrastre) sumada a la automática por zoom",
+        "Zoom hacia el cursor y doble clic que centra en el hexágono",
+        "near proporcional a la distancia (contra z-fighting)"
+      ],
+      "creada": "2026-10-18T22:58:24.618Z",
+      "titulo": "Cámara libre",
+      "objetivo": "Cámara sin restricciones molestas (R15): ir a cualquier parte del mapa, girar, inclinar y hacer zoom hacia el cursor",
+      "criterios": [
+        "Desplazamiento libre hasta cualquier hexágono del mapa a cualquier zoom (los límites solo impiden salir del mapa)",
+        "Inclinación controlable (R/F o Alt+arrastre) además del ajuste automático por zoom; giro libre de 360° con Q/E y con arrastre del botón central",
+        "Zoom hacia el punto bajo el cursor, de muy cerca (~2 hexágonos) a todo el mapa",
+        "Clic del botón central o doble clic centra en el hexágono; movimiento suave sin tirones",
+        "shot: acciones de pan, giro, inclinación y zoom cambian el estado de la cámara; capturas MIRADAS"
+      ],
+      "verificacion": {
+        "check": "tsc + 81/81",
+        "shot": "zoom hacia el cursor mantiene seleccion.hex 663 bajo el ratón; orbitar cambia guino e inclinación; R+Q llevan a 88° y 122°; dblclick centra la cámara en el hex (x 68,4 z 19,5)",
+        "captura": "F02b-cerca-inclinado y F02b-lejos miradas con Read"
+      },
+      "fin": "2026-10-18T23:07:27.498Z"
     },
     {
       "id": "F03",
@@ -568,6 +596,13 @@
       "fase": "F02",
       "texto": "Desplazamiento limitado a una fracción del mapa que crece al acercarse (limitePanLejos 0,4 a máximo alejamiento)",
       "porque": "Evita perder el mapa de vista sin dejar la cámara clavada cuando se ve entera"
+    },
+    {
+      "id": "D024",
+      "t": "2026-10-18T23:07:27.317Z",
+      "fase": "F02b",
+      "texto": "Cámara libre: el punto de mira solo se limita al borde del mapa; botón derecho desplaza, central orbita (giro e inclinación), Alt+izquierdo inclina; R/F inclinan; la inclinación manual se suma a la automática por zoom",
+      "porque": "R15: el usuario quiere ir a cualquier hexágono con cualquier zoom y controlar el ángulo"
     }
   ],
   "conceptos": [
@@ -660,9 +695,49 @@
       "t": "2026-10-18T22:51:46.682Z",
       "concepto": "Bloquear el zoom del navegador en un juego",
       "explicacion": "El pellizco del touchpad y Ctrl+rueda llegan como eventos wheel con ctrlKey: se cancelan con preventDefault (el listener debe ser no pasivo), se pone touch-action:none en el canvas y se anulan Ctrl +/-/0. Si el navegador hace zoom, estira el canvas y todo se ve pixelado: el zoom bueno es mover la cámara."
+    },
+    {
+      "id": "C016",
+      "t": "2026-10-18T23:07:26.935Z",
+      "concepto": "Zoom hacia el cursor",
+      "explicacion": "Se calcula qué punto del suelo hay bajo el ratón (rayo cámara→cursor cortado con el plano y=0), se cambia la distancia y se recoloca el punto de mira para que ese mismo punto vuelva a quedar bajo el cursor. Se hace sobre el estado deseado, no sobre el suavizado, para que varias ruedas seguidas no se desvíen."
+    },
+    {
+      "id": "C017",
+      "t": "2026-10-18T23:07:27.133Z",
+      "concepto": "Plano cercano proporcional a la distancia (z-fighting)",
+      "explicacion": "La precisión del z-buffer se reparte mal entre near y far: con near fijo y far grande, dos superficies casi coplanares parpadean (z-fighting). Poner near = distancia·0,02 mantiene la precisión alta a cualquier zoom."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-18T23:07:27.561Z",
+      "texto": "Fase F02b → hecha: Cámara libre"
+    },
+    {
+      "t": "2026-10-18T23:07:27.319Z",
+      "texto": "Decisión: Cámara libre: el punto de mira solo se limita al borde del mapa; botón derecho desplaza, central orbita (giro e inclinación), Alt+izquierdo inclina; R/F inclinan; la inclinación manual se suma a la automática por zoom"
+    },
+    {
+      "t": "2026-10-18T23:07:27.135Z",
+      "texto": "Concepto: Plano cercano proporcional a la distancia (z-fighting)"
+    },
+    {
+      "t": "2026-10-18T23:07:26.937Z",
+      "texto": "Concepto: Zoom hacia el cursor"
+    },
+    {
+      "t": "2026-10-18T22:58:24.659Z",
+      "texto": "Fase F02b creada: Cámara libre"
+    },
+    {
+      "t": "2026-10-18T22:57:38.009Z",
+      "texto": "Fase F01b → en-curso: Pulido visual del mapa"
+    },
+    {
+      "t": "2026-10-18T22:56:58.575Z",
+      "texto": "Fase F02 actualizada: Cámara de estrategia, selección y reloj"
+    },
     {
       "t": "2026-10-18T22:56:47.595Z",
       "texto": "Fase F02 → hecha: Cámara de estrategia, selección y reloj"
@@ -1060,5 +1135,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T22:56:47.595Z"
+  "actualizado": "2026-10-18T23:07:27.561Z"
 }

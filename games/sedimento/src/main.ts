@@ -47,6 +47,15 @@ const alSalirRaton = () => {
 };
 lienzo.addEventListener('pointermove', alMoverRaton);
 lienzo.addEventListener('pointerleave', alSalirRaton);
+// Doble clic: centra la cámara en el hexágono bajo el ratón.
+const alDobleClic = (e: MouseEvent) => {
+  // Se recalcula con la posición del propio clic: el hexágono "hover" puede ser del frame anterior.
+  const caja = lienzo.getBoundingClientRect();
+  seleccion.apuntar(e.clientX - caja.left, e.clientY - caja.top, vista.camara, caja.width, caja.height);
+  const i = seleccion.hex;
+  if (i !== -1) vista.control.irA(mundo.disposicion.x[i], mundo.disposicion.z[i]);
+};
+lienzo.addEventListener('dblclick', alDobleClic);
 
 // Reloj de juego (lógica pura en logic/reloj.ts): el HUD y las teclas solo piden cambios.
 let reloj = crearReloj(tuning.reloj);
@@ -103,6 +112,7 @@ if (import.meta.hot) {
     hud.liberar();
     lienzo.removeEventListener('pointermove', alMoverRaton);
     lienzo.removeEventListener('pointerleave', alSalirRaton);
+    lienzo.removeEventListener('dblclick', alDobleClic);
     seleccion.liberar();
     etiqueta.remove();
     mundo.liberar();

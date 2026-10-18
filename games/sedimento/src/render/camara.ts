@@ -13,6 +13,8 @@ const UMBRAL_RECALCULO_GIRO = 0.002;
 /** Píxeles que equivale una "línea" de rueda en navegadores que informan por líneas. */
 const PIXELES_POR_LINEA = 16;
 const PIXELES_POR_PAGINA = 100;
+/** Seno mínimo del cabeceo al convertir arrastre vertical en metros: evita dividir por cero. */
+const SENO_MINIMO_CABECEO = 0.1;
 
 const TECLAS_ARRIBA = ['KeyW', 'ArrowUp'];
 const TECLAS_ABAJO = ['KeyS', 'ArrowDown'];
@@ -20,9 +22,11 @@ const TECLAS_IZQUIERDA = ['KeyA', 'ArrowLeft'];
 const TECLAS_DERECHA = ['KeyD', 'ArrowRight'];
 const TECLAS_GIRO_IZQUIERDA = ['KeyQ'];
 const TECLAS_GIRO_DERECHA = ['KeyE'];
-/** Seno mínimo del cabeceo al convertir arrastre vertical en metros: evita dividir por cero. */
-const SENO_MINIMO_CABECEO = 0.1;
-const TECLAS_CAMARA = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+const TECLAS_SUBIR = ['KeyR'];
+const TECLAS_BAJAR = ['KeyF'];
+const TECLAS_CAMARA = ['KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'KeyR', 'KeyF', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+
+type ModoArrastre = 'ninguno' | 'desplazar' | 'orbitar' | 'inclinar';
 
 export interface EstadoCamara {
   x: number;
@@ -37,6 +41,8 @@ export interface ControlCamara {
   actualizar(dt: number): void;
   redimensionar(ancho: number, alto: number): void;
   estado(): EstadoCamara;
+  /** Mueve el punto de mira (con suavizado) al punto (x, z) del mundo. */
+  irA(x: number, z: number): void;
   /** Distancia del punto de mira a la cámara, para colocar la niebla. */
   readonly distancia: number;
   liberar(): void;
@@ -46,39 +52,43 @@ const suavizar = (t: number) => t * t * (3 - 2 * t);
 const acotar = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v));
 
 /**
- * Cámara de estrategia: la distancia (zoom) define también la inclinación, casi cenital de lejos
- * y ~45° de cerca. El estado "deseado" (objetivo) lo mueven las entradas; el estado real lo
- * persigue con suavizado exponencial, que no depende de los FPS.
+ * Cámara de estrategia libre. La distancia (zoom) fija una inclinación automática (casi cenital
+ * de lejos, ~45° de cerca) a la que el jugador suma su propia inclinación; el giro es de 360° y el
+ * zoom se hace hacia el cursor. El estado "deseado" (obj) lo mueven las entradas; el real (act)
+ * lo persigue con suavizado exponencial, que no depende de los FPS.
  */
 export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: THREE.Box3): ControlCamara {
   const c = cfg.camara;
   const camara = new THREE.PerspectiveCamera(c.fov, 1, c.cerca, c.lejos);
+  // Cámara auxiliar para calcular qué punto del suelo hay bajo el cursor sin tocar la real.
+  const aux = new THREE.PerspectiveCamera(c.fov, 1, c.cerca, c.lejos);
   const centro = caja.getCenter(new THREE.Vector3());
-  const mitadX = (caja.max.x - caja.min.x) / 2;
-  const mitadZ = (caja.max.z - caja.min.z) / 2;
   const cabeceoCerca = THREE.MathUtils.degToRad(c.cabeceoCercaGrados);
   const cabeceoLejos = THREE.MathUtils.degToRad(c.cabeceoLejosGrados);
+  const cabeceoMin = THREE.MathUtils.degToRad(c.cabeceoMinGrados);
+  const cabeceoMax = THREE.MathUtils.degToRad(c.cabeceoMaxGrados);
   const tanMitadFov = Math.tan(THREE.MathUtils.degToRad(c.fov) / 2);
 
   const esquinas: THREE.Vector3[] = [];
   for (const x of [caja.min.x, caja.max.x]) for (const y of [caja.min.y, caja.max.y]) for (const z of [caja.min.z, caja.max.z]) esquinas.push(new THREE.Vector3(x, y, z));
   const punto = new THREE.Vector3();
   const direccion = new THREE.Vector3();
+  const origen = new THREE.Vector3();
 
-  const colocar = (x: number, z: number, distancia: number, cabeceo: number, guino: number) => {
+  const colocar = (cam: THREE.PerspectiveCamera, x: number, z: number, distancia: number, cabeceo: number, guino: number) => {
     direccion.set(Math.sin(guino) * Math.cos(cabeceo), Math.sin(cabeceo), Math.cos(guino) * Math.cos(cabeceo));
-    camara.position.set(x, 0, z).addScaledVector(direccion, distancia);
-    camara.lookAt(x, 0, z);
-    camara.updateMatrixWorld();
+    cam.position.set(x, 0, z).addScaledVector(direccion, distancia);
+    cam.lookAt(x, 0, z);
+    cam.updateMatrixWorld();
   };
 
   // Distancia mínima con la que las 8 esquinas del mapa caben en pantalla (con margen) a ese giro.
   const distanciaMaxima = (guino: number): number => {
     const limite = 1 / c.margen;
     const cabe = (d: number) => {
-      colocar(centro.x, centro.z, d, cabeceoLejos, guino);
+      colocar(aux, centro.x, centro.z, d, cabeceoLejos, guino);
       for (const e of esquinas) {
-        punto.copy(e).project(camara);
+        punto.copy(e).project(aux);
         if (Math.abs(punto.x) > limite || Math.abs(punto.y) > limite) return false;
       }
       return true;
@@ -95,19 +105,32 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
 
   let distMax = distanciaMaxima(0);
   let guinoDeMax = 0;
-  // Deseado (obj) y real (act). Empieza viendo el mapa entero.
-  const obj = { x: centro.x, z: centro.z, dist: distMax, guino: 0 };
-  const act = { x: centro.x, z: centro.z, dist: distMax, guino: 0 };
+  // Deseado (obj) y real (act). `incl` es la inclinación que añade el jugador a la automática.
+  const obj = { x: centro.x, z: centro.z, dist: distMax, guino: 0, incl: 0 };
+  const act = { x: centro.x, z: centro.z, dist: distMax, guino: 0, incl: 0 };
+  let ancho = 1;
   let alto = 1;
 
   const zoomRelativo = (d: number) => acotar((d - c.distanciaMin) / Math.max(1e-6, distMax - c.distanciaMin), 0, 1);
-  const cabeceoPara = (d: number) => cabeceoCerca + (cabeceoLejos - cabeceoCerca) * suavizar(zoomRelativo(d));
+  const cabeceoAuto = (d: number) => cabeceoCerca + (cabeceoLejos - cabeceoCerca) * suavizar(zoomRelativo(d));
+  const cabeceoPara = (d: number, incl: number) => acotar(cabeceoAuto(d) + incl, cabeceoMin, cabeceoMax);
 
-  // Cuanto más cerca, más libertad para desplazarse; lejos, solo un poco, para no perder el mapa.
+  /** Punto del plano del suelo (y=0) que se ve en el píxel NDC (nx, ny) con la cámara indicada. */
+  const sueloBajo = (nx: number, ny: number, x: number, z: number, dist: number, incl: number, guino: number, salida: THREE.Vector3): boolean => {
+    colocar(aux, x, z, dist, cabeceoPara(dist, incl), guino);
+    origen.copy(aux.position);
+    salida.set(nx, ny, 0.5).unproject(aux).sub(origen);
+    if (salida.y >= -1e-6) return false;
+    salida.multiplyScalar(-origen.y / salida.y).add(origen);
+    return true;
+  };
+
+  // Solo se impide salir del mapa: se puede ir a cualquier hexágono con cualquier zoom.
   const limitar = () => {
-    const libertad = 1 - (1 - c.limitePanLejos) * zoomRelativo(obj.dist);
-    obj.x = acotar(obj.x, centro.x - mitadX * libertad, centro.x + mitadX * libertad);
-    obj.z = acotar(obj.z, centro.z - mitadZ * libertad, centro.z + mitadZ * libertad);
+    obj.x = acotar(obj.x, caja.min.x, caja.max.x);
+    obj.z = acotar(obj.z, caja.min.z, caja.max.z);
+    // La inclinación manual no puede empujar el cabeceo final fuera de [mín, máx].
+    obj.incl = acotar(obj.incl, cabeceoMin - cabeceoAuto(obj.dist), cabeceoMax - cabeceoAuto(obj.dist));
   };
 
   // --- Entradas ---
@@ -143,42 +166,63 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
     return Math.min(mejor, c.topeTeclaFrame);
   };
 
+  const pa = new THREE.Vector3();
+  const pb = new THREE.Vector3();
   const alRodar = (e: WheelEvent) => {
     e.preventDefault(); // también anula el zoom del navegador con Ctrl+rueda o el pellizco del touchpad
     const px = e.deltaMode === 1 ? PIXELES_POR_LINEA : e.deltaMode === 2 ? PIXELES_POR_PAGINA : 1;
     const fuerza = e.ctrlKey ? c.factorPellizco : 1;
-    obj.dist = acotar(obj.dist * Math.exp(e.deltaY * px * c.sensibilidadZoom * fuerza), c.distanciaMin, distMax);
+    const nuevaDist = acotar(obj.dist * Math.exp(e.deltaY * px * c.sensibilidadZoom * fuerza), c.distanciaMin, distMax);
+    // Zoom hacia el cursor: el punto del suelo bajo el ratón se queda donde está.
+    const nx = (e.offsetX / ancho) * 2 - 1;
+    const ny = -(e.offsetY / alto) * 2 + 1;
+    const habia = sueloBajo(nx, ny, obj.x, obj.z, obj.dist, obj.incl, obj.guino, pa);
+    obj.dist = nuevaDist;
+    if (habia && sueloBajo(nx, ny, 0, 0, nuevaDist, obj.incl, obj.guino, pb)) {
+      obj.x = pa.x - pb.x;
+      obj.z = pa.z - pb.z;
+    }
     limitar();
   };
 
-  let arrastrando = false;
+  let modo: ModoArrastre = 'ninguno';
   const alBajar = (e: PointerEvent) => {
-    if (e.button !== 1 && e.button !== 2) return;
-    arrastrando = true;
+    if (e.button === 2) modo = 'desplazar';
+    else if (e.button === 1) modo = 'orbitar';
+    else if (e.button === 0 && e.altKey) modo = 'inclinar';
+    else return;
     dom.setPointerCapture(e.pointerId);
     e.preventDefault();
   };
   const alMover = (e: PointerEvent) => {
-    if (!arrastrando) return;
-    // El suelo sigue al cursor: metros del mundo por píxel en el punto de mira.
-    const porPixel = (2 * act.dist * tanMitadFov) / Math.max(1, alto);
-    const cabeceo = cabeceoPara(act.dist);
-    const sen = Math.sin(act.guino);
-    const cos = Math.cos(act.guino);
-    const dx = -e.movementX * porPixel;
-    const dz = (e.movementY * porPixel) / Math.max(SENO_MINIMO_CABECEO, Math.sin(cabeceo));
-    // derecha = (cos, -sin); delante (hacia donde mira) = (-sin, -cos)
-    const mx = cos * dx - sen * dz;
-    const mz = -sen * dx - cos * dz;
-    obj.x += mx;
-    obj.z += mz;
+    if (modo === 'ninguno') return;
+    if (modo === 'desplazar') {
+      // El suelo sigue al cursor: metros del mundo por píxel en el punto de mira.
+      const porPixel = (2 * act.dist * tanMitadFov) / Math.max(1, alto);
+      const cabeceo = cabeceoPara(act.dist, act.incl);
+      const sen = Math.sin(act.guino);
+      const cos = Math.cos(act.guino);
+      const dx = -e.movementX * porPixel;
+      const dz = (e.movementY * porPixel) / Math.max(SENO_MINIMO_CABECEO, Math.sin(cabeceo));
+      // derecha = (cos, -sin); delante (hacia donde mira) = (-sin, -cos)
+      obj.x += cos * dx - sen * dz;
+      obj.z += -sen * dx - cos * dz;
+      limitar();
+      act.x = obj.x;
+      act.z = obj.z;
+      return;
+    }
+    if (modo === 'orbitar') {
+      obj.guino -= e.movementX * c.sensibilidadGiro;
+      act.guino = obj.guino;
+    }
+    obj.incl += e.movementY * c.sensibilidadInclinacion;
     limitar();
-    act.x = obj.x;
-    act.z = obj.z;
+    act.incl = obj.incl;
   };
   const alSubir = (e: PointerEvent) => {
-    if (!arrastrando) return;
-    arrastrando = false;
+    if (modo === 'ninguno') return;
+    modo = 'ninguno';
     if (dom.hasPointerCapture(e.pointerId)) dom.releasePointerCapture(e.pointerId);
   };
   const sinMenu = (e: Event) => e.preventDefault();
@@ -195,7 +239,11 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
   dom.addEventListener('contextmenu', sinMenu);
 
   const aplicar = () => {
-    colocar(act.x, act.z, act.dist, cabeceoPara(act.dist), act.guino);
+    // El plano cercano crece con la distancia: con near fijo y far enorme se pierde precisión de
+    // profundidad y las superficies casi coplanares (charcos, bordes) parpadean.
+    camara.near = Math.max(c.cerca, act.dist * c.cercaRelativa);
+    camara.updateProjectionMatrix();
+    colocar(camara, act.x, act.z, act.dist, cabeceoPara(act.dist, act.incl), act.guino);
   };
   aplicar();
 
@@ -214,6 +262,7 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
       obj.x += (-sen * adelante + cos * lateral) * paso;
       obj.z += (-cos * adelante - sen * lateral) * paso;
       obj.guino += (segundosPulsada(TECLAS_GIRO_IZQUIERDA, ahora) - segundosPulsada(TECLAS_GIRO_DERECHA, ahora)) * c.velocidadRotacion;
+      obj.incl += (segundosPulsada(TECLAS_SUBIR, ahora) - segundosPulsada(TECLAS_BAJAR, ahora)) * c.velocidadInclinacion;
       acumulado.clear();
       ultimoFrame = ahora;
 
@@ -231,12 +280,15 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
       act.z += (obj.z - act.z) * k;
       act.dist += (obj.dist - act.dist) * k;
       act.guino += (obj.guino - act.guino) * k;
+      act.incl += (obj.incl - act.incl) * k;
       aplicar();
     },
-    redimensionar(ancho, altoNuevo) {
+    redimensionar(anchoNuevo, altoNuevo) {
+      ancho = anchoNuevo;
       alto = altoNuevo;
-      camara.aspect = ancho / altoNuevo;
-      camara.updateProjectionMatrix();
+      camara.aspect = anchoNuevo / altoNuevo;
+      aux.aspect = camara.aspect;
+      aux.updateProjectionMatrix();
       const estabaAlejado = obj.dist >= distMax - EPSILON_ZOOM;
       distMax = distanciaMaxima(act.guino);
       guinoDeMax = act.guino;
@@ -244,12 +296,17 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
       act.dist = estabaAlejado ? distMax : Math.min(act.dist, distMax);
       aplicar();
     },
+    irA(x, z) {
+      obj.x = x;
+      obj.z = z;
+      limitar();
+    },
     estado() {
       return {
         x: act.x,
         z: act.z,
         distancia: act.dist,
-        cabeceoGrados: THREE.MathUtils.radToDeg(cabeceoPara(act.dist)),
+        cabeceoGrados: THREE.MathUtils.radToDeg(cabeceoPara(act.dist, act.incl)),
         guinoGrados: THREE.MathUtils.radToDeg(act.guino),
       };
     },
