@@ -1,0 +1,5 @@
+{
+  "jugador": { "velocidad": 260, "tamano": 28 },
+  "moneda": { "tamano": 14, "cantidadInicial": 5 },
+  "puntuacion": { "valorBase": 10, "bonusPorRacha": 5, "rachaMaxima": 5 }
+}
