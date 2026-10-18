@@ -1,0 +1,631 @@
+{
+  "juego": {
+    "slug": "sedimento",
+    "nombre": "SEDIMENTO",
+    "pitch": "Gobierna una ciudad-estado sumeria viva en un mundo hexagonal en tiempo real: cada cosecha, ley y crecida tiene consecuencias que se propagan por toda la sociedad.",
+    "motor": "three.js",
+    "genero": "city-builder / simulación de civilización",
+    "pilares": [
+      "Todo es físico y trazable",
+      "Crecer aprieta",
+      "La ciudad cuenta su historia"
+    ]
+  },
+  "fases": [
+    {
+      "id": "F01",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:30.797Z",
+      "titulo": "Mapa hexagonal 3D",
+      "objetivo": "Mapa procedural de ~48×40 hexágonos con relieve, río, lago, marismas, mar, montañas y árboles en low-poly iluminado (se borra la demo)",
+      "criterios": [
+        "test: misma semilla → mismo hash de mapa; semillas distintas → mapas distintos",
+        "test: el río es una cadena de hexágonos de agua conectada desde las montañas hasta el mar",
+        "estado shot: mapa.hexagonos ≈ 1920 y draw calls < 60",
+        "captura: se distinguen relieve, río, lago, mar, marisma, palmeras y montañas, con luz y sombras"
+      ]
+    },
+    {
+      "id": "F02",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:30.934Z",
+      "titulo": "Cámara de estrategia, selección y reloj",
+      "objetivo": "Cámara con desplazamiento (WASD o arrastre), zoom, rotación (Q/E) y límites; hexágono bajo el ratón resaltado; reloj con pausa y ×1, ×2, ×4",
+      "criterios": [
+        "test: conversión mundo ↔ coordenadas axiales ida y vuelta exacta",
+        "estado shot: tras KeyW:500 la cámara se mueve y queda dentro de los límites",
+        "estado shot: tiempo.dia aumenta a ×1 y no cambia en pausa (Space)",
+        "estado shot: seleccion.hex cambia al mover el ratón sobre el mapa"
+      ]
+    },
+    {
+      "id": "F03",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:31.107Z",
+      "titulo": "Hogares, almacén y raciones (headless)",
+      "objetivo": "6 hogares (30 personas) comen raciones del almacén del templo; HUD HTML con reservas en días",
+      "criterios": [
+        "test: con 300 raciones y 30 personas, la reserva baja 30/día y reservaDias = 10",
+        "test: con el almacén a 0, los hogares acumulan hambre y su satisfacción de comida baja",
+        "test: el estado completo se serializa con JSON y se restaura idéntico",
+        "estado shot: hud.reservaDias = almacen.cebada / consumoDiario"
+      ]
+    },
+    {
+      "id": "F04",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:31.281Z",
+      "titulo": "Habitantes visibles y rutas",
+      "objetivo": "Los adultos aparecen como figuras low-poly (InstancedMesh) que caminan con A* sobre los hexágonos",
+      "criterios": [
+        "test: A* evita el agua y prefiere el terreno llano; sin ruta posible devuelve null",
+        "test: un agente llega a su destino en el número de ticks esperado (±1)",
+        "estado shot: agentes.length ≥ 10 y sus posiciones cambian entre capturas",
+        "captura: figuras visibles caminando sobre el relieve"
+      ]
+    },
+    {
+      "id": "F05",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:31.448Z",
+      "titulo": "Construcción por etapas",
+      "objetivo": "Colocar una casa o un almacén con fantasma válido o inválido; la obra pasa por cimientos → materiales → trabajo → terminada, con andamio visible",
+      "criterios": [
+        "test: una obra sin material queda en estado esperando:<material> y no progresa",
+        "test: progreso/día = constructores × eficiencia; termina tras las personas-día exactas",
+        "estado shot: tras colocar una obra con el ratón aparece en obras[] con su etapa",
+        "captura: se ven las etapas de la obra (cimientos, andamio, terminada)"
+      ]
+    },
+    {
+      "id": "F06",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:31.666Z",
+      "titulo": "Logística: puestos y acarreos",
+      "objetivo": "Los edificios tienen puestos con prioridad; los porteadores llevan cargas concretas por una cola de tareas",
+      "criterios": [
+        "test: los puestos se cubren por prioridad con el adulto libre más cercano",
+        "test: sin porteadores libres, la carga se queda en origen y la obra no recibe material",
+        "test: el almacén respeta su capacidad; si está lleno, la tarea espera",
+        "estado shot: hay agentes con carga != null caminando hacia una obra"
+      ]
+    },
+    {
+      "id": "F07",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:31.841Z",
+      "titulo": "Agricultura y estaciones",
+      "objetivo": "Campos de cebada con siembra en otoño y cosecha en primavera; palmeral y pesca como alimentos alternativos",
+      "criterios": [
+        "test: cosecha = rindeBase × fertilidad × agua × sal × hoz (GDD simulacion §3.1)",
+        "test: la cosecha no recogida antes de la crecida se pierde",
+        "estado shot: calendario.estacion cambia en los meses 4, 7, 10 y 1",
+        "captura: los campos cambian de color y altura entre sembrado, creciendo y maduro"
+      ]
+    },
+    {
+      "id": "F08",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:32.015Z",
+      "titulo": "Canales, crecida y diques",
+      "objetivo": "Los canales llevan el agua a los campos; la crecida anual varía con un pronóstico cada vez más preciso; los diques protegen",
+      "criterios": [
+        "test: el pico anual sigue la distribución de tuning (media y σ en 1000 muestras con semilla)",
+        "test: el error del pronóstico se reduce del mes 10 al mes 1",
+        "test: un hexágono con dique no se inunda con un pico por debajo de su altura",
+        "captura: el nivel del agua sube visiblemente y cubre los hexágonos bajos en una crecida alta"
+      ]
+    },
+    {
+      "id": "F09",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:32.180Z",
+      "titulo": "Salinidad, colmatación y capas",
+      "objetivo": "El riego saliniza y el barbecho recupera; los canales pierden capacidad y hay que dragarlos; capas de mapa coloreadas",
+      "criterios": [
+        "test: +0,04 de salinidad por cosecha regada y −0,05 por año de barbecho",
+        "test: un canal sin dragar baja a 0,5 de capacidad en 2 años y reduce factorAgua",
+        "test: la orden de dragar crea una tarea de 3 personas-día que devuelve la capacidad a 1",
+        "estado shot: capa activa = salinidad (tecla) con valores > 0 tras 2 cosechas"
+      ]
+    },
+    {
+      "id": "F10",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:32.351Z",
+      "titulo": "Materiales y herramientas",
+      "objetivo": "Adobería (arcilla + paja → adobe), cañaveral y alfar (hoces de arcilla que se desgastan)",
+      "criterios": [
+        "test: la receta consume las entradas exactas y produce la salida tras su tiempo",
+        "test: las hoces se gastan con el uso y sin ellas factorHoz = 0,6",
+        "test: la adobería sin arcilla queda en estado sin-insumos",
+        "estado shot: almacen.adobe aumenta con una adobería funcionando"
+      ]
+    },
+    {
+      "id": "F11",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:32.542Z",
+      "titulo": "Necesidades, bienestar y expectativas",
+      "objetivo": "Cada hogar calcula su bienestar, sus expectativas asimétricas, su seguridad y su ánimo; el templo da servicio a ≤ 2 hexágonos",
+      "criterios": [
+        "test: fórmulas de GDD simulacion §3.3 con casos límite",
+        "test: tras 1 año bueno, el mismo nivel de vida da ánimo < 0 (asimetría de expectativas)",
+        "test: la variedad de alimentos sube la satisfacción de comida hasta un máximo de ×1,2",
+        "estado shot: hogares[i].animo existe y el HUD muestra el ánimo medio"
+      ]
+    },
+    {
+      "id": "F12",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:32.715Z",
+      "titulo": "Demografía y migración",
+      "objetivo": "Nacimientos, muertes, enfermedad, inmigración si prospera y emigración si sufre",
+      "criterios": [
+        "test: con ánimo < −0,25 durante 60 días, el hogar puede emigrar y se lleva su despensa",
+        "test: no hay inmigración sin vivienda libre",
+        "test headless: una ciudad pasiva decae, pero sigue viva en el año 3 (banda de balance)",
+        "estado shot: poblacion.total cambia a lo largo de 2 años simulados"
+      ]
+    },
+    {
+      "id": "F13",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:32.888Z",
+      "titulo": "Inspector «¿por qué?»",
+      "objetivo": "Clic en hexágono, edificio, hogar o agente → panel con estado y causas",
+      "criterios": [
+        "test: los hechos causales se registran con tipo, día, sujeto y causa",
+        "estado shot: tras hacer clic en una obra parada, inspector.causa = esperando:adobe",
+        "estado shot: tras hacer clic en un hogar, el inspector lista sus necesidades con su s y la ración recibida",
+        "captura: panel legible sin tapar el centro de la ciudad"
+      ]
+    },
+    {
+      "id": "F14",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:33.044Z",
+      "titulo": "Crónica",
+      "objetivo": "Registro de acontecimientos con fecha, causa y consecuencia, en un panel desplegable",
+      "criterios": [
+        "test: crecida alta, hambre, emigración, hito alcanzado y obra terminada generan entradas",
+        "test: cada entrada de consecuencia enlaza la id de su causa",
+        "estado shot: cronica.length > 0 tras un año simulado",
+        "captura: panel de crónica abierto"
+      ]
+    },
+    {
+      "id": "F15",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:33.217Z",
+      "titulo": "Hitos, victoria y derrota",
+      "objetivo": "Aldea → pueblo → ciudad (con templo); se gana con 3 años como ciudad y se pierde por abandono (< 15 hab.)",
+      "criterios": [
+        "test: los umbrales de hito salen de tuning y requieren templo para ser ciudad",
+        "test: < 15 habitantes → fin = derrota con la causa principal",
+        "test: 3 años seguidos como ciudad → fin = victoria y puntuación de legado",
+        "test headless: un guion competente llega a pueblo en 4–8 años"
+      ]
+    },
+    {
+      "id": "F16",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:33.388Z",
+      "titulo": "Bucle completo",
+      "objetivo": "Inicio → partida → victoria o derrota con resumen de la crónica → reiniciar con una semilla nueva sin fugas",
+      "criterios": [
+        "estado shot: tras reiniciar, tiempo.dia = 0 y renderer.info.memory no crece entre partidas",
+        "estado shot: la pantalla final muestra la causa y los 5 hechos clave",
+        "test: el reinicio con la misma semilla da el mismo mapa"
+      ]
+    },
+    {
+      "id": "F17",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:33.562Z",
+      "titulo": "Game feel",
+      "objetivo": "Respuesta satisfactoria al colocar, terminar obras, cosechar y en la crecida (skill game-feel)",
+      "criterios": [
+        "captura: tween al colocar y al terminar una obra, polvo de obra",
+        "test: los efectos no alteran el estado lógico (hash igual con efectos apagados)"
+      ]
+    },
+    {
+      "id": "F18",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:33.730Z",
+      "titulo": "Audio básico",
+      "objetivo": "Ambiente de río y viento, sonidos de obra y cosecha, y música que se tensa con reservas bajas",
+      "criterios": [
+        "estado shot: audio.capaTension sube cuando reservaDias < 30",
+        "estado shot: sin errores de consola al cargar el audio; volumen ajustable"
+      ]
+    },
+    {
+      "id": "F19",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:33.901Z",
+      "titulo": "UI y menús",
+      "objetivo": "Título, pausa, opciones mínimas y barra de construcción clara con estética antigua",
+      "criterios": [
+        "estado shot: pantallas titulo → partida → pausa → partida navegables por teclado",
+        "captura: HUD con reloj, estación, reservas, población, ánimo y pronóstico"
+      ]
+    },
+    {
+      "id": "F20",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:05:34.072Z",
+      "titulo": "Onboarding",
+      "objetivo": "Los primeros 2 años enseñan lo esencial con objetivos guiados y sin manual",
+      "criterios": [
+        "estado shot: objetivos guiados (almacén → campos → canal → casas) que avanzan con acciones reales",
+        "test headless: siguiendo solo los objetivos guiados se sobrevive al primer año"
+      ]
+    },
+    {
+      "id": "F21",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:12:53.868Z",
+      "titulo": "Pase de belleza",
+      "objetivo": "Luz dorada, sombras suaves, agua animada con orilla, niebla de distancia, árboles que se mecen y paisaje que cambia con la estación",
+      "criterios": [
+        "captura: comparación antes y después en el mismo encuadre y semilla",
+        "estado shot: perf.fpsMedio ≥ 55 con todos los efectos activados"
+      ]
+    },
+    {
+      "id": "F22",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T15:12:54.031Z",
+      "titulo": "Rendimiento",
+      "objetivo": "500 habitantes y 2 000 hexágonos a 60 FPS con tick < 4 ms a ×4",
+      "criterios": [
+        "estado shot: benchmark con 500 agentes → perf.fpsMedio ≥ 55, perf.tickMs < 4 y drawCalls < 150",
+        "test: hash determinista tras 10 años igual en dos ejecuciones"
+      ]
+    }
+  ],
+  "errores": [],
+  "faltantes": [],
+  "recomendaciones": [],
+  "decisiones": [
+    {
+      "id": "D001",
+      "t": "2026-10-18T15:04:14.602Z",
+      "texto": "Primera entrega = rebanada vertical 2D cenital de una sola ciudad (v0.1), con versiones cerradas hasta la 1.0",
+      "porque": "Lo eligió el usuario. Valida si sostener una ciudad física bajo presión es divertido antes de invertir en diplomacia o guerra; el 2D aguanta miles de agentes y se itera rápido"
+    },
+    {
+      "id": "D002",
+      "t": "2026-10-18T15:04:14.787Z",
+      "texto": "Civilización inicial: Sumer, periodo Dinástico Arcaico (~2900–2350 a. C.)",
+      "porque": "Lo eligió el usuario. Presión estructural documentada: crecida a destiempo, salinización, falta de piedra, madera y metal, y rivales vecinos"
+    },
+    {
+      "id": "D003",
+      "t": "2026-10-18T15:04:14.955Z",
+      "texto": "Economía v0.1 sin dinero: el jugador es el templo y paga raciones de cebada",
+      "porque": "Es históricamente fiel (economía redistributiva de templo, textos de raciones) y quita mercado y precios del primer alcance; la plata llega en v0.3"
+    },
+    {
+      "id": "D004",
+      "t": "2026-10-18T15:04:15.125Z",
+      "texto": "Simulación determinista: tick fijo de 20 Hz, RNG con semilla por sistema, sistemas como funciones que devuelven hechos causales",
+      "porque": "Permite reproducir bugs, probar el balance en modo headless, alimentar el inspector y la crónica, y portar la lógica a Godot o Unity"
+    },
+    {
+      "id": "D005",
+      "t": "2026-10-18T15:04:15.309Z",
+      "texto": "Escala temporal: 1 día ≈ 1 s a ×1, año de 360 días (~6 min); el desplazamiento local se comprime a propósito",
+      "porque": "Vuelve compatibles las obras (días), las estaciones (meses) y la población (años); que la logística se vea lenta hace que importe"
+    },
+    {
+      "id": "D006",
+      "t": "2026-10-18T15:07:18.251Z",
+      "texto": "Nombre del juego: SEDIMENTO (el slug sigue siendo imperium)",
+      "porque": "Lo eligió el usuario"
+    },
+    {
+      "id": "D007",
+      "t": "2026-10-18T15:07:18.412Z",
+      "texto": "Dureza de la v0.1: exigente pero justa. Se puede perder en el año 2 o 3 si se ignoran canales y reservas, pero las crisis siempre se anuncian",
+      "porque": "Lo eligió el usuario; guía los valores iniciales de tuning y las bandas de balance de los tests headless"
+    },
+    {
+      "id": "D008",
+      "t": "2026-10-18T15:12:54.208Z",
+      "texto": "Cambio de concepto visual: mapa hexagonal 3D low-poly en three.js (antes 2D cenital en Phaser); slug imperium → sedimento",
+      "porque": "Lo pidió el usuario («más guapo, más Civ 6»). Sin artista, el low-poly generado por código y bien iluminado luce más que el pixel art hecho por código. Se cambia antes de escribir código, así que no se pierde nada. Las fases F01–F20 (todas pendientes) se reescriben y se añaden F21 y F22"
+    },
+    {
+      "id": "D009",
+      "t": "2026-10-18T15:12:54.336Z",
+      "texto": "Combate híbrido: campaña en tiempo real y batallas tácticas por turnos (máx. 12 turnos, mundo congelado) con resolución automática opcional; se implementa en v0.5",
+      "porque": "Lo eligió el usuario. Es coherente con la escala (una batalla dura horas y un día son ~1 s), la IA táctica por turnos es más asequible y la batalla sigue atada a la economía (levas, equipo, suministro, bajas)"
+    }
+  ],
+  "conceptos": [
+    {
+      "id": "C001",
+      "t": "2026-10-18T15:04:15.473Z",
+      "concepto": "Bucles de realimentación (feedback loops)",
+      "explicacion": "En un juego de simulación, la diversión sale de bucles que se refuerzan (más comida → más gente → más trabajo → más comida) frente a bucles que equilibran (salinidad, mantenimiento, expectativas). Si solo hay refuerzo, el juego se vuelve fácil y repetitivo; si solo hay equilibrio, se estanca. IMPERIUM los enfrenta a propósito: ver docs/gdd/simulacion.md §2."
+    },
+    {
+      "id": "C002",
+      "t": "2026-10-18T15:04:15.662Z",
+      "concepto": "Tick fijo frente a frame",
+      "explicacion": "La simulación avanza en pasos de tamaño fijo (20 por segundo), independientes de los FPS; el render solo dibuja e interpola. Así la partida da el mismo resultado en un PC lento o en uno rápido, y a ×4 simplemente se ejecutan más pasos por frame. Es el patrón «Fix your timestep» de Glenn Fiedler."
+    },
+    {
+      "id": "C003",
+      "t": "2026-10-18T15:12:54.522Z",
+      "concepto": "Coordenadas axiales en hexágonos",
+      "explicacion": "Un mapa de hexágonos se indexa con dos coordenadas (q, r) en lugar de (x, y). Así, los 6 vecinos son sumas fijas: (+1,0), (−1,0), (0,+1), (0,−1), (+1,−1), (−1,+1), y la distancia es (|dq| + |dr| + |dq+dr|) / 2. La referencia clásica es la guía de hexágonos de Red Blob Games."
+    },
+    {
+      "id": "C004",
+      "t": "2026-10-18T15:12:54.656Z",
+      "concepto": "InstancedMesh y draw calls",
+      "explicacion": "Cada objeto 3D distinto cuesta una draw call (una orden a la GPU) y cientos de ellas hunden los FPS. InstancedMesh dibuja miles de copias de la misma geometría (2 000 hexágonos de hierba, 500 habitantes) en una sola draw call, cambiando solo la posición y el color de cada copia."
+    }
+  ],
+  "actividad": [
+    {
+      "t": "2026-10-18T15:12:54.657Z",
+      "texto": "Concepto: InstancedMesh y draw calls"
+    },
+    {
+      "t": "2026-10-18T15:12:54.524Z",
+      "texto": "Concepto: Coordenadas axiales en hexágonos"
+    },
+    {
+      "t": "2026-10-18T15:12:54.338Z",
+      "texto": "Decisión: Combate híbrido: campaña en tiempo real y batallas tácticas por turnos (máx. 12 turnos, mundo congelado) con resolución automática opcional; se implementa en v0.5"
+    },
+    {
+      "t": "2026-10-18T15:12:54.209Z",
+      "texto": "Decisión: Cambio de concepto visual: mapa hexagonal 3D low-poly en three.js (antes 2D cenital en Phaser); slug imperium → sedimento"
+    },
+    {
+      "t": "2026-10-18T15:12:54.065Z",
+      "texto": "Fase F22 creada: Rendimiento"
+    },
+    {
+      "t": "2026-10-18T15:12:53.899Z",
+      "texto": "Fase F21 creada: Pase de belleza"
+    },
+    {
+      "t": "2026-10-18T15:12:53.740Z",
+      "texto": "Fase F20 actualizada: Onboarding"
+    },
+    {
+      "t": "2026-10-18T15:12:53.572Z",
+      "texto": "Fase F19 actualizada: UI y menús"
+    },
+    {
+      "t": "2026-10-18T15:12:53.408Z",
+      "texto": "Fase F18 actualizada: Audio básico"
+    },
+    {
+      "t": "2026-10-18T15:12:53.237Z",
+      "texto": "Fase F17 actualizada: Game feel"
+    },
+    {
+      "t": "2026-10-18T15:12:53.074Z",
+      "texto": "Fase F16 actualizada: Bucle completo"
+    },
+    {
+      "t": "2026-10-18T15:12:52.887Z",
+      "texto": "Fase F15 actualizada: Hitos, victoria y derrota"
+    },
+    {
+      "t": "2026-10-18T15:12:52.740Z",
+      "texto": "Fase F14 actualizada: Crónica"
+    },
+    {
+      "t": "2026-10-18T15:12:52.571Z",
+      "texto": "Fase F13 actualizada: Inspector «¿por qué?»"
+    },
+    {
+      "t": "2026-10-18T15:12:52.412Z",
+      "texto": "Fase F12 actualizada: Demografía y migración"
+    },
+    {
+      "t": "2026-10-18T15:12:52.226Z",
+      "texto": "Fase F11 actualizada: Necesidades, bienestar y expectativas"
+    },
+    {
+      "t": "2026-10-18T15:12:52.073Z",
+      "texto": "Fase F10 actualizada: Materiales y herramientas"
+    },
+    {
+      "t": "2026-10-18T15:12:51.912Z",
+      "texto": "Fase F09 actualizada: Salinidad, colmatación y capas"
+    },
+    {
+      "t": "2026-10-18T15:12:51.754Z",
+      "texto": "Fase F08 actualizada: Canales, crecida y diques"
+    },
+    {
+      "t": "2026-10-18T15:12:51.590Z",
+      "texto": "Fase F07 actualizada: Agricultura y estaciones"
+    },
+    {
+      "t": "2026-10-18T15:12:51.438Z",
+      "texto": "Fase F06 actualizada: Logística: puestos y acarreos"
+    },
+    {
+      "t": "2026-10-18T15:12:51.277Z",
+      "texto": "Fase F05 actualizada: Construcción por etapas"
+    },
+    {
+      "t": "2026-10-18T15:12:51.115Z",
+      "texto": "Fase F04 actualizada: Habitantes visibles y rutas"
+    },
+    {
+      "t": "2026-10-18T15:12:50.947Z",
+      "texto": "Fase F03 actualizada: Hogares, almacén y raciones (headless)"
+    },
+    {
+      "t": "2026-10-18T15:12:50.766Z",
+      "texto": "Fase F02 actualizada: Cámara de estrategia, selección y reloj"
+    },
+    {
+      "t": "2026-10-18T15:12:50.582Z",
+      "texto": "Fase F01 actualizada: Mapa hexagonal 3D"
+    },
+    {
+      "t": "2026-10-18T15:07:18.414Z",
+      "texto": "Decisión: Dureza de la v0.1: exigente pero justa. Se puede perder en el año 2 o 3 si se ignoran canales y reservas, pero las crisis siempre se anuncian"
+    },
+    {
+      "t": "2026-10-18T15:07:18.253Z",
+      "texto": "Decisión: Nombre del juego: SEDIMENTO (el slug sigue siendo imperium)"
+    },
+    {
+      "t": "2026-10-18T15:07:18.078Z",
+      "texto": "Metadatos del juego actualizados"
+    },
+    {
+      "t": "2026-10-18T15:05:34.240Z",
+      "texto": "No hay skill de género city-builder en .claude/skill-library/genres; las fases se apoyan en docs/gdd/."
+    },
+    {
+      "t": "2026-10-18T15:05:34.103Z",
+      "texto": "Fase F20 creada: Pulido y rendimiento"
+    },
+    {
+      "t": "2026-10-18T15:05:33.933Z",
+      "texto": "Fase F19 creada: Onboarding"
+    },
+    {
+      "t": "2026-10-18T15:05:33.761Z",
+      "texto": "Fase F18 creada: UI y menús"
+    },
+    {
+      "t": "2026-10-18T15:05:33.595Z",
+      "texto": "Fase F17 creada: Audio básico"
+    },
+    {
+      "t": "2026-10-18T15:05:33.421Z",
+      "texto": "Fase F16 creada: Game feel"
+    },
+    {
+      "t": "2026-10-18T15:05:33.248Z",
+      "texto": "Fase F15 creada: Bucle completo"
+    },
+    {
+      "t": "2026-10-18T15:05:33.075Z",
+      "texto": "Fase F14 creada: Hitos, victoria y derrota"
+    },
+    {
+      "t": "2026-10-18T15:05:32.919Z",
+      "texto": "Fase F13 creada: Crónica"
+    },
+    {
+      "t": "2026-10-18T15:05:32.748Z",
+      "texto": "Fase F12 creada: Inspector «¿por qué?»"
+    },
+    {
+      "t": "2026-10-18T15:05:32.573Z",
+      "texto": "Fase F11 creada: Demografía y migración"
+    },
+    {
+      "t": "2026-10-18T15:05:32.385Z",
+      "texto": "Fase F10 creada: Necesidades, bienestar y expectativas"
+    },
+    {
+      "t": "2026-10-18T15:05:32.210Z",
+      "texto": "Fase F09 creada: Materiales y herramientas"
+    },
+    {
+      "t": "2026-10-18T15:05:32.045Z",
+      "texto": "Fase F08 creada: Salinidad y colmatación"
+    },
+    {
+      "t": "2026-10-18T15:05:31.873Z",
+      "texto": "Fase F07 creada: Canales, crecida y diques"
+    },
+    {
+      "t": "2026-10-18T15:05:31.696Z",
+      "texto": "Fase F06 creada: Agricultura y estaciones"
+    },
+    {
+      "t": "2026-10-18T15:05:31.478Z",
+      "texto": "Fase F05 creada: Logística: puestos y acarreos"
+    },
+    {
+      "t": "2026-10-18T15:05:31.313Z",
+      "texto": "Fase F04 creada: Construcción por etapas"
+    },
+    {
+      "t": "2026-10-18T15:05:31.139Z",
+      "texto": "Fase F03 creada: Habitantes visibles y rutas"
+    },
+    {
+      "t": "2026-10-18T15:05:30.968Z",
+      "texto": "Fase F02 creada: Hogares, almacén y raciones (headless)"
+    },
+    {
+      "t": "2026-10-18T15:05:30.798Z",
+      "texto": "Fase F01 creada: Mundo y reloj"
+    },
+    {
+      "t": "2026-10-18T15:04:15.663Z",
+      "texto": "Concepto: Tick fijo frente a frame"
+    },
+    {
+      "t": "2026-10-18T15:04:15.475Z",
+      "texto": "Concepto: Bucles de realimentación (feedback loops)"
+    },
+    {
+      "t": "2026-10-18T15:04:15.311Z",
+      "texto": "Decisión: Escala temporal: 1 día ≈ 1 s a ×1, año de 360 días (~6 min); el desplazamiento local se comprime a propósito"
+    },
+    {
+      "t": "2026-10-18T15:04:15.127Z",
+      "texto": "Decisión: Simulación determinista: tick fijo de 20 Hz, RNG con semilla por sistema, sistemas como funciones que devuelven hechos causales"
+    },
+    {
+      "t": "2026-10-18T15:04:14.957Z",
+      "texto": "Decisión: Economía v0.1 sin dinero: el jugador es el templo y paga raciones de cebada"
+    },
+    {
+      "t": "2026-10-18T15:04:14.789Z",
+      "texto": "Decisión: Civilización inicial: Sumer, periodo Dinástico Arcaico (~2900–2350 a. C.)"
+    },
+    {
+      "t": "2026-10-18T15:04:14.605Z",
+      "texto": "Decisión: Primera entrega = rebanada vertical 2D cenital de una sola ciudad (v0.1), con versiones cerradas hasta la 1.0"
+    },
+    {
+      "t": "2026-10-18T15:04:14.378Z",
+      "texto": "Metadatos del juego actualizados"
+    }
+  ],
+  "actualizado": "2026-10-18T15:12:54.657Z"
+}
