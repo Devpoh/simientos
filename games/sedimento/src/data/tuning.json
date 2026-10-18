@@ -63,19 +63,27 @@
       "marismaAgua": "#5fc4aa",
       "rio": "#3fc9b6",
       "lago": "#38b6cf",
-      "marCosta": "#58d6cc",
-      "marMedio": "#2aa5c6",
+      "marCosta": "#33bdb9",
+      "marMedio": "#2296bf",
       "marProfundo": "#1c6aa6",
       "espuma": "#d8f6f0",
-      "ladoSuperior": "#a98a63",
-      "ladoInferior": "#4a3a2c"
+      "ladoSuperior": "#bda076",
+      "ladoInferior": "#74603f"
     },
     "agua": {
       "opacidad": 0.86,
       "rugosidad": 0.28,
       "profundidadMaxMar": 5,
       "velocidadOlas": 1,
-      "oceanoExterior": 400
+      "oceanoExterior": 400,
+      "velocidadRio": 1,
+      "relieveOlas": 0.2,
+      "anchoEspuma": 0.4,
+      "anilloInterior": 0.78,
+      "fresnel": 0.55,
+      "colorEspuma": "#f4f0e2",
+      "detalleCerca": 8,
+      "detalleLejos": 30
     },
     "luz": {
       "colorSol": "#ffd9a3",
@@ -91,16 +99,31 @@
     "cielo": {
       "arriba": "#5f8fd0",
       "horizonte": "#f3d9b0",
-      "nieblaCerca": 110,
-      "nieblaLejos": 330
+      "nieblaCerca": 70,
+      "nieblaLejos": 320
     },
     "camara": {
       "fov": 34,
-      "cabeceoGrados": 50,
-      "guinoGrados": 0,
       "margen": 1.04,
-      "cerca": 1,
-      "lejos": 600
+      "cerca": 0.5,
+      "lejos": 700,
+      "distanciaMin": 6,
+      "cabeceoCercaGrados": 45,
+      "cabeceoLejosGrados": 65,
+      "limitePanLejos": 0.4,
+      "velocidadPan": 0.8,
+      "velocidadRotacion": 1.8,
+      "sensibilidadZoom": 0.0016,
+      "factorPellizco": 4,
+      "suavizado": 11,
+      "topeTeclaFrame": 0.5
+    },
+    "seleccion": {
+      "color": "#fff2b0",
+      "opacidadRelleno": 0.22,
+      "opacidadBorde": 0.95,
+      "grosorBorde": 0.08,
+      "pasoRayo": 0.12
     },
     "vegetacion": {
       "minPorHex": 2,
@@ -112,14 +135,20 @@
       "probRoca": 0.3
     },
     "relieve": {
-      "picosPorMontana": 2,
-      "alturaPico": 1.5,
-      "probSegundoPico": 0.4,
-      "escalaPicoMin": 0.9,
-      "escalaPicoMax": 1.45,
-      "probNieveTundra": 0.85,
-      "radioColina": 0.86,
-      "alturaColina": 0.42
+      "alturaPico": 2.3,
+      "alturaPicoBaja": 0.6,
+      "alturaColina": 0.45,
+      "frecuencia": 0.32,
+      "picoMin": 0.15,
+      "nieveLocal": 0.5,
+      "pesoCresta": 0.5,
+      "radioPico": 0.7,
+      "desplazamientoPico": 0.3,
+      "nieveTundra": 0.8,
+      "nieveDesde": 0.78,
+      "nieveBajada": 0.38,
+      "estratos": 0.05,
+      "variacionCara": 0.08
     }
   },
   "reloj": {

@@ -3,7 +3,11 @@ import tuning from './data/tuning.json';
 import { exponer, marcarListo, params } from './core/test-hooks';
 import { contarBiomas, contarTerrenos, generarMapa, hashMapa } from './logic/mapa';
 import { crearEscena } from './render/escena';
+import { alternarPausa, avanzar, crearReloj, fecha, fijarVelocidad } from './logic/reloj';
 import { crearMundo } from './render/mundo';
+import { crearSeleccion } from './render/seleccion';
+import { crearAtajosReloj } from './ui/atajos';
+import { crearHud, type AccionesHud } from './ui/hud';
 
 /** Máximo delta por frame (s): tras una pausa o cambio de pestaña no hay saltos. */
 const DELTA_MAXIMO = 0.1;
@@ -27,6 +31,35 @@ const mapa = generarMapa({ ...tuning.mapa, semilla }, tuning.clima);
 const mundo = crearMundo(mapa, tuning.render);
 const vista = crearEscena(contenedor, tuning.render, mundo.caja);
 vista.escena.add(mundo.raiz);
+const lienzo = vista.renderer.domElement;
+lienzo.style.display = 'block';
+
+const seleccion = crearSeleccion(mundo.disposicion, tuning.render);
+vista.escena.add(seleccion.raiz);
+// Posición del ratón sobre el lienzo (null si está fuera): se evalúa cada frame porque la cámara también se mueve.
+let cursor: { x: number; y: number } | null = null;
+const alMoverRaton = (e: PointerEvent) => {
+  const caja = lienzo.getBoundingClientRect();
+  cursor = { x: e.clientX - caja.left, y: e.clientY - caja.top };
+};
+const alSalirRaton = () => {
+  cursor = null;
+};
+lienzo.addEventListener('pointermove', alMoverRaton);
+lienzo.addEventListener('pointerleave', alSalirRaton);
+
+// Reloj de juego (lógica pura en logic/reloj.ts): el HUD y las teclas solo piden cambios.
+let reloj = crearReloj(tuning.reloj);
+const acciones: AccionesHud = {
+  alternarPausa: () => {
+    reloj = alternarPausa(reloj);
+  },
+  fijarVelocidad: (indice) => {
+    reloj = fijarVelocidad(reloj, tuning.reloj.velocidades[indice], tuning.reloj);
+  },
+};
+const hud = crearHud(contenedor, tuning.reloj.velocidades, acciones);
+const quitarAtajos = crearAtajosReloj(acciones, tuning.reloj.velocidades.length);
 
 // La semilla visible permite repetir un mapa que ha gustado (se puede reutilizar con ?semilla=N).
 const etiqueta = document.createElement('div');
@@ -36,13 +69,25 @@ contenedor.appendChild(etiqueta);
 
 exponer('mapa', () => ({ semilla: mapa.semilla, hexagonos: mapa.terreno.length, rios: mapa.rios.length, hash: hashMapa(mapa), terrenos: contarTerrenos(mapa), biomas: contarBiomas(mapa) }));
 exponer('render', () => ({ drawCalls: vista.renderer.info.render.calls, triangulos: vista.renderer.info.render.triangles, vegetacion: mundo.ejemplaresVegetacion }));
+exponer('camara', () => vista.control.estado());
+exponer('seleccion', () => {
+  const i = seleccion.hex;
+  return i === -1 ? { hex: -1 } : { hex: i, col: mundo.disposicion.rejilla.col(i), fila: mundo.disposicion.rejilla.fila(i), terreno: mapa.terreno[i], bioma: mapa.bioma[i] };
+});
+exponer('tiempo', () => ({ dia: fecha(reloj.tick, tuning.reloj).diaTotal, tick: reloj.tick, pausa: reloj.pausado, velocidad: reloj.velocidad }));
 
-const reloj = new THREE.Timer();
-reloj.connect(document);
+const temporizador = new THREE.Timer();
+temporizador.connect(document);
 let primerFrame = true;
 vista.renderer.setAnimationLoop((ts: number) => {
-  reloj.update(ts);
-  mundo.actualizar(Math.min(reloj.getDelta(), DELTA_MAXIMO));
+  temporizador.update(ts);
+  const dt = Math.min(temporizador.getDelta(), DELTA_MAXIMO);
+  reloj = avanzar(reloj, dt, tuning.reloj).reloj;
+  vista.actualizar(dt);
+  mundo.actualizar(dt);
+  const caja = lienzo.getBoundingClientRect();
+  seleccion.apuntar(cursor ? cursor.x : null, cursor ? cursor.y : 0, vista.camara, caja.width, caja.height);
+  hud.actualizar(fecha(reloj.tick, tuning.reloj), reloj.pausado, tuning.reloj.velocidades.indexOf(reloj.velocidad));
   vista.renderizar();
   if (primerFrame) {
     primerFrame = false;
@@ -53,7 +98,12 @@ vista.renderer.setAnimationLoop((ts: number) => {
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
     vista.renderer.setAnimationLoop(null);
-    reloj.dispose();
+    temporizador.dispose();
+    quitarAtajos();
+    hud.liberar();
+    lienzo.removeEventListener('pointermove', alMoverRaton);
+    lienzo.removeEventListener('pointerleave', alSalirRaton);
+    seleccion.liberar();
     etiqueta.remove();
     mundo.liberar();
     vista.liberar();

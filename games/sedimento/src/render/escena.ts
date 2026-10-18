@@ -1,18 +1,18 @@
 import * as THREE from 'three';
+import { crearControlCamara, type ControlCamara } from './camara';
 import type { ConfigRender } from './config';
 
 /** Tamaño del degradado del cielo (solo importa el alto: se estira a toda la pantalla). */
 const ALTO_CIELO = 256;
 /** A qué distancia del mapa se coloca el sol, en radios del mapa. Solo afecta al recorte de la sombra. */
 const DISTANCIA_SOL = 2;
-/** Pasos de la búsqueda binaria de la distancia de cámara. */
-const PASOS_ENCUADRE = 40;
-const DISTANCIA_MAXIMA_CAMARA = 2000;
 
 export interface Escena {
   readonly renderer: THREE.WebGLRenderer;
   readonly escena: THREE.Scene;
   readonly camara: THREE.PerspectiveCamera;
+  readonly control: ControlCamara;
+  actualizar(dt: number): void;
   renderizar(): void;
   liberar(): void;
 }
@@ -33,7 +33,7 @@ function crearCielo(cfg: ConfigRender): THREE.CanvasTexture {
   return textura;
 }
 
-/** Renderer, luces, cielo, niebla y una cámara fija que encuadra la caja `caja` entera. */
+/** Renderer, luces, cielo, niebla y una cámara de estrategia que parte encuadrando la caja `caja` entera. */
 export function crearEscena(contenedor: HTMLElement, cfg: ConfigRender, caja: THREE.Box3): Escena {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -76,38 +76,9 @@ export function crearEscena(contenedor: HTMLElement, cfg: ConfigRender, caja: TH
   sol.shadow.bias = -0.0004;
   sol.shadow.normalBias = 0.04;
   escena.add(sol, sol.target);
-
-  const camara = new THREE.PerspectiveCamera(cfg.camara.fov, 1, cfg.camara.cerca, cfg.camara.lejos);
-  const cabeceo = THREE.MathUtils.degToRad(cfg.camara.cabeceoGrados);
-  const guino = THREE.MathUtils.degToRad(cfg.camara.guinoGrados);
-  const direccion = new THREE.Vector3(Math.sin(guino) * Math.cos(cabeceo), Math.sin(cabeceo), Math.cos(guino) * Math.cos(cabeceo));
-
-  const esquinas: THREE.Vector3[] = [];
-  for (const x of [caja.min.x, caja.max.x]) for (const y of [caja.min.y, caja.max.y]) for (const z of [caja.min.z, caja.max.z]) esquinas.push(new THREE.Vector3(x, y, z));
-  const punto = new THREE.Vector3();
-
-  const cabe = (distancia: number): boolean => {
-    camara.position.copy(direccion).multiplyScalar(distancia).add(centro);
-    camara.lookAt(centro);
-    camara.updateMatrixWorld();
-    const limite = 1 / cfg.camara.margen;
-    return esquinas.every((e) => {
-      punto.copy(e).project(camara);
-      return Math.abs(punto.x) <= limite && Math.abs(punto.y) <= limite;
-    });
-  };
-
-  // Cámara fija: la distancia más corta con la que las 8 esquinas del mapa caben en pantalla.
-  const encuadrar = () => {
-    let cerca = 0;
-    let lejos = DISTANCIA_MAXIMA_CAMARA;
-    for (let k = 0; k < PASOS_ENCUADRE; k++) {
-      const medio = (cerca + lejos) / 2;
-      if (cabe(medio)) lejos = medio;
-      else cerca = medio;
-    }
-    cabe(lejos);
-  };
+  const control = crearControlCamara(renderer.domElement, cfg, caja);
+  const camara = control.camara;
+  const niebla = escena.fog as THREE.Fog;
 
   const redimensionar = () => {
     const ancho = contenedor.clientWidth || window.innerWidth;
@@ -115,9 +86,7 @@ export function crearEscena(contenedor: HTMLElement, cfg: ConfigRender, caja: TH
     if (ancho === 0 || alto === 0) return;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(ancho, alto);
-    camara.aspect = ancho / alto;
-    camara.updateProjectionMatrix();
-    encuadrar();
+    control.redimensionar(ancho, alto);
   };
   redimensionar();
   window.addEventListener('resize', redimensionar);
@@ -126,9 +95,17 @@ export function crearEscena(contenedor: HTMLElement, cfg: ConfigRender, caja: TH
     renderer,
     escena,
     camara,
+    control,
+    actualizar(dt) {
+      control.actualizar(dt);
+      // La niebla se mide desde la cámara: de cerca no tapa el mapa, de lejos funde el horizonte del océano.
+      niebla.near = control.distancia + cfg.cielo.nieblaCerca;
+      niebla.far = control.distancia + cfg.cielo.nieblaLejos;
+    },
     renderizar: () => renderer.render(escena, camara),
     liberar() {
       window.removeEventListener('resize', redimensionar);
+      control.liberar();
       cielo.dispose();
       sol.shadow.map?.dispose();
       renderer.dispose();

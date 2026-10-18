@@ -35,7 +35,8 @@
         "shot": "errores 0, mapa.hexagonos 1920, render.drawCalls 12 (<60)",
         "captura": "docs/evidencia/F01-mapa.png (mirada con Read; también semillas 7 y 12345)"
       },
-      "fin": "2026-10-18T22:37:34.428Z"
+      "fin": "2026-10-18T22:37:34.428Z",
+      "commit": "b75a203"
     },
     {
       "id": "F01b",
@@ -53,9 +54,46 @@
       ]
     },
     {
-      "id": "F02",
+      "id": "F01c",
       "estado": "en-curso",
       "hecho": [],
+      "creada": "2026-10-18T22:39:50.266Z",
+      "titulo": "Agua viva",
+      "objetivo": "Agua mucho más viva (R13): ríos que fluyen, costas con espuma y oleaje, superficie continua que refleja el cielo",
+      "criterios": [
+        "Los ríos muestran corriente que avanza en la dirección del cauce (del nacimiento a la desembocadura)",
+        "La orilla de mar, lago y río tiene espuma animada que respira, solo en los bordes que tocan tierra",
+        "El agua no muestra costuras entre hexágonos: color y olas continuos; profundo → somero según la distancia a la costa",
+        "Brillo especular del sol y reflejo del cielo (fresnel) sin texturas externas",
+        "Capturas de cerca y de lejos MIRADAS; drawCalls < 60; sin errores en shot"
+      ],
+      "inicio": "2026-10-18T22:39:50.268Z"
+    },
+    {
+      "id": "F01d",
+      "estado": "en-curso",
+      "hecho": [],
+      "creada": "2026-10-18T22:45:07.027Z",
+      "titulo": "Montañas de calidad",
+      "objetivo": "Montañas mucho menos básicas (R14): macizos con forma, crestas y laderas, roca con estratos, nieve con borde natural y colinas redondeadas",
+      "criterios": [
+        "Cada hexágono de montaña es un macizo irregular (varios picos, crestas y faldas), no un cono",
+        "Las montañas vecinas se funden en cordilleras, sin huecos entre conos",
+        "Color por altura y pendiente: falda verde o ocre, roca y nieve con borde irregular",
+        "Se ve bien de cerca y de lejos (capturas MIRADAS en los dos zooms)",
+        "drawCalls < 60 y shot sin errores"
+      ],
+      "inicio": "2026-10-18T22:45:07.029Z"
+    },
+    {
+      "id": "F02",
+      "estado": "hecha",
+      "hecho": [
+        "Cámara de estrategia: WASD/flechas, arrastre con botón derecho o central, rueda con zoom real (de ~3 hexágonos de alto a mapa entero), Q/E rotación, inclinación 45°→65° según el zoom, límites y suavizado exponencial; zoom del navegador bloqueado",
+        "Niebla relativa a la cámara",
+        "Hexágono bajo el ratón resaltado (rayo por altura + mundoAAxial) y exponer seleccion",
+        "Reloj integrado (A): Espacio pausa, 1/2/3 velocidades, HUD con fecha, estación y botones; exponer tiempo y camara"
+      ],
       "creada": "2026-10-18T15:05:30.934Z",
       "titulo": "Cámara de estrategia, selección y reloj",
       "objetivo": "Cámara con desplazamiento (WASD o arrastre), zoom, rotación (Q/E) y límites; hexágono bajo el ratón resaltado; reloj con pausa y ×1, ×2, ×4",
@@ -65,7 +103,13 @@
         "estado shot: tiempo.dia aumenta a ×1 y no cambia en pausa (Space)",
         "estado shot: seleccion.hex cambia al mover el ratón sobre el mapa"
       ],
-      "inicio": "2026-10-18T15:24:54.231Z"
+      "inicio": "2026-10-18T15:24:54.231Z",
+      "verificacion": {
+        "check": "tsc + 81/81 tests (round-trip mundo↔axial ya cubierto en hex.test.ts)",
+        "shot": "errores 0; KeyW:500 mueve camara.z 29,25→17,2 dentro de límites; seleccion.hex cambia con el ratón (1080, 984, 368…); tiempo.dia avanza a x1 y no en pausa; drawCalls 12",
+        "captura": "F02-cerca, F02-zoom-medio, F02-lejos, F02-rotado en docs/evidencia (miradas con Read)"
+      },
+      "fin": "2026-10-18T22:56:47.541Z"
     },
     {
       "id": "F03",
@@ -496,6 +540,34 @@
       "fase": "F01",
       "texto": "El mar usa un plano océano exterior justo bajo el lecho más bajo, más la malla instanciada translúcida con degradado costa→fondo",
       "porque": "El mapa tiene borde recto: el plano hace que el mar llegue al horizonte y dentro del mapa queda oculto bajo los prismas"
+    },
+    {
+      "id": "D020",
+      "t": "2026-10-18T22:39:50.547Z",
+      "fase": "F01c",
+      "texto": "La sesión A hace F01c (agua) en paralelo con F02 de B; solo toca src/render/agua.ts y tuning.render.agua",
+      "porque": "El usuario pidió mejorar mucho el agua (R13) y B está ocupada con la cámara. agua.ts es autocontenido y así no se pisan."
+    },
+    {
+      "id": "D021",
+      "t": "2026-10-18T22:51:46.980Z",
+      "fase": "F02",
+      "texto": "Las teclas de la cámara se miden con el tiempo real que han estado pulsadas (performance.now) y no sumando dt por frame",
+      "porque": "Con frames lentos (shot con swiftshader, equipos flojos) una pulsación corta entre dos frames se perdía; así el desplazamiento depende del tiempo y no de los FPS"
+    },
+    {
+      "id": "D022",
+      "t": "2026-10-18T22:51:47.347Z",
+      "fase": "F02",
+      "texto": "La niebla se mide desde la cámara (distancia al punto de mira + cielo.nieblaCerca/Lejos) y el zoom máximo es el que encuadra el mapa entero, recalculado al girar y al redimensionar",
+      "porque": "Con niebla absoluta, al acercarse la cámara el mapa quedaba velado; con zoom libre el mapa se podía perder"
+    },
+    {
+      "id": "D023",
+      "t": "2026-10-18T22:51:48.365Z",
+      "fase": "F02",
+      "texto": "Desplazamiento limitado a una fracción del mapa que crece al acercarse (limitePanLejos 0,4 a máximo alejamiento)",
+      "porque": "Evita perder el mapa de vista sin dejar la cámara clavada cuando se ve entera"
     }
   ],
   "conceptos": [
@@ -564,9 +636,81 @@
       "t": "2026-10-18T22:34:11.679Z",
       "concepto": "Low-poly con flat shading y geometría fusionada",
       "explicacion": "flatShading calcula la normal por cara, de ahí el aspecto facetado. Las piezas de un árbol (tronco + copas) se fusionan con mergeGeometries en una sola geometría con color por vértice, y se instancian: miles de árboles, una llamada de dibujo."
+    },
+    {
+      "id": "C012",
+      "t": "2026-10-18T22:38:50.094Z",
+      "concepto": "Zoom de cámara vs. zoom del navegador",
+      "explicacion": "Si amplías con el zoom del navegador o del touchpad, agrandas los píxeles de una imagen ya dibujada y se ve borroso, como una foto. El zoom de juego acerca la cámara 3D y redibuja la escena con todo el detalle. Por eso SEDIMENTO bloquea el zoom del navegador sobre el lienzo y usa la rueda para mover la cámara (F02)."
+    },
+    {
+      "id": "C013",
+      "t": "2026-10-18T22:51:45.172Z",
+      "concepto": "Cámara de estrategia: zoom ligado a la inclinación",
+      "explicacion": "La rueda cambia la distancia de la cámara al punto de mira y esa distancia decide el ángulo (casi cenital de lejos para ver el mapa entero, ~45° de cerca para ver los edificios y árboles en perspectiva). El estado deseado lo mueven las entradas y el real lo persigue con 1-exp(-k·dt), así el movimiento es suave y no depende de los FPS."
+    },
+    {
+      "id": "C014",
+      "t": "2026-10-18T22:51:45.670Z",
+      "concepto": "Elegir el hexágono bajo el ratón (picking)",
+      "explicacion": "Se lanza un rayo desde la cámara por el píxel del cursor y se avanza a pasos pequeños hasta que su altura baja de la del suelo de la celda que pisa; esa celda sale de mundoAAxial(x,z). Con un terreno de altura variable es más exacto que cortar con un plano y mucho más barato que un Raycaster contra miles de mallas instanciadas."
+    },
+    {
+      "id": "C015",
+      "t": "2026-10-18T22:51:46.682Z",
+      "concepto": "Bloquear el zoom del navegador en un juego",
+      "explicacion": "El pellizco del touchpad y Ctrl+rueda llegan como eventos wheel con ctrlKey: se cancelan con preventDefault (el listener debe ser no pasivo), se pone touch-action:none en el canvas y se anulan Ctrl +/-/0. Si el navegador hace zoom, estira el canvas y todo se ve pixelado: el zoom bueno es mover la cámara."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-18T22:56:47.595Z",
+      "texto": "Fase F02 → hecha: Cámara de estrategia, selección y reloj"
+    },
+    {
+      "t": "2026-10-18T22:51:48.374Z",
+      "texto": "Decisión: Desplazamiento limitado a una fracción del mapa que crece al acercarse (limitePanLejos 0,4 a máximo alejamiento)"
+    },
+    {
+      "t": "2026-10-18T22:51:47.358Z",
+      "texto": "Decisión: La niebla se mide desde la cámara (distancia al punto de mira + cielo.nieblaCerca/Lejos) y el zoom máximo es el que encuadra el mapa entero, recalculado al girar y al redimensionar"
+    },
+    {
+      "t": "2026-10-18T22:51:46.982Z",
+      "texto": "Decisión: Las teclas de la cámara se miden con el tiempo real que han estado pulsadas (performance.now) y no sumando dt por frame"
+    },
+    {
+      "t": "2026-10-18T22:51:46.684Z",
+      "texto": "Concepto: Bloquear el zoom del navegador en un juego"
+    },
+    {
+      "t": "2026-10-18T22:51:45.673Z",
+      "texto": "Concepto: Elegir el hexágono bajo el ratón (picking)"
+    },
+    {
+      "t": "2026-10-18T22:51:45.174Z",
+      "texto": "Concepto: Cámara de estrategia: zoom ligado a la inclinación"
+    },
+    {
+      "t": "2026-10-18T22:45:07.061Z",
+      "texto": "Fase F01d creada: Montañas de calidad"
+    },
+    {
+      "t": "2026-10-18T22:39:50.549Z",
+      "texto": "Decisión: La sesión A hace F01c (agua) en paralelo con F02 de B; solo toca src/render/agua.ts y tuning.render.agua"
+    },
+    {
+      "t": "2026-10-18T22:39:50.313Z",
+      "texto": "Fase F01c creada: Agua viva"
+    },
+    {
+      "t": "2026-10-18T22:38:50.095Z",
+      "texto": "Concepto: Zoom de cámara vs. zoom del navegador"
+    },
+    {
+      "t": "2026-10-18T22:37:45.497Z",
+      "texto": "Fase F01 actualizada: Mapa hexagonal 3D"
+    },
     {
       "t": "2026-10-18T22:37:34.706Z",
       "texto": "Fase F01b creada: Pulido visual del mapa"
@@ -916,5 +1060,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T22:37:34.706Z"
+  "actualizado": "2026-10-18T22:56:47.595Z"
 }
