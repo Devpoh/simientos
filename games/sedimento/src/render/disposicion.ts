@@ -1,0 +1,60 @@
+import * as THREE from 'three';
+import { axialAMundo, Rejilla } from '../logic/hex';
+import { esAgua, type Mapa } from '../logic/mapa';
+import type { ConfigRender } from './config';
+
+/** Dónde está cada hexágono en el mundo 3D y a qué altura queda su cara superior. */
+export interface Disposicion {
+  readonly rejilla: Rejilla;
+  readonly x: Float32Array;
+  readonly z: Float32Array;
+  /** Cota de la cara superior del prisma: la tierra, o el lecho bajo el agua. */
+  readonly cima: Float32Array;
+  /** Cota de la superficie del agua; NaN donde no hay agua. */
+  readonly aguaY: Float32Array;
+  /** Saltos hasta la tierra más cercana (solo se usa en el mar, para el degradado de profundidad). */
+  readonly distCosta: number[];
+  /** Caja que contiene todo el mapa, picos incluidos: la cámara encuadra con ella. */
+  readonly caja: THREE.Box3;
+}
+
+
+/** Altura típica (a escala 1) de un árbol: solo sirve para que el encuadre de cámara no deje fuera las copas. */
+const ALTURA_BASE_VEGETACION = 0.8;
+
+export function crearDisposicion(mapa: Mapa, cfg: ConfigRender): Disposicion {
+  const rejilla = new Rejilla(mapa.columnas, mapa.filas);
+  const n = rejilla.total;
+  const x = new Float32Array(n);
+  const z = new Float32Array(n);
+  const cima = new Float32Array(n);
+  const aguaY = new Float32Array(n).fill(NaN);
+  const caja = new THREE.Box3();
+  const R = cfg.tamanoHex;
+  const alto = cfg.alturaNivel;
+
+  for (let i = 0; i < n; i++) {
+    const { q, r } = rejilla.axial(i);
+    const p = axialAMundo(q, r, R);
+    x[i] = p.x;
+    z[i] = p.z;
+    if (esAgua(mapa.terreno[i])) {
+      // El agua queda por debajo de la orilla más baja: así el río y el mar se leen como hundidos.
+      aguaY[i] = (mapa.nivel[i] + 1 - cfg.rebajeAgua) * alto;
+      cima[i] = Math.max(0.02, aguaY[i] - cfg.profundidadLecho * alto);
+    } else {
+      cima[i] = (mapa.nivel[i] + 1) * alto;
+    }
+    const relieve = mapa.terreno[i] === 'montana' ? cfg.relieve.alturaPico : mapa.terreno[i] === 'colina' ? cfg.relieve.alturaColina : 0;
+    const arbol = mapa.vegetacion[i] === 'ninguna' ? 0 : ALTURA_BASE_VEGETACION * cfg.vegetacion.escalaMax;
+    const techo = cima[i] + Math.max(relieve, arbol);
+    caja.expandByPoint(new THREE.Vector3(p.x - R, 0, p.z - R));
+    caja.expandByPoint(new THREE.Vector3(p.x + R, techo, p.z + R));
+  }
+
+  const tierra: number[] = [];
+  for (let i = 0; i < n; i++) if (mapa.terreno[i] !== 'mar') tierra.push(i);
+  const distCosta = rejilla.distanciasDesde(tierra);
+
+  return { rejilla, x, z, cima, aguaY, distCosta, caja };
+}

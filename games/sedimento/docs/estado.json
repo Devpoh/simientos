@@ -14,8 +14,12 @@
   "fases": [
     {
       "id": "F01",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Lógica de mapa, clima y hex con tests (A)",
+        "Render 3D low-poly: terreno hexagonal instanciado con relieve y color por bioma/fertilidad, agua animada (río, lago, mar, marisma), picos y colinas, palmeras/coníferas/árboles/cañas y rocas, luz cálida con sombras, ACES, niebla y cámara fija encuadrada",
+        "Semilla por ?semilla, ?test o aleatoria; exponer render"
+      ],
       "creada": "2026-10-18T15:05:30.797Z",
       "titulo": "Mapa hexagonal 3D",
       "objetivo": "Mapa procedural de ~48×40 hexágonos con relieve, río, lago, marismas, mar, montañas y árboles en low-poly iluminado (se borra la demo)",
@@ -24,11 +28,33 @@
         "test: el río es una cadena de hexágonos de agua conectada desde las montañas hasta el mar",
         "estado shot: mapa.hexagonos ≈ 1920 y draw calls < 60",
         "captura: se distinguen relieve, río, lago, mar, marisma, palmeras y montañas, con luz y sombras"
+      ],
+      "inicio": "2026-10-18T15:24:54.018Z",
+      "verificacion": {
+        "check": "tsc + 81/81 tests",
+        "shot": "errores 0, mapa.hexagonos 1920, render.drawCalls 12 (<60)",
+        "captura": "docs/evidencia/F01-mapa.png (mirada con Read; también semillas 7 y 12345)"
+      },
+      "fin": "2026-10-18T22:37:34.428Z"
+    },
+    {
+      "id": "F01b",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T22:37:34.675Z",
+      "titulo": "Pulido visual del mapa",
+      "objetivo": "Mejorar el aspecto del mapa 3D tras F01: borde del mapa, variedad del relieve y del desierto",
+      "criterios": [
+        "El borde del mapa muere en el mar o la niebla (sin caras de caja)",
+        "Montañas con más variedad de forma y altura, nieve solo en cumbres altas",
+        "Desierto con dunas o detalles más visibles",
+        "Marisma y costa más legibles",
+        "Captura mirada y draw calls < 60"
       ]
     },
     {
       "id": "F02",
-      "estado": "pendiente",
+      "estado": "en-curso",
       "hecho": [],
       "creada": "2026-10-18T15:05:30.934Z",
       "titulo": "Cámara de estrategia, selección y reloj",
@@ -38,7 +64,8 @@
         "estado shot: tras KeyW:500 la cámara se mueve y queda dentro de los límites",
         "estado shot: tiempo.dia aumenta a ×1 y no cambia en pausa (Space)",
         "estado shot: seleccion.hex cambia al mover el ratón sobre el mapa"
-      ]
+      ],
+      "inicio": "2026-10-18T15:24:54.231Z"
     },
     {
       "id": "F03",
@@ -56,8 +83,10 @@
     },
     {
       "id": "F04",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "en-curso",
+      "hecho": [
+        "rutas.ts: A* con min-heap y heurística admisible (sesión C), 8 tests en verde. Falta: agentes que caminan las rutas"
+      ],
       "creada": "2026-10-18T15:05:31.281Z",
       "titulo": "Habitantes visibles y rutas",
       "objetivo": "Los adultos aparecen como figuras low-poly (InstancedMesh) que caminan con A* sobre los hexágonos",
@@ -66,12 +95,15 @@
         "test: un agente llega a su destino en el número de ticks esperado (±1)",
         "estado shot: agentes.length ≥ 10 y sus posiciones cambian entre capturas",
         "captura: figuras visibles caminando sobre el relieve"
-      ]
+      ],
+      "inicio": "2026-10-18T22:29:53.418Z"
     },
     {
       "id": "F05",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "en-curso",
+      "hecho": [
+        "Lógica: motivoNoConstruible/puedeConstruir/colocarObra, fundarAsentamiento (almacén junto al agua + una choza por hogar), Rejilla.entorno; constructores limitados al trabajo pendiente; tests/obras.test.ts (11) en verde. Falta: fantasma con ratón, andamio visible y captura (tras F01/F02)"
+      ],
       "creada": "2026-10-18T15:05:31.448Z",
       "titulo": "Construcción por etapas",
       "objetivo": "Colocar una casa o un almacén con fantasma válido o inválido; la obra pasa por cimientos → materiales → trabajo → terminada, con andamio visible",
@@ -80,7 +112,8 @@
         "test: progreso/día = constructores × eficiencia; termina tras las personas-día exactas",
         "estado shot: tras colocar una obra con el ratón aparece en obras[] con su etapa",
         "captura: se ven las etapas de la obra (cimientos, andamio, terminada)"
-      ]
+      ],
+      "inicio": "2026-10-18T22:29:53.194Z"
     },
     {
       "id": "F06",
@@ -308,9 +341,38 @@
       ]
     }
   ],
-  "errores": [],
+  "errores": [
+    {
+      "id": "E001",
+      "t": "2026-10-18T22:35:30.905Z",
+      "estado": "resuelto",
+      "fase": "F01",
+      "sintoma": "Las montañas forman un muro recto horizontal",
+      "causa": "La altura base saltaba de 0,62 a 0,34 justo en la fila bordeMontanas, y la ondulación estiraba el perfil en vez de desplazarlo",
+      "solucion": "Perfil continuo (smoothstep) y desplazamiento por columna con fbm de baja frecuencia (tuning.mapa.ondulacionBordes)"
+    }
+  ],
   "faltantes": [],
-  "recomendaciones": [],
+  "recomendaciones": [
+    {
+      "id": "R001",
+      "t": "2026-10-18T22:34:16.085Z",
+      "prioridad": "baja",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Dar un borde al mapa (acantilado, playa o isla con orla de espuma) en vez del corte recto sobre el océano, y variar el desierto con roca y arbustos sueltos",
+      "porque": "El mapa se ve como una losa sobre el agua y el desierto (más de la mitad del mapa) es una superficie plana beige; un borde y detalles lo acercarían a Civ 6"
+    },
+    {
+      "id": "R002",
+      "t": "2026-10-18T22:35:30.725Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Pulido del mapa: variar el color por hexágono en el desierto y añadir detalle disperso, quitar los puntos blancos del mar, que los bordes del mapa mueran en el agua o la niebla, y montañas con variación de escala y menos picos",
+      "porque": "Revisión con captura de A (R12): la mitad del mapa es una mancha beige uniforme y los bordes tienen forma de caja"
+    }
+  ],
   "decisiones": [
     {
       "id": "D001",
@@ -365,6 +427,75 @@
       "t": "2026-10-18T15:12:54.336Z",
       "texto": "Combate híbrido: campaña en tiempo real y batallas tácticas por turnos (máx. 12 turnos, mundo congelado) con resolución automática opcional; se implementa en v0.5",
       "porque": "Lo eligió el usuario. Es coherente con la escala (una batalla dura horas y un día son ~1 s), la IA táctica por turnos es más asequible y la batalla sigue atada a la economía (levas, equipo, suministro, bajas)"
+    },
+    {
+      "id": "D010",
+      "t": "2026-10-18T15:24:54.430Z",
+      "fase": "F02",
+      "texto": "La partida empieza en el mes 4 (verano)",
+      "porque": "El verano es la estación tranquila (sin siembra ni crecida): el jugador tiene unos 3 meses para montar almacén, casas y canales antes de la siembra de otoño. Es el primer tramo de calma del ritmo calma → tensión"
+    },
+    {
+      "id": "D011",
+      "t": "2026-10-18T15:32:45.192Z",
+      "fase": "F01",
+      "texto": "Mapa siempre aleatorio: cada partida usa una semilla nueva (visible y reutilizable); varían el relieve, 1–2 ríos (el segundo confluye), 1–2 lagos, la costa y el clima ±1,5 °C / ±25 % de lluvia",
+      "porque": "Requisito del usuario R9 (que no sea repetitivo). La semilla fija solo se usa en tests y shot para que la verificación sea reproducible"
+    },
+    {
+      "id": "D012",
+      "t": "2026-10-18T15:32:45.386Z",
+      "fase": "F01",
+      "texto": "Biomas por modelo climático (Whittaker): temperatura por altitud (−6,5 °C/km), lluvia orográfica; 10 biomas. En Sumer: desierto en el valle → bosque → taiga → tundra → nieve; los tropicales llegan con la latitud en el mapa mundial (v0.4)",
+      "porque": "Requisito del usuario R10 (todos los biomas con un orden lógico). En un valle de ~2 km no puede haber tundra junto a la selva; la altitud da el orden lógico ahora y la latitud lo completará en v0.4"
+    },
+    {
+      "id": "D013",
+      "t": "2026-10-18T15:36:36.610Z",
+      "fase": "F04",
+      "texto": "Movimiento a pie: llanura 1, colina 2, marisma 3, montaña 5, río 8 (vadear), lago y mar intransitables; +0,5 por escalón de altura",
+      "porque": "Los ríos se pueden cruzar a pie con coste alto hasta que haya puentes o barcas (más adelante): así el río divide la ciudad sin bloquearla. Las marismas son lentas, como en la realidad"
+    },
+    {
+      "id": "D014",
+      "t": "2026-10-18T22:29:53.703Z",
+      "fase": "F05",
+      "texto": "Una obra recibe como mucho los constructores que necesita su trabajo pendiente (ceil), no siempre el máximo",
+      "porque": "Así el trabajo sobrante queda libre para otras obras y la duración en personas-día es exacta y predecible para el jugador"
+    },
+    {
+      "id": "D015",
+      "t": "2026-10-18T22:31:10.899Z",
+      "texto": "R12: toda entrega con cambio visible se verifica con captura que A mira personalmente antes de aceptarla; cada fase visual deja al menos una mejora gráfica anotada (reco) o aplicada",
+      "porque": "Petición explícita del usuario: seguir las reglas de las skills, revisar todo con captura constantemente e ir perfeccionando los gráficos"
+    },
+    {
+      "id": "D016",
+      "t": "2026-10-18T22:34:09.993Z",
+      "fase": "F01",
+      "texto": "Semilla: ?semilla=N manda; sin ella, con ?test se usa tuning.mapa.semilla; si no, aleatoria con crypto.getRandomValues",
+      "porque": "R9 pide un mapa nuevo en cada partida, pero shot (que abre ?test=1) necesita capturas reproducibles"
+    },
+    {
+      "id": "D017",
+      "t": "2026-10-18T22:34:10.179Z",
+      "fase": "F01",
+      "texto": "Sombras con PCFShadowMap y bias/normalBias ajustados, sombra ortográfica del tamaño del mapa a 4096",
+      "porque": "En three 0.186 PCFSoftShadowMap está eliminado; PCFShadowMap se ve bien con 4096 y es barato"
+    },
+    {
+      "id": "D018",
+      "t": "2026-10-18T22:34:10.381Z",
+      "fase": "F01",
+      "texto": "Todo el terreno es un solo InstancedMesh (prisma por hexágono, también bajo el agua) y el agua otro; una malla instanciada por especie de vegetación y por tipo de relieve",
+      "porque": "19 draw calls con 1920 hexágonos y ~940 árboles; el límite era 60"
+    },
+    {
+      "id": "D019",
+      "t": "2026-10-18T22:34:10.593Z",
+      "fase": "F01",
+      "texto": "El mar usa un plano océano exterior justo bajo el lecho más bajo, más la malla instanciada translúcida con degradado costa→fondo",
+      "porque": "El mapa tiene borde recto: el plano hace que el mar llegue al horizonte y dentro del mapa queda oculto bajo los prismas"
     }
   ],
   "conceptos": [
@@ -391,9 +522,167 @@
       "t": "2026-10-18T15:12:54.656Z",
       "concepto": "InstancedMesh y draw calls",
       "explicacion": "Cada objeto 3D distinto cuesta una draw call (una orden a la GPU) y cientos de ellas hunden los FPS. InstancedMesh dibuja miles de copias de la misma geometría (2 000 hexágonos de hierba, 500 habitantes) en una sola draw call, cambiando solo la posición y el color de cada copia."
+    },
+    {
+      "id": "C005",
+      "t": "2026-10-18T15:32:45.583Z",
+      "concepto": "Diagrama de Whittaker (biomas)",
+      "explicacion": "En ecología, el bioma de un lugar se predice con dos números: la temperatura media anual y la lluvia anual. SEDIMENTO calcula ambos por hexágono (la temperatura baja 6,5 °C por cada km de altitud) y los clasifica con esa tabla. Así las zonas salen solas y en orden lógico: desierto en el valle y nieve en las cumbres. Ver docs/gdd/mapa.md."
+    },
+    {
+      "id": "C006",
+      "t": "2026-10-18T22:34:10.795Z",
+      "concepto": "Color de vértice × color de instancia",
+      "explicacion": "En three, con vertexColors y setColorAt el color final es el producto de ambos. Así un solo prisma hexagonal sirve para todos los hexágonos: el color de vértice dibuja el borde oscuro y el lateral tierra, y el de instancia pone el bioma. Si quieres un color absoluto en una parte (nieve), el multiplicador de instancia debe ser casi blanco."
+    },
+    {
+      "id": "C007",
+      "t": "2026-10-18T22:34:10.999Z",
+      "concepto": "onBeforeCompile (shaders sobre materiales estándar)",
+      "explicacion": "Permite inyectar GLSL en un MeshStandardMaterial sin escribir un shader entero: sustituyes un trozo (#include <color_fragment>) por el mismo trozo más tu código. El agua usa un uniform uTiempo y la posición en el mundo para olas, normal perturbada y destellos, y conserva luces, sombras y niebla gratis."
+    },
+    {
+      "id": "C008",
+      "t": "2026-10-18T22:34:11.178Z",
+      "concepto": "Sombras direccionales",
+      "explicacion": "El sol proyecta una sombra con una cámara ortográfica (shadow.camera) que debe abarcar solo la escena visible: más pequeña = más nitidez con el mismo mapa de sombra (4096 px). bias y normalBias evitan el acné (rayas de autosombra) sin despegar la sombra del objeto."
+    },
+    {
+      "id": "C009",
+      "t": "2026-10-18T22:34:11.339Z",
+      "concepto": "Tone mapping ACES y niebla",
+      "explicacion": "ACESFilmic comprime los brillos como una película: la luz dorada intensa no quema los colores claros y el cielo sale más cinematográfico. toneMappingExposure es el control de brillo global. Fog funde los objetos lejanos con el color del horizonte para dar profundidad."
+    },
+    {
+      "id": "C010",
+      "t": "2026-10-18T22:34:11.512Z",
+      "concepto": "Encuadre de cámara fija",
+      "explicacion": "Para que un mapa entero quepa en pantalla en cualquier proporción se busca, por bisección, la distancia mínima de la cámara a la que las 8 esquinas de la caja del mapa caen dentro de NDC (±1) con un margen. Se recalcula al redimensionar."
+    },
+    {
+      "id": "C011",
+      "t": "2026-10-18T22:34:11.679Z",
+      "concepto": "Low-poly con flat shading y geometría fusionada",
+      "explicacion": "flatShading calcula la normal por cara, de ahí el aspecto facetado. Las piezas de un árbol (tronco + copas) se fusionan con mergeGeometries en una sola geometría con color por vértice, y se instancian: miles de árboles, una llamada de dibujo."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-18T22:37:34.706Z",
+      "texto": "Fase F01b creada: Pulido visual del mapa"
+    },
+    {
+      "t": "2026-10-18T22:37:34.462Z",
+      "texto": "Fase F01 → hecha: Mapa hexagonal 3D"
+    },
+    {
+      "t": "2026-10-18T22:35:30.907Z",
+      "texto": "Error E001 (resuelto): Las montañas forman un muro recto horizontal"
+    },
+    {
+      "t": "2026-10-18T22:35:30.727Z",
+      "texto": "Recomendación (arte): Pulido del mapa: variar el color por hexágono en el desierto y añadir detalle disperso, quitar los puntos blancos del mar, que los bordes del mapa mueran en el agua o la niebla, y montañas con variación de escala y menos picos"
+    },
+    {
+      "t": "2026-10-18T22:34:16.087Z",
+      "texto": "Recomendación (arte): Dar un borde al mapa (acantilado, playa o isla con orla de espuma) en vez del corte recto sobre el océano, y variar el desierto con roca y arbustos sueltos"
+    },
+    {
+      "t": "2026-10-18T22:34:11.680Z",
+      "texto": "Concepto: Low-poly con flat shading y geometría fusionada"
+    },
+    {
+      "t": "2026-10-18T22:34:11.514Z",
+      "texto": "Concepto: Encuadre de cámara fija"
+    },
+    {
+      "t": "2026-10-18T22:34:11.340Z",
+      "texto": "Concepto: Tone mapping ACES y niebla"
+    },
+    {
+      "t": "2026-10-18T22:34:11.180Z",
+      "texto": "Concepto: Sombras direccionales"
+    },
+    {
+      "t": "2026-10-18T22:34:11.001Z",
+      "texto": "Concepto: onBeforeCompile (shaders sobre materiales estándar)"
+    },
+    {
+      "t": "2026-10-18T22:34:10.798Z",
+      "texto": "Concepto: Color de vértice × color de instancia"
+    },
+    {
+      "t": "2026-10-18T22:34:10.595Z",
+      "texto": "Decisión: El mar usa un plano océano exterior justo bajo el lecho más bajo, más la malla instanciada translúcida con degradado costa→fondo"
+    },
+    {
+      "t": "2026-10-18T22:34:10.383Z",
+      "texto": "Decisión: Todo el terreno es un solo InstancedMesh (prisma por hexágono, también bajo el agua) y el agua otro; una malla instanciada por especie de vegetación y por tipo de relieve"
+    },
+    {
+      "t": "2026-10-18T22:34:10.182Z",
+      "texto": "Decisión: Sombras con PCFShadowMap y bias/normalBias ajustados, sombra ortográfica del tamaño del mapa a 4096"
+    },
+    {
+      "t": "2026-10-18T22:34:09.996Z",
+      "texto": "Decisión: Semilla: ?semilla=N manda; sin ella, con ?test se usa tuning.mapa.semilla; si no, aleatoria con crypto.getRandomValues"
+    },
+    {
+      "t": "2026-10-18T22:31:10.901Z",
+      "texto": "Decisión: R12: toda entrega con cambio visible se verifica con captura que A mira personalmente antes de aceptarla; cada fase visual deja al menos una mejora gráfica anotada (reco) o aplicada"
+    },
+    {
+      "t": "2026-10-18T22:29:53.705Z",
+      "texto": "Decisión: Una obra recibe como mucho los constructores que necesita su trabajo pendiente (ceil), no siempre el máximo"
+    },
+    {
+      "t": "2026-10-18T22:29:53.451Z",
+      "texto": "Fase F04 → en-curso: Habitantes visibles y rutas"
+    },
+    {
+      "t": "2026-10-18T22:29:53.231Z",
+      "texto": "Fase F05 → en-curso: Construcción por etapas"
+    },
+    {
+      "t": "2026-10-18T15:38:26.225Z",
+      "texto": "Autopiloto pausado por límite de uso. Estado: F01 lógica hecha (A) y render en curso (B); F02 reloj hecho (C, sin commit); F03 lógica de simulación y raciones hecha (A, sin commit, falta HUD); F04 A* en curso (C); F05 obras a medias (A): trabajarObras hecho, faltan puedeConstruir, colocarObra, fundarAsentamiento y tests. Al retomar: leer este estado y studio/sesiones.json."
+    },
+    {
+      "t": "2026-10-18T15:36:36.619Z",
+      "texto": "Decisión: Movimiento a pie: llanura 1, colina 2, marisma 3, montaña 5, río 8 (vadear), lago y mar intransitables; +0,5 por escalón de altura"
+    },
+    {
+      "t": "2026-10-18T15:32:45.762Z",
+      "texto": "Nuevo documento docs/requisitos-usuario.md: lista viva de lo que el usuario pidió (R1–R11). Todas las sesiones deben leerlo."
+    },
+    {
+      "t": "2026-10-18T15:32:45.584Z",
+      "texto": "Concepto: Diagrama de Whittaker (biomas)"
+    },
+    {
+      "t": "2026-10-18T15:32:45.388Z",
+      "texto": "Decisión: Biomas por modelo climático (Whittaker): temperatura por altitud (−6,5 °C/km), lluvia orográfica; 10 biomas. En Sumer: desierto en el valle → bosque → taiga → tundra → nieve; los tropicales llegan con la latitud en el mapa mundial (v0.4)"
+    },
+    {
+      "t": "2026-10-18T15:32:45.193Z",
+      "texto": "Decisión: Mapa siempre aleatorio: cada partida usa una semilla nueva (visible y reutilizable); varían el relieve, 1–2 ríos (el segundo confluye), 1–2 lagos, la costa y el clima ±1,5 °C / ±25 % de lluvia"
+    },
+    {
+      "t": "2026-10-18T15:24:54.431Z",
+      "texto": "Decisión: La partida empieza en el mes 4 (verano)"
+    },
+    {
+      "t": "2026-10-18T15:24:54.262Z",
+      "texto": "Fase F02 → en-curso: Cámara de estrategia, selección y reloj"
+    },
+    {
+      "t": "2026-10-18T15:24:54.069Z",
+      "texto": "Fase F01 → en-curso: Mapa hexagonal 3D"
+    },
+    {
+      "t": "2026-10-18T15:24:26.834Z",
+      "texto": "Autopiloto iniciado: objetivo todas las fases pendientes (22), con reparto entre las sesiones A, B y C"
+    },
     {
       "t": "2026-10-18T15:12:54.657Z",
       "texto": "Concepto: InstancedMesh y draw calls"
@@ -627,5 +916,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T15:12:54.657Z"
+  "actualizado": "2026-10-18T22:37:34.706Z"
 }

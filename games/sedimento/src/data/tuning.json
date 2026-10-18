@@ -1,7 +1,302 @@
 {
-  "jugador": { "velocidad": 6, "tamano": 1 },
-  "moneda": { "radio": 0.35, "cantidadInicial": 6, "radioRecogida": 0.9 },
-  "mundo": { "mitadLado": 10 },
-  "camara": { "altura": 9, "distancia": 11, "suavizado": 6 },
-  "puntuacion": { "valorBase": 10, "bonusPorRacha": 5, "rachaMaxima": 5 }
+  "mapa": {
+    "semilla": 20260418,
+    "columnas": 48,
+    "filas": 40,
+    "niveles": 8,
+    "escalaRuido": 0.11,
+    "octavas": 4,
+    "bordeMontanas": 0.28,
+    "bordeMar": 0.16,
+    "nivelMar": 0.18,
+    "umbralMontana": 0.74,
+    "umbralColina": 0.6,
+    "variacionBordes": 0.06,
+    "ondulacionBordes": 0.22,
+    "lagosMin": 1,
+    "lagosMax": 2,
+    "radioLagoMin": 1,
+    "radioLagoMax": 2,
+    "probSegundoRio": 0.5,
+    "anchoMarisma": 2,
+    "probPalmeral": 0.35,
+    "probArboleda": 0.5,
+    "fertilidadRibera": 0.95,
+    "caidaFertilidad": 0.12,
+    "curvaAltitud": 2.2
+  },
+  "clima": {
+    "temperaturaBase": 24,
+    "precipitacionBase": 150,
+    "alturaMaxMetros": 4500,
+    "gradienteTermico": 6.5,
+    "lluviaPorMetro": 0.2,
+    "variacionTemperatura": 1.5,
+    "variacionLluvia": 0.25
+  },
+  "render": {
+    "tamanoHex": 1,
+    "alturaNivel": 0.3,
+    "rebajeAgua": 0.45,
+    "profundidadLecho": 0.3,
+    "vineteTapa": 0.9,
+    "variacionColor": 0.06,
+    "variacionTono": 0.012,
+    "colores": {
+      "biomas": {
+        "desierto": "#dcc088",
+        "estepa": "#b8ad6a",
+        "sabana": "#c1b04f",
+        "selva": "#3f8f3a",
+        "mediterraneo": "#9aa65a",
+        "pradera": "#7fba4c",
+        "bosqueTemplado": "#56a047",
+        "taiga": "#3f6f4d",
+        "tundra": "#8d9886",
+        "nieve": "#f3f6f9"
+      },
+      "regadio": "#5fae3c",
+      "marisma": "#78a35a",
+      "roca": "#8a8378",
+      "lecho": "#c9b27c",
+      "lechoMar": "#a8b58a",
+      "marismaAgua": "#5fc4aa",
+      "rio": "#3fc9b6",
+      "lago": "#38b6cf",
+      "marCosta": "#58d6cc",
+      "marMedio": "#2aa5c6",
+      "marProfundo": "#1c6aa6",
+      "espuma": "#d8f6f0",
+      "ladoSuperior": "#a98a63",
+      "ladoInferior": "#4a3a2c"
+    },
+    "agua": {
+      "opacidad": 0.86,
+      "rugosidad": 0.28,
+      "profundidadMaxMar": 5,
+      "velocidadOlas": 1,
+      "oceanoExterior": 400
+    },
+    "luz": {
+      "colorSol": "#ffd9a3",
+      "intensidadSol": 3.2,
+      "azimutGrados": 285,
+      "elevacionGrados": 32,
+      "colorCielo": "#bcd7ff",
+      "colorSuelo": "#8a735a",
+      "intensidadHemisferio": 1.15,
+      "exposicion": 1.05,
+      "resolucionSombra": 4096
+    },
+    "cielo": {
+      "arriba": "#5f8fd0",
+      "horizonte": "#f3d9b0",
+      "nieblaCerca": 110,
+      "nieblaLejos": 330
+    },
+    "camara": {
+      "fov": 34,
+      "cabeceoGrados": 50,
+      "guinoGrados": 0,
+      "margen": 1.04,
+      "cerca": 1,
+      "lejos": 600
+    },
+    "vegetacion": {
+      "minPorHex": 2,
+      "maxPorHex": 4,
+      "radioColocacion": 0.62,
+      "separacionMin": 0.34,
+      "escalaMin": 1.1,
+      "escalaMax": 1.6,
+      "probRoca": 0.3
+    },
+    "relieve": {
+      "picosPorMontana": 2,
+      "alturaPico": 1.5,
+      "probSegundoPico": 0.4,
+      "escalaPicoMin": 0.9,
+      "escalaPicoMax": 1.45,
+      "probNieveTundra": 0.85,
+      "radioColina": 0.86,
+      "alturaColina": 0.42
+    }
+  },
+  "reloj": {
+    "ticksPorSegundo": 20,
+    "segundosPorDia": 1,
+    "diasPorMes": 30,
+    "mesesPorAnio": 12,
+    "mesInicial": 4,
+    "velocidades": [
+      1,
+      2,
+      4
+    ],
+    "maxTicksPorFrame": 16
+  },
+  "poblacion": {
+    "hogaresIniciales": 6,
+    "personasIniciales": 30,
+    "fraccionAdultos": 0.6
+  },
+  "economia": {
+    "racionPorPersona": 1,
+    "reservaInicial": {
+      "cebada": 3600,
+      "cana": 60,
+      "adobe": 40
+    },
+    "ordenAlimentos": [
+      "cebada",
+      "datiles",
+      "pescado"
+    ],
+    "racionesPermitidas": [
+      1,
+      0.75,
+      0.5
+    ],
+    "diasMediaMovil": 30,
+    "umbralHambre": 0.5,
+    "maxHechos": 400,
+    "diasReservaBaja": 30
+  },
+  "movimiento": {
+    "costeTerreno": {
+      "llanura": 1,
+      "marisma": 3,
+      "colina": 2,
+      "montana": 5,
+      "rio": 8,
+      "lago": null,
+      "mar": null
+    },
+    "costePorNivel": 0.5
+  },
+  "obras": {
+    "fraccionCimientos": 0.1,
+    "maxConstructoresPorObra": 6,
+    "radioFundacion": 3
+  },
+  "edificios": {
+    "choza": {
+      "terrenos": [
+        "llanura",
+        "colina"
+      ],
+      "materiales": {
+        "cana": 10
+      },
+      "trabajo": 4,
+      "vivienda": 6
+    },
+    "casa": {
+      "terrenos": [
+        "llanura",
+        "colina"
+      ],
+      "materiales": {
+        "adobe": 40,
+        "cana": 10
+      },
+      "trabajo": 15,
+      "vivienda": 8
+    },
+    "almacen": {
+      "terrenos": [
+        "llanura",
+        "colina"
+      ],
+      "materiales": {
+        "adobe": 60,
+        "cana": 20
+      },
+      "trabajo": 30,
+      "puestos": 2
+    },
+    "campo": {
+      "terrenos": [
+        "llanura"
+      ],
+      "materiales": {},
+      "trabajo": 6,
+      "puestos": 2,
+      "fertilidadMin": 0.3
+    },
+    "palmeral": {
+      "terrenos": [
+        "llanura"
+      ],
+      "materiales": {},
+      "trabajo": 10,
+      "puestos": 2,
+      "distAguaMax": 2
+    },
+    "pesca": {
+      "terrenos": [
+        "llanura",
+        "marisma"
+      ],
+      "materiales": {
+        "cana": 15
+      },
+      "trabajo": 6,
+      "puestos": 2,
+      "junto": "agua"
+    },
+    "adoberia": {
+      "terrenos": [
+        "llanura",
+        "marisma"
+      ],
+      "materiales": {
+        "cana": 10
+      },
+      "trabajo": 8,
+      "puestos": 3,
+      "junto": "arcilla"
+    },
+    "alfar": {
+      "terrenos": [
+        "llanura",
+        "colina"
+      ],
+      "materiales": {
+        "adobe": 30,
+        "cana": 5
+      },
+      "trabajo": 15,
+      "puestos": 2
+    },
+    "canal": {
+      "terrenos": [
+        "llanura",
+        "marisma"
+      ],
+      "materiales": {},
+      "trabajo": 5
+    },
+    "dique": {
+      "terrenos": [
+        "llanura",
+        "marisma"
+      ],
+      "materiales": {
+        "adobe": 10
+      },
+      "trabajo": 8
+    },
+    "templo": {
+      "terrenos": [
+        "llanura"
+      ],
+      "materiales": {
+        "adobe": 400,
+        "cana": 60
+      },
+      "trabajo": 300,
+      "puestos": 3
+    }
+  }
 }

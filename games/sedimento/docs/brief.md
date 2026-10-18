@@ -24,7 +24,7 @@ Eres el *ensi* de una ciudad-estado junto al Éufrates. Repartes la cebada del t
 - **Pierde** cuando la ciudad se abandona (menos de 15 habitantes por hambre, enfermedad o emigración).
 
 ## MVP (7 puntos)
-1. Mapa procedural: río con crecida, marismas, lago, mar, montañas en el borde, palmerales y cañaverales, con fertilidad y salinidad por hexágono, en 3D con relieve.
+1. Mapa procedural **distinto en cada partida** (semilla aleatoria, reutilizable): 1–2 ríos con crecida, lagos, marismas, mar, montañas, palmerales, bosques y cañaverales, con **biomas lógicos según el clima** (del desierto del valle a la nieve de las cumbres) y fertilidad y salinidad por hexágono, en 3D con relieve. Ver `gdd/mapa.md`.
 2. Construcción por etapas: cimientos → materiales acarreados → trabajo → terminado. Las obras se detienen si faltan materiales o brazos.
 3. Habitantes visibles agrupados en hogares, con trabajo y tareas (acarrear, cultivar, construir), y rutas por el terreno.
 4. Economía de templo sin dinero: cebada, dátiles y pescado → almacén → raciones. Adobe y cañas para construir. Hoces de arcilla que se gastan.

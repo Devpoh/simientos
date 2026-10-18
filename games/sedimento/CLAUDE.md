@@ -20,6 +20,8 @@ three.js (3D) · TypeScript · Vite · Vitest · Playwright — slug de bitácor
 - `src/main.ts` arranque y bucle. Al crecer, separa por sistemas (`src/systems/`, `src/world/`)
 - `src/data/tuning.json` todos los números de diseño
 - `src/core/test-hooks.ts` `exponer()` y `marcarListo()` para `shot.mjs`
+- **`docs/requisitos-usuario.md`: lo que el usuario pidió explícitamente. Léelo antes de diseñar o cambiar algo visible.**
+- **Regla permanente (R12): sigue las skills al pie de la letra y revisa todo.** Cada cambio visible → `npm run shot` → **mira la captura** → corrige → repite. En cada fase los gráficos mejoran algo; nunca se dan por terminados.
 - `docs/` brief, GDDs, `estado.json` (bitácora) y `evidencia/` (capturas)
 
 ## Trampas de three.js (r186+)

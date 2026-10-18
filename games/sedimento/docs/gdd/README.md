@@ -47,6 +47,10 @@ Ese es el ritmo emocional que pides: calma constructiva en verano y tensión en 
 
 ## 4. Mapa
 
+> Detalle completo (aleatoriedad, clima, biomas y perillas): **`mapa.md`**. Requisitos del usuario R8–R10.
+- **Siempre aleatorio:** cada partida usa una semilla nueva, que se muestra y se puede reutilizar. Varían el relieve, 1–2 ríos, 1–2 lagos, la costa, la vegetación y el clima.
+- **Biomas por clima (Whittaker):** temperatura por altitud y latitud, y lluvia. En Sumer: desierto en el valle → estepa → bosque → taiga → tundra → nieve en las cumbres. En el mapa mundial (v0.4) aparecen los 10 biomas en franjas lógicas, también los tropicales.
+
 - **v0.1:** mapa de **hexágonos** procedural de ~48×40 (≈ 2 000 hexágonos, unos 2,4 × 2 km), en **3D con relieve** (las montañas se elevan y el río va encajado) y con semilla reproducible. **Un hexágono = una parcela:** un campo, una casa, un taller o un tramo de canal, como los barrios de Civ 6, pero con gente dentro. Contiene un **río principal** con meandros, brazos y un **lago** o laguna; **marismas** con cañaverales y pesca; el **mar** (el golfo) en un borde; **estepa y desierto** lejos del agua; **colinas y montañas** en el borde contrario (no se cultivan; dan algo de piedra y madera de mala calidad); **palmerales** y bosque ribereño escaso.
 - **Atributos por hexágono:** tipo de terreno, elevación, fertilidad (0–1), salinidad (0–1), humedad o acceso al agua, y recursos (arcilla, caña, peces, madera, piedra).
 - **El mapa crea las decisiones:** la mejor tierra está junto al río, que también es el que se inunda. La arcilla está en las orillas. La piedra queda lejos, en las colinas. Las marismas dan comida, pero también enfermedad.
