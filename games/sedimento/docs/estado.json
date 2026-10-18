@@ -40,19 +40,29 @@
     },
     {
       "id": "F01b",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Borde del mapa: la tierra de los 2,5 hexágonos exteriores baja a playa de arena",
+        "Suelo: ruido de valor en 3 escalas en el shader (brillo, tono y normal) continuo entre hexágonos",
+        "Marisma más oscura y húmeda",
+        "near proporcional a la distancia (F02b)"
+      ],
       "creada": "2026-10-18T22:37:34.675Z",
-      "titulo": "Pulido visual del mapa",
+      "titulo": "Pulido visual del mapa (suelo, borde, pestañeo)",
       "objetivo": "Mejorar el aspecto del mapa 3D tras F01: borde del mapa, variedad del relieve y del desierto",
       "criterios": [
-        "El borde del mapa muere en el mar o la niebla (sin caras de caja)",
-        "Montañas con más variedad de forma y altura, nieve solo en cumbres altas",
-        "Desierto con dunas o detalles más visibles",
-        "Marisma y costa más legibles",
-        "Captura mirada y draw calls < 60"
+        "Pestañeo: near proporcional a la distancia y capturas seguidas sin z-fighting ni acné",
+        "Suelo de cerca con grano, manchas y ondulación",
+        "Borde del mapa convertido en playa sin caras de caja",
+        "Tierra de marisma húmeda y oscura"
       ],
-      "inicio": "2026-10-18T22:57:37.976Z"
+      "inicio": "2026-10-18T22:57:37.976Z",
+      "verificacion": {
+        "check": "vitest 81/81; tsc solo falla en src/render/edificios.ts (WIP de otra sesión)",
+        "shot": "errores 0, drawCalls 11",
+        "captura": "F01b-lejos, F01b-suelo-cerca y F01b-rasante miradas con Read"
+      },
+      "fin": "2026-10-18T23:10:30.975Z"
     },
     {
       "id": "F01c",
@@ -108,6 +118,21 @@
         "captura": "F01d-montanas-cerca.png"
       },
       "fin": "2026-10-18T23:08:18.277Z"
+    },
+    {
+      "id": "F01e",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-18T23:10:31.243Z",
+      "titulo": "Árboles, rocas y matas de calidad de cerca",
+      "objetivo": "Vegetación y detalles de suelo que aguanten el zoom cercano",
+      "criterios": [
+        "Copas con volumen y facetas, troncos que se estrechan, variantes de forma y color por ejemplar",
+        "Palmeras con hojas curvadas y coníferas por pisos",
+        "Rocas en grupos, medio enterradas y con la cara superior más clara",
+        "Matas de hierba y guijarros instanciados en llanura y estepa; dunas en desierto",
+        "Captura de cerca mirada y draw calls < 60"
+      ]
     },
     {
       "id": "F02",
@@ -636,6 +661,13 @@
       "fase": "F02b",
       "texto": "Cámara libre: el punto de mira solo se limita al borde del mapa; botón derecho desplaza, central orbita (giro e inclinación), Alt+izquierdo inclina; R/F inclinan; la inclinación manual se suma a la automática por zoom",
       "porque": "R15: el usuario quiere ir a cualquier hexágono con cualquier zoom y controlar el ángulo"
+    },
+    {
+      "id": "D025",
+      "t": "2026-10-18T23:10:30.779Z",
+      "fase": "F01b",
+      "texto": "El borde del mapa baja en 2,5 hexágonos hasta una playa (altura de playa + color arena) en lugar de acabar en pared; la tierra marisma pasa a verde oscuro húmedo",
+      "porque": "Las caras de caja del borde y la marisma clara hacían el mapa artificial; la playa deja que el mapa muera en el mar"
     }
   ],
   "conceptos": [
@@ -752,9 +784,31 @@
       "t": "2026-10-18T23:08:18.925Z",
       "concepto": "Z-fighting (pestañeo)",
       "explicacion": "Cuando dos superficies están casi a la misma altura, la GPU no distingue cuál va delante y parpadean al mover la cámara. Se evita separándolas lo suficiente (el océano va 5 cm bajo la lámina del mar) y ajustando el plano near de la cámara a la distancia, porque la precisión de profundidad depende de la razón near/far."
+    },
+    {
+      "id": "C020",
+      "t": "2026-10-18T23:10:30.577Z",
+      "concepto": "Detalle de superficie sin texturas (shader de ruido)",
+      "explicacion": "En vez de pintar una textura, el fragment shader calcula ruido de valor con la posición en el mundo: oscurece o aclara el color (granos y manchas) y perturba la normal con el gradiente del ruido, de modo que la luz dibuja ondulaciones. Como depende de la posición y no del hexágono, es continuo entre celdas y no repite patrón visible."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-18T23:10:31.277Z",
+      "texto": "Fase F01e creada: Árboles, rocas y matas de calidad de cerca"
+    },
+    {
+      "t": "2026-10-18T23:10:31.068Z",
+      "texto": "Fase F01b → hecha: Pulido visual del mapa (suelo, borde, pestañeo)"
+    },
+    {
+      "t": "2026-10-18T23:10:30.781Z",
+      "texto": "Decisión: El borde del mapa baja en 2,5 hexágonos hasta una playa (altura de playa + color arena) en lugar de acabar en pared; la tierra marisma pasa a verde oscuro húmedo"
+    },
+    {
+      "t": "2026-10-18T23:10:30.579Z",
+      "texto": "Concepto: Detalle de superficie sin texturas (shader de ruido)"
+    },
     {
       "t": "2026-10-18T23:08:18.927Z",
       "texto": "Concepto: Z-fighting (pestañeo)"
@@ -1204,5 +1258,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T23:08:18.927Z"
+  "actualizado": "2026-10-18T23:10:31.277Z"
 }

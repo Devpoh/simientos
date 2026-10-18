@@ -56,7 +56,7 @@
         "nieve": "#f3f6f9"
       },
       "regadio": "#5fae3c",
-      "marisma": "#78a35a",
+      "marisma": "#52703d",
       "roca": "#8a8378",
       "lecho": "#c9b27c",
       "lechoMar": "#a8b58a",
@@ -154,6 +154,10 @@
       "escalaMax": 1.6,
       "probRoca": 0.3
     },
+    "suelo": {
+      "grano": 0.3,
+      "relieve": 1.4
+    },
     "borde": {
       "hexagonos": 2.5,
       "alzaPlaya": 0.05,
@@ -175,6 +179,20 @@
       "nieveBajada": 0.38,
       "estratos": 0.05,
       "variacionCara": 0.08
+    },
+    "edificios": {
+      "escala": { "choza": 0.62, "almacen": 0.95 },
+      "variacion": 0.12,
+      "colores": {
+        "junco": "#d2b06c",
+        "juncoOscuro": "#a8854a",
+        "haz": "#b58f50",
+        "hueco": "#2b2118",
+        "adobe": "#c99a66",
+        "adobeClaro": "#ddb683",
+        "madera": "#6e4e2e",
+        "ceramica": "#b5653f"
+      }
     }
   },
   "reloj": {
