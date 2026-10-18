@@ -126,7 +126,8 @@
       "hecho": [
         "Árboles con copas facetadas e irregulares, troncos que se estrechan y rama; coníferas por pisos; palmeras con tronco curvo anillado, hojas curvadas y cocos; 3 variantes de forma por especie",
         "Rocas en grupos medio enterradas con cara superior clara y guijarros",
-        "Matas de hierba por fertilidad y dunas bajas en el desierto"
+        "Matas de hierba por fertilidad y dunas bajas en el desierto",
+        "Rediseño tras revisión del usuario: palmera datilera con tronco anillado, 10–12 hojas en V que caen en arco y racimos de dátiles; árbol con copas de 4–5 masas más claras arriba y 2 ramas; conífera de pisos azulados con borde caído; inclinación y escala variables por ejemplar y sombra suavizada (intensidadSombra 0,78)"
       ],
       "creada": "2026-10-18T23:10:31.243Z",
       "titulo": "Árboles, rocas y matas de calidad de cerca",
@@ -140,11 +141,10 @@
       ],
       "inicio": "2026-10-18T23:10:44.600Z",
       "verificacion": {
-        "check": "vitest 81/81 (un fallo aislado por carga, pasa al repetir), tsc limpio",
-        "shot": "errores 0, drawCalls 29, triangulos 466k, vegetacion 4787 ejemplares",
-        "captura": "F01e-cerca, F01e-bosque y F01e-desierto miradas con Read"
+        "captura": "F01e-palmas, F01e-cerca, F01e-bosque y F01e-coniferas (de cerca) miradas con Read; drawCalls 34"
       },
-      "fin": "2026-10-18T23:17:14.298Z"
+      "fin": "2026-10-18T23:17:14.298Z",
+      "commit": "bee935f"
     },
     {
       "id": "F02",
@@ -825,6 +825,14 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-18T23:21:35.219Z",
+      "texto": "Fase F01e actualizada: Árboles, rocas y matas de calidad de cerca"
+    },
+    {
+      "t": "2026-10-18T23:17:15.131Z",
+      "texto": "Fase F01e actualizada: Árboles, rocas y matas de calidad de cerca"
+    },
+    {
       "t": "2026-10-18T23:17:14.334Z",
       "texto": "Fase F01e → hecha: Árboles, rocas y matas de calidad de cerca"
     },
@@ -1313,5 +1321,5 @@
       "texto": "Metadatos del juego actualizados"
     }
   ],
-  "actualizado": "2026-10-18T23:17:14.334Z"
+  "actualizado": "2026-10-18T23:21:35.219Z"
 }

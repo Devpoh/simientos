@@ -73,6 +73,7 @@ export function crearEscena(contenedor: HTMLElement, cfg: ConfigRender, caja: TH
   c.near = radio * (DISTANCIA_SOL - 1);
   c.far = radio * (DISTANCIA_SOL + 1);
   // El sesgo evita el "acné" (rayas de autosombra) sin despegar la sombra de su objeto.
+  sol.shadow.intensity = cfg.luz.intensidadSombra;
   sol.shadow.bias = -0.0004;
   sol.shadow.normalBias = 0.04;
   escena.add(sol, sol.target);

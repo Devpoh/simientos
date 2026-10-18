@@ -15,12 +15,12 @@ const TRONCO = '#7a583a';
 const TRONCO_OSCURO = '#5f4429';
 const TRONCO_PALMA = '#94714b';
 const ANILLO_PALMA = '#7b5c3b';
-const FRONDA_BASE = '#3e8c34';
+const FRONDA_BASE = '#3a8030';
 const FRONDA_PUNTA = '#86d15a';
-const COCO = '#6b4a2b';
-const HOJA_CONIFERA_BAJA = '#245a3d';
-const HOJA_CONIFERA_ALTA = '#3f8a57';
-const HOJA_ARBOL = '#5da846';
+const DATIL = '#e08a2c';
+const HOJA_CONIFERA_BAJA = '#1d4a45';
+const HOJA_CONIFERA_ALTA = '#3d7f68';
+const HOJA_ARBOL = '#6aba4c';
 const ROCA_BAJA = '#6c645a';
 const ROCA_ALTA = '#aaa191';
 const CANA = '#a3b250';
@@ -40,6 +40,10 @@ const RADIO_PEQUENO = 0.74;
 const INTERIOR_MINIMO = 0.7;
 /** Escalas de las especies que no usan escalaMin/escalaMax de tuning. */
 const ESCALA_ROCA: [number, number] = [0.8, 1.6];
+/** Las palmeras varían mucho de tamaño dentro de un mismo palmeral. */
+const ESCALA_PALMA: [number, number] = [0.85, 1.75];
+/** Inclinación máxima (rad) de un árbol sobre la vertical. */
+const INCLINACION_MAXIMA = 0.09;
 const ESCALA_GUIJARRO: [number, number] = [0.5, 1.1];
 const ESCALA_MATA: [number, number] = [0.8, 1.5];
 const ESCALA_DUNA: [number, number] = [0.6, 1.3];
@@ -97,28 +101,44 @@ function matizar(geo: THREE.BufferGeometry, rng: Rng, fuerza: number): void {
   for (let i = 0; i < col.count; i++) col.setXYZ(i, col.getX(i) * f, col.getY(i) * g, col.getZ(i) * f);
 }
 
+/** Aclara hacia arriba (y oscurece abajo): factor `abajo` en yMin y `arriba` en yMax. */
+function aclararArriba(geo: THREE.BufferGeometry, yMin: number, yMax: number, abajo: number, arriba: number): void {
+  const pos = geo.attributes.position;
+  const col = geo.attributes.color;
+  for (let i = 0; i < pos.count; i++) {
+    const t = Math.min(1, Math.max(0, (pos.getY(i) - yMin) / Math.max(1e-6, yMax - yMin)));
+    const f = abajo + (arriba - abajo) * t;
+    col.setXYZ(i, col.getX(i) * f, col.getY(i) * f * 0.99, col.getZ(i) * f * 0.92);
+  }
+}
+
 // ---------- Especies (cada una tiene varias variantes) ----------
 
 function crearArbol(rng: Rng): THREE.BufferGeometry {
   const partes: THREE.BufferGeometry[] = [];
-  const altoTronco = 0.3 + rng() * 0.08;
-  const tronco = new THREE.CylinderGeometry(0.022, 0.058, altoTronco, 6, 2).translate(0, altoTronco / 2, 0);
-  irregular(tronco, rng, 0.012);
+  const altoTronco = 0.32 + rng() * 0.08;
+  const tronco = new THREE.CylinderGeometry(0.026, 0.068, altoTronco, 6, 3).translate(0, altoTronco / 2, 0);
+  irregular(tronco, rng, 0.014);
   partes.push(pieza(tronco, TRONCO));
-  // Una rama que sale del tronco hacia un lado.
-  const rama = new THREE.CylinderGeometry(0.012, 0.022, 0.16, 5).translate(0, 0.08, 0).rotateZ(0.8).rotateY(rng() * Math.PI * 2).translate(0, altoTronco * 0.6, 0);
-  partes.push(pieza(rama, TRONCO_OSCURO));
-  const manchas = 4 + Math.floor(rng() * 2);
-  for (let k = 0; k < manchas; k++) {
-    const radio = k === 0 ? 0.2 + rng() * 0.04 : 0.11 + rng() * 0.07;
+  // Dos ramas visibles que salen hacia lados distintos y sostienen masas de copa.
+  const giroRama = rng() * Math.PI * 2;
+  for (let r = 0; r < 2; r++) {
+    const a = giroRama + r * (2.2 + rng() * 0.8);
+    const rama = new THREE.CylinderGeometry(0.012, 0.026, 0.2, 5).translate(0, 0.1, 0).rotateZ(0.75 + rng() * 0.2).rotateY(a).translate(0, altoTronco * (0.55 + 0.2 * r), 0);
+    partes.push(pieza(rama, TRONCO_OSCURO));
+  }
+  const masas = 4 + Math.floor(rng() * 2);
+  for (let k = 0; k < masas; k++) {
+    const radio = k === 0 ? 0.21 + rng() * 0.04 : 0.12 + rng() * 0.08;
     const ang = rng() * Math.PI * 2;
-    const dist = k === 0 ? 0 : 0.1 + rng() * 0.08;
-    const y = altoTronco + 0.05 + (k === 0 ? 0.08 : rng() * 0.14 - 0.04);
-    const copa = new THREE.IcosahedronGeometry(radio, 1).scale(1, 0.85, 1).translate(Math.cos(ang) * dist, y, Math.sin(ang) * dist);
-    irregular(copa, rng, radio * 0.28);
+    const dist = k === 0 ? 0 : 0.11 + rng() * 0.09;
+    const y = altoTronco + 0.05 + (k === 0 ? 0.1 : rng() * 0.16 - 0.04);
+    const copa = new THREE.IcosahedronGeometry(radio, 1).scale(1, 0.82, 1).translate(Math.cos(ang) * dist, y, Math.sin(ang) * dist);
+    irregular(copa, rng, radio * 0.32);
     const p = pieza(copa, HOJA_ARBOL);
-    sombraAbajo(p, altoTronco - 0.02, altoTronco + 0.4, 0.62);
-    matizar(p, rng, 0.1);
+    // Abajo, en sombra; arriba, donde da el sol, más claro y amarillento.
+    aclararArriba(p, altoTronco - 0.02, altoTronco + 0.42, 0.55, 1.16);
+    matizar(p, rng, 0.13);
     partes.push(p);
   }
   return fusionar(partes);
@@ -126,24 +146,30 @@ function crearArbol(rng: Rng): THREE.BufferGeometry {
 
 function crearConifera(rng: Rng): THREE.BufferGeometry {
   const partes: THREE.BufferGeometry[] = [];
-  const pisos = 4 + Math.floor(rng() * 2);
-  const alto = 0.78 + rng() * 0.12;
-  partes.push(pieza(new THREE.CylinderGeometry(0.018, 0.045, 0.2, 6).translate(0, 0.1, 0), TRONCO));
+  const pisos = 3 + Math.floor(rng() * 2);
+  const alto = 0.8 + rng() * 0.14;
+  partes.push(pieza(new THREE.CylinderGeometry(0.02, 0.05, 0.24, 6).translate(0, 0.12, 0), TRONCO));
+  const claro = new THREE.Color(HOJA_CONIFERA_ALTA);
+  const oscuro = new THREE.Color(HOJA_CONIFERA_BAJA);
+  const c = new THREE.Color();
   for (let k = 0; k < pisos; k++) {
     const t = k / (pisos - 1);
-    const radio = 0.3 - 0.2 * t + rng() * 0.02;
-    const altoPiso = 0.2 + (1 - t) * 0.06;
-    const y = 0.12 + t * (alto - 0.38);
-    const cono = new THREE.ConeGeometry(radio, altoPiso, 7, 1).rotateY(rng() * Math.PI).translate((rng() - 0.5) * 0.02, y + altoPiso / 2, (rng() - 0.5) * 0.02);
-    irregular(cono, rng, radio * 0.18);
+    const radio = 0.33 - 0.17 * t + rng() * 0.025;
+    const altoPiso = 0.26 + (1 - t) * 0.06;
+    const y = 0.17 + t * (alto - 0.5);
+    // Dos anillos: el borde inferior queda caído y desigual, como las ramas de un abeto.
+    const cono = new THREE.ConeGeometry(radio, altoPiso, 8, 2, true).rotateY(rng() * Math.PI);
+    const pc = cono.attributes.position;
+    for (let i = 0; i < pc.count; i++) {
+      if (pc.getY(i) < -altoPiso * 0.4) pc.setY(i, pc.getY(i) - 0.035);
+    }
+    cono.translate((rng() - 0.5) * 0.02, y + altoPiso / 2, (rng() - 0.5) * 0.02);
+    irregular(cono, rng, radio * 0.2);
     const p = pieza(cono, HOJA_CONIFERA_BAJA);
     const col = p.attributes.color;
-    const claro = new THREE.Color(HOJA_CONIFERA_ALTA);
-    const oscuro = new THREE.Color(HOJA_CONIFERA_BAJA);
-    const c = new THREE.Color();
     for (let i = 0; i < col.count; i++) {
       const u = Math.min(1, Math.max(0, (p.attributes.position.getY(i) - y) / altoPiso));
-      c.lerpColors(oscuro, claro, u * 0.9 + t * 0.2);
+      c.lerpColors(oscuro, claro, u * 0.85 + t * 0.25);
       col.setXYZ(i, c.r, c.g, c.b);
     }
     partes.push(p);
@@ -151,17 +177,45 @@ function crearConifera(rng: Rng): THREE.BufferGeometry {
   return fusionar(partes);
 }
 
+/**
+ * Hoja de palmera: tira con forma de V (nervio central elevado) que sube un poco y cae en arco, más
+ * ancha hacia el primer tercio y afilada en la punta. Va en tramos para curvarse de verdad.
+ */
+function crearFronda(largo: number, ancho: number, caida: number, subida: number): THREE.BufferGeometry {
+  const tramos = 4;
+  const pos: number[] = [];
+  const idx: number[] = [];
+  for (let k = 0; k <= tramos; k++) {
+    const t = k / tramos;
+    const x = largo * t;
+    const y = largo * (subida * t - caida * t * t);
+    const w = ancho * Math.sin(Math.PI * Math.min(1, 0.14 + 0.86 * t));
+    pos.push(x, y - 0.05 * w, -w, x, y + 0.45 * w, 0, x, y - 0.05 * w, w);
+  }
+  for (let k = 0; k < tramos; k++) {
+    const a = k * 3;
+    const b = (k + 1) * 3;
+    idx.push(a, a + 1, b, a + 1, b + 1, b, a + 1, a + 2, b + 1, a + 2, b + 2, b + 1);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
 function crearPalma(rng: Rng): THREE.BufferGeometry {
   const partes: THREE.BufferGeometry[] = [];
-  const altura = 0.64 + rng() * 0.14;
-  const curva = 0.05 + rng() * 0.1;
-  const tramos = 8;
-  // Tronco con anillos: un cilindro dividido en tramos que se curva y se estrecha hacia arriba.
-  const tronco = new THREE.CylinderGeometry(0.03, 0.06, altura, 6, tramos, true).translate(0, altura / 2, 0);
+  const altura = 0.7 + rng() * 0.2;
+  const curva = 0.06 + rng() * 0.12;
+  const tramos = 7;
+  // Tronco curvo y segmentado: anillos alternos algo más gruesos y más oscuros, que se estrecha hacia arriba.
+  const tronco = new THREE.CylinderGeometry(0.036, 0.074, altura, 7, tramos, true).translate(0, altura / 2, 0);
   const pos = tronco.attributes.position;
   for (let i = 0; i < pos.count; i++) {
     const t = pos.getY(i) / altura;
-    pos.setX(i, pos.getX(i) - curva * t * t);
+    const anillo = Math.round(t * tramos) % 2 === 0 ? 1.12 : 1;
+    pos.setXYZ(i, pos.getX(i) * anillo - curva * t * t, pos.getY(i), pos.getZ(i) * anillo);
   }
   tronco.computeVertexNormals();
   const pt = pieza(tronco, TRONCO_PALMA);
@@ -170,27 +224,20 @@ function crearPalma(rng: Rng): THREE.BufferGeometry {
   const base = new THREE.Color(TRONCO_PALMA);
   const c = new THREE.Color();
   for (let i = 0; i < col.count; i++) {
-    const tramo = Math.floor((pt.attributes.position.getY(i) / altura) * tramos + 0.001);
-    c.copy(base).lerp(anillo, tramo % 2 === 0 ? 0.55 : 0);
+    const j = Math.round((pt.attributes.position.getY(i) / altura) * tramos);
+    c.copy(base).lerp(anillo, j % 2 === 0 ? 0.6 : 0);
     col.setXYZ(i, c.r, c.g, c.b);
   }
   partes.push(pt);
   const cimaX = -curva;
-  const frondas = 7 + Math.floor(rng() * 3);
+  const cimaY = altura * 0.99;
+  const frondas = 10 + Math.floor(rng() * 3);
   const clara = new THREE.Color(FRONDA_PUNTA);
   const oscura = new THREE.Color(FRONDA_BASE);
   for (let f = 0; f < frondas; f++) {
-    const largo = 0.5 + rng() * 0.14;
-    // Hoja: cono aplastado y alargado, curvado hacia abajo con la distancia al tronco.
-    const g = new THREE.ConeGeometry(0.085, largo, 3, 4, true).translate(0, largo / 2, 0).rotateZ(-Math.PI / 2);
-    const gp = g.attributes.position;
-    const caida = 0.5 + rng() * 0.8;
-    const subida = 0.25 + rng() * 0.35;
-    for (let i = 0; i < gp.count; i++) {
-      const t = gp.getX(i) / largo;
-      gp.setY(i, gp.getY(i) * 0.3 + (subida * t - caida * t * t) * largo * 0.5);
-    }
-    g.rotateY((f / frondas) * Math.PI * 2 + (rng() - 0.5) * 0.4).translate(cimaX, altura * 0.99, 0);
+    const largo = 0.46 + rng() * 0.16;
+    const g = crearFronda(largo, 0.07 + rng() * 0.025, 0.55 + rng() * 0.7, 0.35 + rng() * 0.3);
+    g.rotateY((f / frondas) * Math.PI * 2 + (rng() - 0.5) * 0.35).translate(cimaX, cimaY, 0);
     const p = pieza(g, FRONDA_BASE);
     const cp = p.attributes.color;
     for (let i = 0; i < cp.count; i++) {
@@ -200,9 +247,15 @@ function crearPalma(rng: Rng): THREE.BufferGeometry {
     }
     partes.push(p);
   }
-  for (let k = 0; k < 3; k++) {
-    const a = (k / 3) * Math.PI * 2;
-    partes.push(pieza(new THREE.IcosahedronGeometry(0.035, 0).translate(cimaX + Math.cos(a) * 0.045, altura * 0.95, Math.sin(a) * 0.045), COCO));
+  // Racimos de dátiles naranja colgando bajo la corona.
+  const racimos = 2 + Math.floor(rng() * 2);
+  for (let k = 0; k < racimos; k++) {
+    const a = rng() * Math.PI * 2;
+    for (let d = 0; d < 4; d++) {
+      const x = cimaX + Math.cos(a) * (0.05 + 0.012 * d);
+      const z = Math.sin(a) * (0.05 + 0.012 * d);
+      partes.push(pieza(new THREE.IcosahedronGeometry(0.024, 0).translate(x, cimaY - 0.04 - 0.028 * d, z), DATIL));
+    }
   }
   return fusionar(partes);
 }
@@ -308,6 +361,8 @@ interface Ejemplar {
   sy: number;
   sz: number;
   giro: number;
+  inclX: number;
+  inclZ: number;
   brillo: number;
 }
 
@@ -361,7 +416,7 @@ function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng, sue
   const res: Ejemplar[] = [];
   const escalaArbol: [number, number] = [v.escalaMin, v.escalaMax];
   const escalas: Record<Especie, [number, number]> = {
-    palma: escalaArbol,
+    palma: ESCALA_PALMA,
     conifera: escalaArbol,
     arbol: escalaArbol,
     cana: escalaArbol,
@@ -401,6 +456,8 @@ function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng, sue
           sy: e,
           sz: e,
           giro: rng() * Math.PI * 2,
+          inclX: (rng() - 0.5) * 2 * INCLINACION_MAXIMA,
+          inclZ: (rng() - 0.5) * 2 * INCLINACION_MAXIMA,
           brillo: 1 - VARIACION_BRILLO / 2 + rng() * VARIACION_BRILLO,
         });
       }
@@ -414,7 +471,7 @@ export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender
   const rng = crearRng(derivarSemilla(mapa.semilla, 'render-veg'));
   const ejemplares = colocar(mapa, disp, cfg, rng, suelo);
 
-  const material = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9, metalness: 0 });
+  const material = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9, metalness: 0, side: THREE.DoubleSide });
   const geometrias: THREE.BufferGeometry[] = [];
   const mallas: THREE.InstancedMesh[] = [];
   const raiz = new THREE.Group();
@@ -423,7 +480,8 @@ export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender
   const posicion = new THREE.Vector3();
   const escala = new THREE.Vector3();
   const giro = new THREE.Quaternion();
-  const ejeY = new THREE.Vector3(0, 1, 0);
+  const euler = new THREE.Euler();
+  const arbol = (e: Especie) => e === 'palma' || e === 'arbol' || e === 'conifera';
   const color = new THREE.Color();
   const tmp = new THREE.Color();
   const blanco = new THREE.Color(1, 1, 1);
@@ -464,7 +522,7 @@ export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender
       lista.forEach((e, k) => {
         posicion.set(e.x, e.y, e.z);
         escala.set(e.sx, e.sy, e.sz);
-        giro.setFromAxisAngle(ejeY, e.giro);
+        giro.setFromEuler(euler.set(arbol(e.especie) ? e.inclX : 0, e.giro, arbol(e.especie) ? e.inclZ : 0, 'YXZ'));
         malla.setMatrixAt(k, matriz.compose(posicion, giro, escala));
         malla.setColorAt(k, colorDe(e));
       });

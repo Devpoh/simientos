@@ -19,6 +19,7 @@
     "radioLagoMax": 2,
     "probSegundoRio": 0.5,
     "anchoMarisma": 2,
+    "radioDelta": 4,
     "probPalmeral": 0.35,
     "probArboleda": 0.5,
     "fertilidadRibera": 0.95,
@@ -109,7 +110,8 @@
       "colorSuelo": "#8a735a",
       "intensidadHemisferio": 1.15,
       "exposicion": 1.05,
-      "resolucionSombra": 4096
+      "resolucionSombra": 4096,
+      "intensidadSombra": 0.78
     },
     "cielo": {
       "arriba": "#5f8fd0",
@@ -187,7 +189,7 @@
       "variacionCara": 0.08
     },
     "edificios": {
-      "escala": { "choza": 0.62, "almacen": 0.95 },
+      "escala": { "choza": 0.78, "almacen": 0.95 },
       "variacion": 0.12,
       "colores": {
         "junco": "#d2b06c",
@@ -197,7 +199,8 @@
         "adobe": "#c99a66",
         "adobeClaro": "#ddb683",
         "madera": "#6e4e2e",
-        "ceramica": "#b5653f"
+        "ceramica": "#b5653f",
+        "tierra": "#b8925f"
       }
     }
   },
