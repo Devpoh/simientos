@@ -1,0 +1,81 @@
+diff --git a/games/sedimento/src/data/tuning.json b/games/sedimento/src/data/tuning.json
+index a9202dc..32b8547 100644
+--- a/games/sedimento/src/data/tuning.json
++++ b/games/sedimento/src/data/tuning.json
+@@ -102,22 +102,51 @@
+       "detalleLejos": 30
+     },
+     "luz": {
+-      "colorSol": "#ffd9a3",
+-      "intensidadSol": 3.2,
++      "colorSol": "#fff0d4",
++      "intensidadSol": 3.4,
+       "azimutGrados": 285,
+-      "elevacionGrados": 32,
++      "elevacionGrados": 36,
+       "colorCielo": "#bcd7ff",
+       "colorSuelo": "#8a735a",
+-      "intensidadHemisferio": 1.15,
+-      "exposicion": 1.05,
++      "intensidadHemisferio": 0.2,
++      "intensidadEntorno": 0.85,
++      "exposicion": 0.95,
+       "resolucionSombra": 4096,
+-      "intensidadSombra": 0.78
++      "intensidadSombra": 0.85
+     },
+     "cielo": {
+       "arriba": "#5f8fd0",
+       "horizonte": "#f3d9b0",
+-      "nieblaCerca": 70,
+-      "nieblaLejos": 320
++      "hdri": "",
++      "hdriSolAzimutGrados": 285,
++      "hdriSolElevacionGrados": 36,
++      "turbidez": 3.2,
++      "rayleigh": 1.5,
++      "mie": 0.005,
++      "mieDireccion": 0.82,
++      "colorNiebla": "#b9cde4",
++      "nieblaCerca": 90,
++      "nieblaLejos": 380
++    },
++    "sombras": {
++      "radioMin": 10,
++      "radioPorDistancia": 1.45,
++      "pasoRadio": 1.25
++    },
++    "postproceso": {
++      "activo": true,
++      "mapeoTonos": "AgX",
++      "muestrasMSAA": 4,
++      "ao": {
++        "activo": true,
++        "intensidad": 1,
++        "radio": 0.9,
++        "escala": 1.1,
++        "grosor": 1.2,
++        "muestras": 12,
++        "exponenteDistancia": 1,
++        "caidaDistancia": 1
++      }
+     },
+     "camara": {
+       "fov": 34,
+@@ -129,7 +158,16 @@
+       "cabeceoCercaGrados": 45,
+       "cabeceoLejosGrados": 65,
+       "cabeceoMinGrados": 12,
++      "cabeceoMinCercaGrados": 1,
++      "cabeceoMinLejosGrados": 20,
+       "cabeceoMaxGrados": 88,
++      "umbralArrastrePx": 5,
++      "alturaMinimaSobreSuelo": 0.4,
++      "bordePantalla": {
++        "activo": true,
++        "margen": 20,
++        "velocidad": 0.7
++      },
+       "velocidadPan": 0.8,
+       "velocidadRotacion": 1.8,
+       "velocidadInclinacion": 0.9,

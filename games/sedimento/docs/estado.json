@@ -1,8 +1,8 @@
 {
   "juego": {
     "slug": "sedimento",
-    "nombre": "SEDIMENTO",
-    "pitch": "Gobierna una ciudad-estado sumeria viva en un paisaje continuo en tiempo real: construyes donde quieras, ves levantarse cada edificio y cada cosecha, ley y crecida tiene consecuencias que se propagan por toda la sociedad.",
+    "nombre": "CIMIENTOS",
+    "pitch": "Gobierna una ciudad-estado sumeria viva en un paisaje continuo en tiempo real: construyes donde quieras, ves levantarse cada edificio y cada cosecha, ley y crecida tiene consecuencias que se propagan por toda la sociedad. (Nombre provisional.)",
     "motor": "three.js",
     "genero": "city-builder / simulación de civilización",
     "pilares": [
@@ -155,7 +155,8 @@
         "shot": "errores 0; KeyW z 21,7→6,5; KeyQ giro 39,6°; KeyR cabeceo 87°; drag izquierdo y central mueven x +1,1; drag derecho giro 34° e inclinación 45→31°; borde izquierdo mueve x −6 en 2,5 s y el centro no mueve",
         "captura": "C1-cerca, C1-lejos y C1-girado-inclinado miradas con Read"
       },
-      "fin": "2026-10-19T05:26:54.377Z"
+      "fin": "2026-10-19T05:26:54.377Z",
+      "commit": "08b3b74"
     },
     {
       "id": "C2",
@@ -302,6 +303,30 @@
       "fase": "C1",
       "texto": "Cámara dividida en rig (estado y suavizado), entrada (ratón, teclado, bordes) y preferencias (localStorage), con la lógica pura en logic/camara.ts; el botón derecho gira/inclina y el central o el izquierdo (sin herramienta) desplazan; velocidad ∝ distancia^0,9; alturaEn opcional",
       "porque": "Lo pide el texto del usuario (prompts/camara.md) y deja la cámara lista para el terreno continuo sin depender de él"
+    },
+    {
+      "id": "D010",
+      "t": "2026-10-19T05:27:07.757Z",
+      "texto": "Batallas tácticas por turnos (R7) dentro de una campaña en tiempo real; el resto del documento maestro se mantiene",
+      "porque": "Elección explícita del usuario el 19-10 ante la incoherencia con §11 del maestro (R35)"
+    },
+    {
+      "id": "D011",
+      "t": "2026-10-19T05:27:07.903Z",
+      "texto": "Nombre provisional CIMIENTOS; el slug técnico sedimento no cambia hasta tener nombre definitivo",
+      "porque": "El usuario aún no ha decidido el nombre (R36). Renombrar la carpeta ahora rompería rutas, bitácora y sesiones sin necesidad"
+    },
+    {
+      "id": "D012",
+      "t": "2026-10-19T05:27:08.068Z",
+      "texto": "Motor: three.js hasta la v0.9, con la comparación formal de motores en la v0.9",
+      "porque": "Elección del usuario (R37); la lógica sigue separada en src/logic para poder portarla"
+    },
+    {
+      "id": "D013",
+      "t": "2026-10-19T05:27:08.212Z",
+      "texto": "Cada versión tiene un tramo alfa y otro beta; todas las fases hasta la 1.0 irán en el panel agrupadas por versión",
+      "porque": "Petición del usuario (R38)"
     }
   ],
   "conceptos": [
@@ -452,6 +477,34 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-19T05:27:30.894Z",
+      "texto": "Traspaso B (C1, commit 08b3b74, hecha y verificada con shot y 3 capturas). Código: src/logic/camara.ts (+tests/camara.test.ts, 22 tests) y src/render/camara/{rig,entrada,preferencias,index}.ts; escena.ts importa ./camara (index). Controles: WASD/flechas relativas al giro, arrastre central e izquierdo (solo si hayHerramienta() es false y >5 px), bordes de pantalla (margen 12 px), botón derecho gira e inclina, Q/E, R/F, Alt+arrastre, rueda al cursor (preferencias en localStorage sedimento.camara). Todo en tuning.render.camara. Preparado y sin usar: opciones.alturaEn / control.fijarAlturaEn(fn) para el terreno continuo (y suavizada), alturaMinimaSobreSuelo (para C2: colisión con suelo). Falta de la especificación (docs/prompts/camara.md): colisión con el suelo, oclusión de edificios, enfocar/seguir (doble clic ya centra), modos, UI de preferencias, escena ?camara-test y docs/pruebas/camara.md. Cómo probar: npm run shot -- --acciones \"wheel:-1500:480:300,wait:2500,drag:480:300:380:300:middle\" (wheel:0:3:300 lleva el ratón al borde; esperar 2500 ms tras la rueda con swiftshader); estado en estado.camara. G3 (iluminación realista, pausada) guardado como diff en docs/archivo/g3-iluminacion-realista.diff. Para cablear la herramienta de construcción: crearControlCamara(dom,cfg,caja,{hayHerramienta}) en escena.ts."
+    },
+    {
+      "t": "2026-10-19T05:27:08.213Z",
+      "texto": "Decisión: Cada versión tiene un tramo alfa y otro beta; todas las fases hasta la 1.0 irán en el panel agrupadas por versión"
+    },
+    {
+      "t": "2026-10-19T05:27:08.069Z",
+      "texto": "Decisión: Motor: three.js hasta la v0.9, con la comparación formal de motores en la v0.9"
+    },
+    {
+      "t": "2026-10-19T05:27:07.905Z",
+      "texto": "Decisión: Nombre provisional CIMIENTOS; el slug técnico sedimento no cambia hasta tener nombre definitivo"
+    },
+    {
+      "t": "2026-10-19T05:27:07.758Z",
+      "texto": "Decisión: Batallas tácticas por turnos (R7) dentro de una campaña en tiempo real; el resto del documento maestro se mantiene"
+    },
+    {
+      "t": "2026-10-19T05:27:07.609Z",
+      "texto": "Metadatos del juego actualizados"
+    },
+    {
+      "t": "2026-10-19T05:26:55.327Z",
+      "texto": "Fase C1 actualizada: Cámara: movimiento básico"
+    },
+    {
       "t": "2026-10-19T05:26:54.405Z",
       "texto": "Fase C1 → hecha: Cámara: movimiento básico"
     },
@@ -500,5 +553,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-19T05:26:54.405Z"
+  "actualizado": "2026-10-19T05:27:30.894Z"
 }
