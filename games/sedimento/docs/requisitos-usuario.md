@@ -89,4 +89,5 @@ Los textos largos del usuario están literales en `docs/prompts/` y mandan sobre
 | R40 | 19-10 | **Dejar siempre todo documentado.** | ✅ | todas las sesiones |
 | R42 | 19-10 | **Delegación nocturna del arte:** «escoge tú los diseños que más vayan acorde a lo que queremos, así mañana veo avances». A elige estilo y recursos gratuitos según `espertativas/` y avanza lo visual; lo de pago lo decide el usuario. | ✅ | decisión en la bitácora, fase A5 en adelante |
 | R43 | 19-10 | **Cero gasto:** «no compro nada». Solo recursos gratuitos (CC0 o CC-BY) o propios. | ✅ innegociable | catálogo, A2 |
-| R44 | 19-10 | **Prototipo sencillo en pixel art** para ver qué calidad gráfica se consigue en ese estilo, y abrírselo al usuario para que lo vea. | ⏳ | `prototypes/pixel-cimientos/` |
+| R44 | 19-10 | **Prototipo sencillo en pixel art** para ver qué calidad gráfica se consigue en ese estilo, y abrírselo al usuario para que lo vea. | ✅ | `prototypes/pixel-cimientos/` |
+| R45 | 19-10 | **Pixel art v2:** «nada mal», pero vista **más desde arriba**, **cámara que se pueda mover**, **terreno continuo** (en la v1 se notaban las casillas) y **pixel art más pulido, tipo 64×64**. | ✅ v2 hecha; cerrado a petición del usuario | `prototypes/pixel-cimientos/` v2 |
