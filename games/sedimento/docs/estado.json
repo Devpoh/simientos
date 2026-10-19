@@ -23,11 +23,12 @@
         "docs/auditoria.md: código, tests, render, panel y dependencias, con su estado (funciona / provisional / a rehacer)",
         "Qué choca con R20–R23 (hexágonos visibles, edificios en celdas) y cómo se sustituye",
         "Riesgos técnicos y de rendimiento del 3D frente al 2D para cada estilo"
-      ]
+      ],
+      "sesion": "A"
     },
     {
       "id": "A2",
-      "estado": "pendiente",
+      "estado": "en-curso",
       "hecho": [],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Catálogo de recursos con licencias",
@@ -37,7 +38,9 @@
         "Cubre los estilos A, B y C: edificios antiguos, personajes, vegetación, materiales y pixel art isométrico",
         "Popularidad solo con fuente y fecha; nada «aprobado» sin la licencia verificada en la fuente",
         "Descargas sin evaluar en recursos-sin-revisar/ (fuera de git); las elegidas en public/recursos/<categoría>/ con LICENSE.txt"
-      ]
+      ],
+      "sesion": "C",
+      "inicio": "2026-10-19T05:08:21.041Z"
     },
     {
       "id": "A3",
@@ -82,7 +85,8 @@
         "test: alturaEn continuo, la lámina del río nunca sube aguas abajo y el mar queda bajo cota 0",
         "Vegetación y edificios apoyados en la ladera real (sueloEn)",
         "Capturas de cerca y de lejos MIRADAS; shot sin errores"
-      ]
+      ],
+      "sesion": "A"
     },
     {
       "id": "A6",
@@ -127,8 +131,13 @@
     },
     {
       "id": "C1",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "logic/camara.ts con tests (movimiento relativo y diagonal normalizada, velocidad por zoom, bordes, arrastre, zoom): 22 tests",
+        "render/camara/{rig,entrada,preferencias,index}.ts",
+        "Controles: WASD/flechas relativas al giro, arrastre central e izquierdo (sin herramienta), bordes de pantalla opcionales, giro e inclinación con botón derecho, Q/E, R/F, Alt+arrastre y rueda hacia el cursor",
+        "alturaEn opcional y preferencias en localStorage"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Cámara: movimiento básico",
       "objetivo": "Desplazar, girar, inclinar y zoom configurables sobre el terreno continuo (prompts/camara.md, Fases A–B)",
@@ -138,7 +147,15 @@
         "Giro con el botón derecho y Q/E; inclinación con R/F y arrastre vertical, con límites",
         "Zoom con la rueda hacia el cursor, desactivable, de vista cercana a panorámica",
         "shot: cada control cambia camara.estado de forma comprobable; capturas MIRADAS"
-      ]
+      ],
+      "sesion": "B",
+      "inicio": "2026-10-19T05:08:20.866Z",
+      "verificacion": {
+        "check": "tsc limpio, vitest 117/117",
+        "shot": "errores 0; KeyW z 21,7→6,5; KeyQ giro 39,6°; KeyR cabeceo 87°; drag izquierdo y central mueven x +1,1; drag derecho giro 34° e inclinación 45→31°; borde izquierdo mueve x −6 en 2,5 s y el centro no mueve",
+        "captura": "C1-cerca, C1-lejos y C1-girado-inclinado miradas con Read"
+      },
+      "fin": "2026-10-19T05:26:54.377Z"
     },
     {
       "id": "C2",
@@ -223,7 +240,8 @@
         "Iconos de nuevo, no leído y leído en fases, decisiones, notas y capturas, que persisten y se marcan al abrir",
         "Organización clara: resumen arriba, roadmap por bloques, decisiones y aprendizajes en pestañas",
         "Playwright: todas las vistas sin errores y en móvil, con la marca de leído comprobada"
-      ]
+      ],
+      "sesion": "A"
     }
   ],
   "errores": [],
@@ -277,6 +295,13 @@
       "t": "2026-10-19T05:02:49.387Z",
       "texto": "Todas las ideas de diseño del juego se mantienen (biomas por clima, mapa aleatorio, simulación, economía, sociedad, versiones). Solo cambian el diseño artístico y lo añadido el 19-10",
       "porque": "Aclaración explícita del usuario (R34)"
+    },
+    {
+      "id": "D009",
+      "t": "2026-10-19T05:26:54.238Z",
+      "fase": "C1",
+      "texto": "Cámara dividida en rig (estado y suavizado), entrada (ratón, teclado, bordes) y preferencias (localStorage), con la lógica pura en logic/camara.ts; el botón derecho gira/inclina y el central o el izquierdo (sin herramienta) desplazan; velocidad ∝ distancia^0,9; alturaEn opcional",
+      "porque": "Lo pide el texto del usuario (prompts/camara.md) y deja la cámara lista para el terreno continuo sin depender de él"
     }
   ],
   "conceptos": [
@@ -411,9 +436,61 @@
       "t": "2026-10-18T23:17:13.883Z",
       "concepto": "Falsa oclusión con color de vértice",
       "explicacion": "Oscurecer los vértices de abajo de una copa o de una mata (y aclarar los de arriba) imita la sombra de ambient occlusion sin coste en tiempo de ejecución: el color ya viene en la geometría. Es el truco típico del estilo low-poly."
+    },
+    {
+      "id": "C023",
+      "t": "2026-10-19T05:26:53.957Z",
+      "concepto": "Arrastre con clic izquierdo sin romper el clic",
+      "explicacion": "Si el botón izquierdo también mueve la cámara, un clic normal no debe moverla. Se guarda el punto de pulsación en un modo pendiente y solo se convierte en arrastre al superar un umbral de píxeles (5): por debajo es un clic o doble clic normal. Cuando hay una herramienta activa (construir), el izquierdo no toca la cámara."
+    },
+    {
+      "id": "C024",
+      "t": "2026-10-19T05:26:54.094Z",
+      "concepto": "Normalizar el movimiento diagonal",
+      "explicacion": "Si W y D suman sus vectores, la diagonal mide √2 y es un 41 % más rápida. Se normaliza la entrada para que con dos ejes se avance lo mismo que con uno. Es lógica pura (src/logic/camara.ts) y por eso se prueba con tests."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-19T05:26:54.405Z",
+      "texto": "Fase C1 → hecha: Cámara: movimiento básico"
+    },
+    {
+      "t": "2026-10-19T05:26:54.239Z",
+      "texto": "Decisión: Cámara dividida en rig (estado y suavizado), entrada (ratón, teclado, bordes) y preferencias (localStorage), con la lógica pura en logic/camara.ts; el botón derecho gira/inclina y el central o el izquierdo (sin herramienta) desplazan; velocidad ∝ distancia^0,9; alturaEn opcional"
+    },
+    {
+      "t": "2026-10-19T05:26:54.095Z",
+      "texto": "Concepto: Normalizar el movimiento diagonal"
+    },
+    {
+      "t": "2026-10-19T05:26:53.959Z",
+      "texto": "Concepto: Arrastre con clic izquierdo sin romper el clic"
+    },
+    {
+      "t": "2026-10-19T05:26:48.715Z",
+      "texto": "Traspaso C (A2): descargué 11 texturas CC0 de Poly Haven (terreno/edificios, difusa+normal+rugosidad) en games/sedimento/recursos-sin-revisar/texturas/ (24MB). Amplié games/sedimento/docs/recursos/catalogo.md a 17 paquetes con los 13 campos de R25; mejor hallazgo: Beelim Solutions Ancient Buildings 5 (Akkadian/Babylonian, itch.io, 1.35 USD, zigurat con rampa), preview en recursos-sin-revisar/previews/beelim-set5-*.jpg, pendiente de que el usuario decida si comprarlo. Creé games/sedimento/.gitignore con recursos-sin-revisar/. Pendiente: no descargué HDRI ni el normal map de agua (la tarea cambió de rumbo antes de llegar a esa parte); no se verificó el texto legal completo de la licencia de Craftpix (paquete 14 del catálogo); sin commit, lo hace A."
+    },
+    {
+      "t": "2026-10-19T05:08:21.069Z",
+      "texto": "Fase A2 → en-curso: Catálogo de recursos con licencias"
+    },
+    {
+      "t": "2026-10-19T05:08:20.894Z",
+      "texto": "Fase C1 → en-curso: Cámara: movimiento básico"
+    },
+    {
+      "t": "2026-10-19T05:08:20.724Z",
+      "texto": "Fase P1 actualizada: Panel del estudio claro, con «nuevo» y «leído»"
+    },
+    {
+      "t": "2026-10-19T05:08:20.551Z",
+      "texto": "Fase A5 actualizada: Prototipo de terreno continuo"
+    },
+    {
+      "t": "2026-10-19T05:08:20.364Z",
+      "texto": "Fase A1 actualizada: Auditoría del proyecto"
+    },
     {
       "t": "2026-10-19T05:02:49.388Z",
       "texto": "Decisión: Todas las ideas de diseño del juego se mantienen (biomas por clima, mapa aleatorio, simulación, economía, sociedad, versiones). Solo cambian el diseño artístico y lo añadido el 19-10"
@@ -423,5 +500,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-19T05:02:49.388Z"
+  "actualizado": "2026-10-19T05:26:54.405Z"
 }
