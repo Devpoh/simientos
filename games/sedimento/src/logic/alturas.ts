@@ -283,7 +283,7 @@ function excavar(rio: Rio, cfg: ConfigAlturas, alturas: Float32Array, agua: Floa
         const lecho = d < w ? sup - cfg.rio.profundidad * (1 - (d / w) ** 2) : sup + cfg.rio.margenOrilla * 0.5;
         const objetivo = d < w ? lecho : lecho + (alturas[i] - lecho) * suave(w, w * cfg.rio.vega, d);
         alturas[i] = Math.min(alturas[i], objetivo);
-        if (alturas[i] < sup) agua[i] = Number.isNaN(agua[i]) ? sup : Math.max(agua[i], sup);
+        if (d < w && alturas[i] < sup) agua[i] = Number.isNaN(agua[i]) ? sup : Math.max(agua[i], sup);
       }
   }
 }
