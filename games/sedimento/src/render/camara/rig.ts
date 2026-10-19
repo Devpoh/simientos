@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { acotar, cabeceoAutomatico, cabeceoMinimo, factorSuavizado, suavizarEstado, zoomRelativo } from '../../logic/camara';
+import { acotar, cabeceoAutomatico, cabeceoMinimo, distanciaDeVista, distanciaLibre, factorSuavizado, suavizarEstado, zoomRelativo } from '../../logic/camara';
 import type { ConfigRender } from '../config';
 import type { PreferenciasCamara } from './preferencias';
 
@@ -21,6 +21,12 @@ export interface EstadoCamara {
   y: number;
   z: number;
   distancia: number;
+  /** Distancia a la que está dibujada la cámara: menor que `distancia` cuando el terreno la obliga a acercarse. */
+  distanciaVista: number;
+  /** true mientras el terreno obliga a acortar la distancia. */
+  acortada: boolean;
+  /** Edificios atenuados ahora mismo porque tapan el objetivo. */
+  ocluidos: number;
   cabeceoGrados: number;
   guinoGrados: number;
   /** Lo que el jugador está haciendo con el ratón: ninguno, desplazar, girar o inclinar. */
@@ -58,6 +64,12 @@ export class RigCamara {
   private ancho = 1;
   private alto = 1;
   private alturaEn: AlturaEn | null = null;
+  /** Distancia con la que se coloca la cámara de verdad (≤ `act.dist`). */
+  private distVista = 0;
+  /** Fracción de `act.dist` a la que se dibuja la cámara (1 = sin estorbo). Se suaviza la fracción, no la distancia: así el zoom normal no se arrastra. */
+  private proporcionVista = 1;
+  private readonly dirVista = { x: 0, y: 0, z: 0 };
+  private readonly objetivoVista = { x: 0, y: 0, z: 0 };
   /** Estado deseado y real. `incl` es la inclinación que suma el jugador a la automática del zoom. */
   readonly obj = { x: 0, z: 0, dist: 0, guino: 0, incl: 0 };
   readonly act = { x: 0, y: 0, z: 0, dist: 0, guino: 0, incl: 0 };
@@ -83,6 +95,7 @@ export class RigCamara {
     this.obj.x = this.act.x = this.centro.x;
     this.obj.z = this.act.z = this.centro.z;
     this.obj.dist = this.act.dist = this.distMax;
+    this.distVista = this.distMax;
     this.aplicar();
   }
 
@@ -92,6 +105,11 @@ export class RigCamara {
 
   get distanciaMinima(): number {
     return this.c.distanciaMin;
+  }
+
+  /** Distancia a la que está la cámara dibujada (con la colisión con el terreno aplicada). */
+  get distanciaVista(): number {
+    return this.distVista;
   }
 
   get alturaMapa(): number {
@@ -238,7 +256,36 @@ export class RigCamara {
     // El punto de mira sigue el relieve (si lo hay) sin brincos: la altura también se suaviza.
     const objetivoY = this.alturaEn ? this.alturaEn(a.x, a.z) : 0;
     a.y += (objetivoY - a.y) * factorSuavizado(this.c.suavizado, dt);
+    this.resolverColision(dt);
     this.aplicar();
+  }
+
+  /**
+   * Muestrea el rayo del objetivo a la cámara contra el terreno: si el suelo se interpone, la cámara se
+   * acerca. El límite blando (con holgura) mueve la distancia con suavizado; el duro, no negociable,
+   * se aplica en el mismo fotograma para que la cámara nunca quede bajo el suelo.
+   */
+  private resolverColision(dt: number): void {
+    const a = this.act;
+    const col = this.c.colision;
+    if (!col.activa || !this.alturaEn) {
+      this.distVista = a.dist;
+      this.proporcionVista = 1;
+      return;
+    }
+    const cabeceo = this.cabeceoPara(a.dist, a.incl);
+    const dir = this.dirVista;
+    dir.x = Math.sin(a.guino) * Math.cos(cabeceo);
+    dir.y = Math.sin(cabeceo);
+    dir.z = Math.cos(a.guino) * Math.cos(cabeceo);
+    const objetivo = this.objetivoVista;
+    objetivo.x = a.x;
+    objetivo.y = a.y;
+    objetivo.z = a.z;
+    const duro = distanciaLibre(this.alturaEn, objetivo, dir, a.dist, this.c.alturaMinimaSobreSuelo, col.muestras);
+    const blando = duro < a.dist ? duro : distanciaLibre(this.alturaEn, objetivo, dir, a.dist, this.c.alturaMinimaSobreSuelo + col.holguraBlanda, col.muestras);
+    this.distVista = distanciaDeVista(this.proporcionVista * a.dist, a.dist, blando, duro, col, dt);
+    this.proporcionVista = this.distVista / Math.max(1e-6, a.dist);
   }
 
   redimensionar(ancho: number, alto: number): void {
@@ -248,6 +295,8 @@ export class RigCamara {
     this.aux.aspect = this.camara.aspect;
     this.aux.updateProjectionMatrix();
     this.recalcularEncuadre(this.act.guino, true);
+    this.distVista = Math.min(this.distVista, this.act.dist);
+    this.proporcionVista = this.distVista / Math.max(1e-6, this.act.dist);
     this.aplicar();
   }
 
@@ -271,17 +320,20 @@ export class RigCamara {
     const a = this.act;
     // El plano cercano crece con la distancia: con near fijo y far enorme se pierde precisión de
     // profundidad y las superficies casi coplanares parpadean.
-    this.camara.near = Math.max(this.c.cerca, a.dist * this.c.cercaRelativa);
+    this.camara.near = Math.max(this.c.cerca, this.distVista * this.c.cercaRelativa);
     this.camara.updateProjectionMatrix();
-    this.colocar(this.camara, a.x, a.y, a.z, a.dist, this.cabeceoPara(a.dist, a.incl), a.guino);
+    this.colocar(this.camara, a.x, a.y, a.z, this.distVista, this.cabeceoPara(a.dist, a.incl), a.guino);
   }
 
-  estado(modo: string, bordes: boolean): EstadoCamara {
+  estado(modo: string, bordes: boolean, ocluidos = 0): EstadoCamara {
     return {
       x: this.act.x,
       y: this.act.y,
       z: this.act.z,
       distancia: this.act.dist,
+      distanciaVista: this.distVista,
+      acortada: this.distVista < this.act.dist - 0.01,
+      ocluidos,
       cabeceoGrados: THREE.MathUtils.radToDeg(this.cabeceo),
       guinoGrados: THREE.MathUtils.radToDeg(this.act.guino),
       modo,

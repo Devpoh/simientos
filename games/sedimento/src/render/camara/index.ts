@@ -1,11 +1,13 @@
-import type * as THREE from 'three';
+import * as THREE from 'three';
 import type { ConfigRender } from '../config';
 import { crearEntrada } from './entrada';
+import { crearOclusion, type FuenteOclusion } from './oclusion';
 import { cargarPreferencias, guardarPreferencias, type PreferenciasCamara } from './preferencias';
 import { RigCamara, type AlturaEn, type EstadoCamara } from './rig';
 
 export type { AlturaEn, EstadoCamara } from './rig';
 export type { AccionTecla, PreferenciasCamara } from './preferencias';
+export type { FuenteOclusion } from './oclusion';
 
 export interface OpcionesCamara {
   /** Devuelve true mientras hay una herramienta activa (p. ej. colocar un edificio): el botón izquierdo deja de mover la cámara. */
@@ -27,6 +29,8 @@ export interface ControlCamara {
   readonly preferencias: PreferenciasCamara;
   guardarPreferencias(): void;
   fijarAlturaEn(fn: AlturaEn | null): void;
+  /** Los edificios que se atenúan cuando tapan el objetivo (null para quitarlos). */
+  fijarOclusores(fuente: FuenteOclusion | null): void;
   liberar(): void;
 }
 
@@ -41,20 +45,27 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
   const preferencias = cargarPreferencias(cfg.camara);
   const rig = new RigCamara(cfg, caja, preferencias);
   if (opciones.alturaEn) rig.fijarAlturaEn(opciones.alturaEn);
+  const oclusion = crearOclusion(cfg);
+  const objetivo = new THREE.Vector3();
   const entrada = crearEntrada(dom, rig, cfg, preferencias, { hayHerramienta: opciones.hayHerramienta ?? (() => false) });
 
   return {
     camara: rig.camara,
     get distancia() {
-      return rig.distancia;
+      return rig.distanciaVista;
     },
     preferencias,
     guardarPreferencias: () => guardarPreferencias(preferencias),
     fijarAlturaEn: (fn) => rig.fijarAlturaEn(fn),
-    actualizar: (dt) => entrada.actualizar(dt),
+    fijarOclusores: (fuente) => oclusion.fijarFuente(fuente),
+    actualizar: (dt) => {
+      entrada.actualizar(dt);
+      objetivo.set(rig.act.x, rig.act.y, rig.act.z);
+      oclusion.actualizar(dt, rig.camara.position, objetivo);
+    },
     redimensionar: (ancho, alto) => rig.redimensionar(ancho, alto),
     irA: (x, z) => rig.irA(x, z),
-    estado: () => rig.estado(entrada.modo, entrada.bordesActivos),
+    estado: () => rig.estado(entrada.modo, entrada.bordesActivos, oclusion.atenuados),
     liberar: () => entrada.liberar(),
   };
 }

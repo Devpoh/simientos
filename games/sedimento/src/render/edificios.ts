@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { crearRng, derivarSemilla } from '../logic/azar';
+import type { CuerpoEdificio } from '../logic/camara';
 import type { Edificio, TipoEdificio } from '../logic/sim/tipos';
 import type { ConfigRender } from './config';
 import type { Disposicion } from './disposicion';
@@ -127,11 +128,17 @@ export interface Edificios {
   readonly raiz: THREE.Group;
   /** Redibuja si la lista de edificios cambió (barato: se compara la cantidad y los ids). */
   sincronizar(lista: readonly Edificio[]): void;
+  /** Cuerpo aproximado (cilindro) de cada edificio, en el mismo orden que `fijarVisibilidad`. Lo usa la cámara para la oclusión. */
+  readonly cuerpos: readonly CuerpoEdificio[];
+  /** Visibilidad del edificio i (1 = opaco, 0 = invisible), con una trama de puntos fija (sin transparencia, sin problemas de orden). */
+  fijarVisibilidad(i: number, valor: number): void;
+  /** Sube a la GPU las visibilidades cambiadas (una vez por frame). */
+  aplicarVisibilidad(): void;
   liberar(): void;
 }
 
 /** Edificios terminados: una malla instanciada por tipo de modelo. */
-export function crearEdificios(disp: Disposicion, cfg: ConfigRender, suelo: SueloEn, semilla: number): Edificios {
+export function crearEdificios(_disp: Disposicion, cfg: ConfigRender, suelo: SueloEn, semilla: number): Edificios {
   const ce = cfg.edificios;
   const modelos: Partial<Record<TipoEdificio, THREE.BufferGeometry>> = {
     choza: crearChoza(ce.colores),
@@ -139,6 +146,22 @@ export function crearEdificios(disp: Disposicion, cfg: ConfigRender, suelo: Suel
   };
   // Doble cara: la bóveda abierta y las puertas planas se ven desde cualquier ángulo.
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9, metalness: 0, side: THREE.DoubleSide });
+  // Atenuación por edificio: un atributo por instancia (`visibilidad`) y una trama de ruido ordenado que descarta
+  // píxeles. No usa transparencia (no hay problemas de orden) y la sombra del edificio no cambia.
+  material.onBeforeCompile = (sombreador) => {
+    sombreador.vertexShader = sombreador.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float visibilidad;\nvarying float vVisibilidad;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvVisibilidad = visibilidad;');
+    sombreador.fragmentShader = sombreador.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vVisibilidad;')
+      .replace(
+        '#include <clipping_planes_fragment>',
+        '#include <clipping_planes_fragment>\nif (vVisibilidad < 0.999 && fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715)))) > vVisibilidad) discard;',
+      );
+  };
+  const cuerpos: CuerpoEdificio[] = [];
+  const visibilidades: { atributo: THREE.InstancedBufferAttribute; k: number }[] = [];
+  const sucios = new Set<THREE.InstancedBufferAttribute>();
   const raiz = new THREE.Group();
   const mallas = new Map<TipoEdificio, THREE.InstancedMesh>();
   let firma = '';
@@ -160,28 +183,49 @@ export function crearEdificios(disp: Disposicion, cfg: ConfigRender, suelo: Suel
         m.dispose();
       }
       mallas.clear();
+      cuerpos.length = 0;
+      visibilidades.length = 0;
+      sucios.clear();
       for (const [tipo, geo] of Object.entries(modelos) as [TipoEdificio, THREE.BufferGeometry][]) {
         const deTipo = lista.filter((b) => b.tipo === tipo);
         if (deTipo.length === 0) continue;
         const malla = new THREE.InstancedMesh(geo, material, deTipo.length);
+        const atributo = new THREE.InstancedBufferAttribute(new Float32Array(deTipo.length).fill(1), 1);
+        geo.setAttribute('visibilidad', atributo);
+        geo.computeBoundingBox();
+        const caja = geo.boundingBox ?? new THREE.Box3();
+        const medida = caja.getSize(new THREE.Vector3());
         malla.castShadow = true;
         malla.receiveShadow = true;
         deTipo.forEach((b, k) => {
           // Orientación y ligera variación estables por edificio (no cambian al redibujar).
           const rng = crearRng(derivarSemilla(semilla, `edificio-${b.id}`));
-          const x = disp.x[b.hex];
-          const z = disp.z[b.hex];
-          posicion.set(x, suelo(b.hex, x, z), z);
+          const x = b.x;
+          const z = b.z;
+          posicion.set(x, suelo(b.celda, x, z), z);
           const e = (ce.escala as Partial<Record<TipoEdificio, number>>)[tipo] ?? 1;
           const v = 1 - ce.variacion / 2 + rng() * ce.variacion;
           escala.set(e * v, e * v, e * v);
-          giro.setFromAxisAngle(ejeY, rng() * Math.PI * 2);
+          giro.setFromAxisAngle(ejeY, b.giro);
           malla.setMatrixAt(k, matriz.compose(posicion, giro, escala));
+          cuerpos.push({ x, y: posicion.y, z, radio: (Math.max(medida.x, medida.z) / 2) * e * v, alto: caja.max.y * e * v });
+          visibilidades.push({ atributo, k });
         });
         malla.instanceMatrix.needsUpdate = true;
         mallas.set(tipo, malla);
         raiz.add(malla);
       }
+    },
+    cuerpos,
+    fijarVisibilidad(i, valor) {
+      const ref = visibilidades[i];
+      if (!ref) return;
+      ref.atributo.setX(ref.k, valor);
+      sucios.add(ref.atributo);
+    },
+    aplicarVisibilidad() {
+      for (const a of sucios) a.needsUpdate = true;
+      sucios.clear();
     },
     liberar() {
       for (const m of mallas.values()) m.dispose();

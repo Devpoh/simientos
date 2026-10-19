@@ -46,6 +46,8 @@ const superficieEn = (x: number, z: number) => {
   const suelo = mundo.campo.alturaEn(x, z);
   return Number.isNaN(agua) ? suelo : Math.max(suelo, agua);
 };
+// La cámara sigue la superficie (terreno o agua) y no se mete bajo ella.
+vista.control.fijarAlturaEn(superficieEn);
 const seleccion = crearSeleccion(mundo.disposicion, tuning.render, superficieEn);
 vista.escena.add(seleccion.raiz);
 // Posición del ratón sobre el lienzo (null si está fuera): se evalúa cada frame porque la cámara también se mueve.
@@ -72,12 +74,15 @@ lienzo.addEventListener('dblclick', alDobleClic);
 // Simulación de la ciudad (lógica pura en logic/sim): avanza con los ticks del reloj; el render solo la lee.
 const cfgSim = configDesdeTuning(tuning);
 const sim = crearEstado(cfgSim, semilla);
-const hexAldea = fundarAsentamiento(sim, { mapa, rejilla: new Rejilla(mapa.columnas, mapa.filas) }, cfgSim);
+const mundoFisico = { mapa, rejilla: new Rejilla(mapa.columnas, mapa.filas), tamanoHex: tuning.render.tamanoHex, alturaEn: mundo.campo.alturaEn, aguaEn: mundo.campo.aguaEn };
+const aldea = fundarAsentamiento(sim, mundoFisico, cfgSim);
 // Como en Civ, la partida empieza mirando a tu asentamiento.
-vista.control.irA(mundo.disposicion.x[hexAldea], mundo.disposicion.z[hexAldea]);
+vista.control.irA(aldea.x, aldea.z);
 const edificios = crearEdificios(mundo.disposicion, tuning.render, mundo.sueloEn, semilla);
 vista.escena.add(edificios.raiz);
 edificios.sincronizar(sim.edificios);
+// Los edificios que tapan el objetivo se atenúan con transición (oclusión de la cámara).
+vista.control.fijarOclusores(edificios);
 
 const datosCiudad = (): DatosCiudad => ({
   personas: personas(sim),

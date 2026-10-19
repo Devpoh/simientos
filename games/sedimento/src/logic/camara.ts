@@ -139,3 +139,120 @@ export function factorZoomRueda(deltaY: number, pixelesPorUnidad: number, sensib
   const signo = invertir ? -1 : 1;
   return Math.exp(signo * deltaY * pixelesPorUnidad * sensibilidad * fuerza);
 }
+
+// ---------- Terreno y oclusión (C3) ----------
+
+export interface Punto3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+/** Altura de la superficie (terreno o agua) en un punto del plano. */
+export type AlturaFn = (x: number, z: number) => number;
+
+/** Metros de margen que se exigen por metro de rayo cerca del objetivo (sin(20°) ≈ 0,34 es lo mínimo que sube un rayo). */
+const PENDIENTE_MARGEN = 0.3;
+
+/**
+ * Hasta qué distancia se puede alejar la cámara del objetivo, siguiendo la dirección `dir` (unitaria,
+ * del objetivo a la cámara), sin que el rayo se meta bajo la superficie más `margen`. Muestrea el rayo
+ * `muestras` veces y afina el primer choque por bisección; si no hay choque devuelve `distancia`.
+ * El resultado es el punto libre más lejano antes del primer obstáculo: la cámara se queda delante del cerro.
+ */
+export function distanciaLibre(alturaEn: AlturaFn, objetivo: Punto3, dir: Punto3, distancia: number, margen: number, muestras: number): number {
+  // El objetivo está en el suelo: exigir el margen entero desde el primer metro bloquearía siempre. El margen crece
+  // con la distancia hasta su valor completo, con una pendiente menor que la del rayo más tumbado permitido (20°).
+  const bloqueado = (t: number) => objetivo.y + dir.y * t < alturaEn(objetivo.x + dir.x * t, objetivo.z + dir.z * t) + Math.min(margen, PENDIENTE_MARGEN * t);
+  const paso = distancia / Math.max(1, muestras);
+  let libre = 0;
+  for (let i = 1; i <= muestras; i++) {
+    const t = i * paso;
+    if (!bloqueado(t)) {
+      libre = t;
+      continue;
+    }
+    let lo = libre;
+    let hi = t;
+    for (let k = 0; k < 10; k++) {
+      const medio = (lo + hi) / 2;
+      if (bloqueado(medio)) hi = medio;
+      else lo = medio;
+    }
+    return lo;
+  }
+  return distancia;
+}
+
+/** Cuerpo aproximado de un edificio: cilindro vertical con la base en (x, y, z). */
+export interface CuerpoEdificio {
+  x: number;
+  y: number;
+  z: number;
+  radio: number;
+  alto: number;
+}
+
+/** ¿El segmento a→b atraviesa el cilindro? Recorta el segmento al círculo en planta y mira si, en ese tramo, pasa a la altura del cuerpo. */
+export function segmentoTocaCilindro(a: Punto3, b: Punto3, c: CuerpoEdificio, margen = 0): boolean {
+  const radio = c.radio + margen;
+  const dx = b.x - a.x;
+  const dz = b.z - a.z;
+  const fx = a.x - c.x;
+  const fz = a.z - c.z;
+  const A = dx * dx + dz * dz;
+  let t0 = 0;
+  let t1 = 1;
+  if (A < 1e-12) {
+    if (fx * fx + fz * fz > radio * radio) return false;
+  } else {
+    const B = 2 * (fx * dx + fz * dz);
+    const C = fx * fx + fz * fz - radio * radio;
+    const disc = B * B - 4 * A * C;
+    if (disc < 0) return false;
+    const raiz = Math.sqrt(disc);
+    t0 = Math.max(0, (-B - raiz) / (2 * A));
+    t1 = Math.min(1, (-B + raiz) / (2 * A));
+    if (t0 > t1) return false;
+  }
+  const ya = a.y + (b.y - a.y) * t0;
+  const yb = a.y + (b.y - a.y) * t1;
+  return Math.max(ya, yb) >= c.y && Math.min(ya, yb) <= c.y + c.alto;
+}
+
+/**
+ * Marca (1) los edificios que tapan la vista entre la cámara y el objetivo. El edificio sobre el que está
+ * el objetivo no cuenta: es lo que se mira. `margen` ensancha el cuerpo para atenuar un poco antes de rozarlo.
+ */
+export function edificiosQueTapan(camara: Punto3, objetivo: Punto3, cuerpos: readonly CuerpoEdificio[], margen: number, salida: Uint8Array): Uint8Array {
+  for (let i = 0; i < cuerpos.length; i++) {
+    const c = cuerpos[i];
+    const sobreElObjetivo = Math.hypot(objetivo.x - c.x, objetivo.z - c.z) <= c.radio;
+    salida[i] = !sobreElObjetivo && segmentoTocaCilindro(camara, objetivo, c, margen) ? 1 : 0;
+  }
+  return salida;
+}
+
+/** Acerca la opacidad actual a la deseada con el mismo suavizado exponencial que la cámara (no depende de los FPS). */
+export const avanzarOpacidad = (actual: number, deseada: number, k: number, dt: number): number => actual + (deseada - actual) * factorSuavizado(k, dt);
+
+export interface ConfigColision {
+  /** Ritmo (1/s) con el que la cámara se acerca cuando el terreno estorba: rápido para no atravesarlo. */
+  suavizadoAcortar: number;
+  /** Ritmo (1/s) con el que recupera la distancia cuando el estorbo desaparece: lento para que no rebote. */
+  suavizadoLiberar: number;
+  /** La cámara nunca se acerca más que esto al objetivo. */
+  distanciaMinima: number;
+}
+
+/**
+ * Distancia a la que se dibuja la cámara. `deseada` es la que pide el zoom; `limiteBlando` (con holgura)
+ * decide hacia dónde se mueve con suavizado, y `limiteDuro` (el suelo justo) se respeta siempre en el
+ * mismo fotograma: así la cámara no atraviesa el terreno aunque el suavizado vaya un poco detrás.
+ */
+export function distanciaDeVista(actual: number, deseada: number, limiteBlando: number, limiteDuro: number, cfg: ConfigColision, dt: number): number {
+  const meta = Math.min(deseada, Math.max(limiteBlando, cfg.distanciaMinima));
+  const k = meta < actual ? cfg.suavizadoAcortar : cfg.suavizadoLiberar;
+  const nueva = actual + (meta - actual) * factorSuavizado(k, dt);
+  return Math.min(nueva, Math.max(limiteDuro, cfg.distanciaMinima), deseada);
+}

@@ -2,12 +2,17 @@ import { describe, expect, it } from 'vitest';
 import tuning from '../src/data/tuning.json';
 import {
   arrastreAPlano,
+  avanzarOpacidad,
   cabeceoAutomatico,
   cabeceoMinimo,
+  distanciaDeVista,
+  distanciaLibre,
+  edificiosQueTapan,
   empujeBorde,
   factorSuavizado,
   factorZoomRueda,
   movimientoRelativo,
+  segmentoTocaCilindro,
   suavizarEstado,
   tiempoAsentamiento,
   velocidadPorDistancia,
@@ -244,5 +249,152 @@ describe('suavizado exponencial (1 − e^(−k·dt))', () => {
     const { act, obj } = recorrido(60, 1, 3);
     expect(act.z).toBeCloseTo(obj.z, 3);
     expect(act.z).toBeGreaterThanOrEqual(obj.z - 1e-9);
+  });
+});
+
+describe('distanciaLibre (la cámara no se mete bajo el terreno)', () => {
+  const llano = () => 0;
+  const objetivo = { x: 0, y: 0, z: 0 };
+  const dir = { x: 0, y: Math.sin(0.8), z: Math.cos(0.8) }; // sube 0,8 rad hacia +z
+
+  it('sobre suelo llano no acorta nada', () => {
+    expect(distanciaLibre(llano, objetivo, dir, 40, 0.4, 28)).toBe(40);
+  });
+
+  it('con un cerro entre el objetivo y la cámara, se queda delante de él', () => {
+    const cerro = (_x: number, z: number) => (z > 4 && z < 12 ? 30 : 0);
+    const d = distanciaLibre(cerro, objetivo, dir, 40, 0.4, 28);
+    expect(d).toBeLessThan(40);
+    expect(d * dir.z).toBeLessThan(4.5);
+    expect(d * dir.z).toBeGreaterThan(3);
+  });
+
+  it('el punto resultante siempre queda sobre la superficie más el margen', () => {
+    const ondulado = (x: number, z: number) => 3 * Math.sin(x * 0.4) + 3 * Math.cos(z * 0.3) + 4;
+    for (let giro = 0; giro < 6.3; giro += 0.37) {
+      const o = { x: 10, y: ondulado(10, 5), z: 5 };
+      const dd = { x: Math.sin(giro) * Math.cos(0.5), y: Math.sin(0.5), z: Math.cos(giro) * Math.cos(0.5) };
+      const t = distanciaLibre(ondulado, o, dd, 60, 0.4, 28);
+      if (t > 0) expect(o.y + dd.y * t).toBeGreaterThanOrEqual(ondulado(o.x + dd.x * t, o.z + dd.z * t) + 0.4 - 0.05);
+    }
+  });
+
+});
+
+describe('distanciaDeVista (acortar con suavidad)', () => {
+  const cfg = { suavizadoAcortar: 16, suavizadoLiberar: 4, distanciaMinima: 2.5 };
+
+  it('sin obstáculos converge a la distancia deseada', () => {
+    let d = 10;
+    for (let i = 0; i < 300; i++) d = distanciaDeVista(d, 40, 40, 40, cfg, 1 / 60);
+    expect(d).toBeCloseTo(40, 1);
+  });
+
+  it('con un cerro se acerca sin saltos: acorta suave hacia el límite y nunca lo supera', () => {
+    let d = 40;
+    const pasos: number[] = [d];
+    for (let i = 0; i < 60; i++) {
+      // El cerro aún no toca el rayo (límite duro lejos), pero ya está cerca (límite blando): empieza a acortar.
+      d = distanciaDeVista(d, 40, 12, 40, cfg, 1 / 60);
+      pasos.push(d);
+    }
+    expect(Math.max(...pasos.slice(1))).toBeLessThanOrEqual(40);
+    expect(pasos[1]).toBeGreaterThan(30);
+    expect(d).toBeCloseTo(12, 1);
+    for (let i = 1; i < pasos.length; i++) expect(pasos[i]).toBeLessThanOrEqual(pasos[i - 1] + 1e-9);
+  });
+
+  it('el límite duro se respeta en el mismo fotograma, aunque el suavizado aún no haya llegado', () => {
+    expect(distanciaDeVista(40, 40, 12, 8, cfg, 1 / 60)).toBeLessThanOrEqual(8);
+  });
+
+  it('acorta más rápido de lo que se libera (al salir del obstáculo no rebota)', () => {
+    const baja = distanciaDeVista(40, 40, 10, 10, cfg, 0.05);
+    const sube = distanciaDeVista(10, 40, 40, 40, cfg, 0.05);
+    expect(40 - baja).toBeGreaterThan(sube - 10);
+  });
+
+  it('nunca baja de la distancia mínima', () => {
+    let d = 20;
+    for (let i = 0; i < 200; i++) d = distanciaDeVista(d, 40, 0, 0, cfg, 1 / 60);
+    expect(d).toBeGreaterThanOrEqual(2.5 - 1e-9);
+  });
+
+  it('la misma trayectoria a 30 y a 144 fps termina en el mismo sitio (±1 %)', () => {
+    const correr = (fps: number) => {
+      let d = 40;
+      for (let i = 0; i < fps * 0.4; i++) d = distanciaDeVista(d, 40, 12, 9, cfg, 1 / fps);
+      return d;
+    };
+    expect(Math.abs(correr(30) - correr(144))).toBeLessThan(0.15);
+  });
+});
+
+describe('oclusión de edificios', () => {
+  const casa = { x: 0, y: 0, z: 0, radio: 1, alto: 2 };
+
+  it('un segmento que cruza la casa a su altura la toca; uno que pasa por encima o al lado, no', () => {
+    expect(segmentoTocaCilindro({ x: -5, y: 1, z: 0 }, { x: 5, y: 1, z: 0 }, casa)).toBe(true);
+    expect(segmentoTocaCilindro({ x: -5, y: 6, z: 0 }, { x: 5, y: 6, z: 0 }, casa)).toBe(false);
+    expect(segmentoTocaCilindro({ x: -5, y: 1, z: 3 }, { x: 5, y: 1, z: 3 }, casa)).toBe(false);
+  });
+
+  it('un segmento que baja desde arriba solo toca si pasa sobre la casa a su altura', () => {
+    expect(segmentoTocaCilindro({ x: -6, y: 8, z: 0 }, { x: 6, y: 0, z: 0 }, casa)).toBe(false);
+    expect(segmentoTocaCilindro({ x: -6, y: 4, z: 0 }, { x: 6, y: 0, z: 0 }, casa)).toBe(true);
+  });
+
+  it('un segmento que acaba antes de llegar a la casa no la toca', () => {
+    expect(segmentoTocaCilindro({ x: -9, y: 1, z: 0 }, { x: -3, y: 1, z: 0 }, casa)).toBe(false);
+  });
+
+  it('solo marca los que tapan; el edificio que se está mirando (bajo el objetivo) no se atenúa', () => {
+    const cuerpos = [
+      { x: 0, y: 0, z: 0, radio: 1, alto: 2 },
+      { x: 0, y: 0, z: 9, radio: 1, alto: 2 },
+      { x: 4, y: 0, z: 0, radio: 1, alto: 2 },
+    ];
+    const r = edificiosQueTapan({ x: -6, y: 1, z: 0 }, { x: 4, y: 1, z: 0 }, cuerpos, 0, new Uint8Array(3));
+    expect([...r]).toEqual([1, 0, 0]);
+  });
+
+  it('el margen atenúa un poco antes de rozar el edificio', () => {
+    const cuerpos = [{ x: 0, y: 0, z: 1.3, radio: 1, alto: 2 }];
+    const camara = { x: -6, y: 1, z: 0 };
+    const objetivo = { x: 6, y: 1, z: 0 };
+    expect(edificiosQueTapan(camara, objetivo, cuerpos, 0, new Uint8Array(1))[0]).toBe(0);
+    expect(edificiosQueTapan(camara, objetivo, cuerpos, 0.5, new Uint8Array(1))[0]).toBe(1);
+  });
+
+  it('la transición de opacidad es suave y llega a su destino', () => {
+    let o = 1;
+    o = avanzarOpacidad(o, 0.2, 10, 1 / 60);
+    expect(o).toBeLessThan(1);
+    expect(o).toBeGreaterThan(0.8);
+    for (let i = 0; i < 120; i++) o = avanzarOpacidad(o, 0.2, 10, 1 / 60);
+    expect(o).toBeCloseTo(0.2, 3);
+  });
+
+  it('la transición de opacidad acaba igual a 30 que a 144 fps (±1 %)', () => {
+    const correr = (fps: number) => {
+      let o = 1;
+      for (let i = 0; i < fps * 0.3; i++) o = avanzarOpacidad(o, 0.2, 10, 1 / fps);
+      return o;
+    };
+    expect(Math.abs(correr(30) - correr(144))).toBeLessThan(0.01);
+  });
+});
+
+describe('distanciaLibre con el objetivo pegado al suelo', () => {
+  it('con la cámara tumbada a 20° sobre suelo llano no acorta (el margen crece con la distancia)', () => {
+    const dir = { x: 0, y: Math.sin(Math.PI / 9), z: Math.cos(Math.PI / 9) };
+    expect(distanciaLibre(() => 0, { x: 0, y: 0, z: 0 }, dir, 30, 0.4, 28)).toBe(30);
+    expect(distanciaLibre(() => 0, { x: 0, y: 0, z: 0 }, dir, 30, 1.6, 28)).toBe(30);
+  });
+
+  it('una ladera que sube hacia la cámara sí acorta, aunque sea suave', () => {
+    const dir = { x: 0, y: Math.sin(Math.PI / 9), z: Math.cos(Math.PI / 9) };
+    const ladera = (_x: number, z: number) => Math.max(0, z) * 0.6;
+    expect(distanciaLibre(ladera, { x: 0, y: 0, z: 0 }, dir, 30, 0.4, 28)).toBeLessThan(5);
   });
 });
