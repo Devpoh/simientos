@@ -22,3 +22,8 @@
   - cada edificio necesita sus 6 etapas de obra (R22) dibujadas;
   - el coste de producción del arte es alto.
 - Si se elige pixel art, se rehace en el juego con estándares de producción, sin copiar este código.
+
+## Opinión del usuario (19-10, R47)
+- **Le gustó:** el agua (espuma que respira en la orilla, olas que llegan a la costa y destellos a saltos). Es reutilizable como referencia para el agua 3D.
+- **No le gustó:** las casas, los humanos y las barcas pasando por encima de la tierra (las rutas elípticas no comprueban el agua). Se ve «juego de 1990».
+- **Decisión:** el 3D es la vía principal. El pixel art queda como plan B y, si se retoma, tiene que verse como un juego de 2026.

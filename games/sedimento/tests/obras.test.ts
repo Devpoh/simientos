@@ -1,132 +1,212 @@
 import { describe, expect, it } from 'vitest';
 import tuning from '../src/data/tuning.json';
+import { crearCampoAlturas } from '../src/logic/alturas';
+import { rectsSolapan } from '../src/logic/geometria2d';
 import { Rejilla } from '../src/logic/hex';
 import { generarMapa } from '../src/logic/mapa';
 import { configDesdeTuning } from '../src/logic/sim/config';
-import { colocarObra, fundarAsentamiento, motivoNoConstruible, puedeConstruir, type Mundo } from '../src/logic/sim/obras';
+import { cancelarObra, colocarObra, fundarAsentamiento, huellaDe, motivoNoConstruible, priorizarObra, puedeConstruir, suspenderObra, type Mundo } from '../src/logic/sim/obras';
 import { avanzarDias, crearEstado } from '../src/logic/sim/simulacion';
-import type { EstadoSim, TipoEdificio } from '../src/logic/sim/tipos';
+import { ETAPAS_OBRA, type EstadoSim, type TipoEdificio, type Ubicacion } from '../src/logic/sim/tipos';
 
 const cfg = configDesdeTuning(tuning);
 
+const cacheMundos = new Map<number, Mundo>();
 function mundo(semilla: number): Mundo {
-  const mapa = generarMapa({ ...tuning.mapa, semilla }, tuning.clima);
-  return { mapa, rejilla: new Rejilla(mapa.columnas, mapa.filas) };
+  let t = cacheMundos.get(semilla);
+  if (!t) {
+    const mapa = generarMapa({ ...tuning.mapa, semilla }, tuning.clima);
+    const campo = crearCampoAlturas(mapa, { ...tuning.alturas, tamanoHex: tuning.render.tamanoHex });
+    t = { mapa, rejilla: new Rejilla(mapa.columnas, mapa.filas), tamanoHex: tuning.render.tamanoHex, alturaEn: campo.alturaEn, aguaEn: campo.aguaEn };
+    cacheMundos.set(semilla, t);
+  }
+  return t;
 }
 
-/** Partida recién fundada y un hexágono libre cerca del almacén donde cabe `tipo`. */
-function aldea(tipo: TipoEdificio, semilla = 20260418) {
+/** Primer sitio libre para `tipo` en espiral alrededor de `centro`. */
+function buscarSitio(e: EstadoSim, t: Mundo, tipo: TipoEdificio, centro: Ubicacion, giro = 0): Ubicacion {
+  for (let r = 0.5; r < 12; r += 0.25)
+    for (let a = 0; a < Math.PI * 2; a += 0.3) {
+      const u = { x: centro.x + Math.cos(a) * r, z: centro.z + Math.sin(a) * r, giro };
+      if (puedeConstruir(e, t, tipo, u, cfg)) return u;
+    }
+  throw new Error(`sin sitio para ${tipo}`);
+}
+
+/** Barre el mapa buscando un punto donde `tipo` falle justo por `motivo`. */
+function buscarMotivo(e: EstadoSim, t: Mundo, tipo: TipoEdificio, motivo: string): Ubicacion | null {
+  for (let i = 0; i < t.rejilla.total; i += 3) {
+    const { q, r } = t.rejilla.axial(i);
+    const u = { x: Math.sqrt(3) * (q + r / 2) * t.tamanoHex, z: 1.5 * r * t.tamanoHex, giro: 0 };
+    if (motivoNoConstruible(e, t, tipo, u, cfg) === motivo) return u;
+  }
+  return null;
+}
+
+function aldea(semilla = 20260418) {
   const t = mundo(semilla);
   const e = crearEstado(cfg, semilla);
-  const centro = fundarAsentamiento(e, t, cfg);
-  const hex = t.rejilla.entorno(centro, 6).find((h) => puedeConstruir(e, t, tipo, h, cfg));
-  if (hex === undefined) throw new Error(`sin sitio para ${tipo}`);
-  return { t, e, hex };
+  const almacen = fundarAsentamiento(e, t, cfg);
+  return { t, e, almacen };
+}
+
+/** Material y gente de sobra: que nada frene la obra salvo lo que pruebe el test. */
+function sobrado(e: EstadoSim) {
+  e.almacen.adobe = 1000;
+  e.almacen.cana = 1000;
+  for (const h of e.hogares) h.adultos = 10;
 }
 
 const obra = (e: EstadoSim, id: number) => e.obras.find((o) => o.id === id);
 
-describe('Rejilla.entorno', () => {
-  it('radio 1 → 7 hexágonos y radio 3 → 37 en el interior, el centro primero', () => {
-    const r = new Rejilla(20, 20);
-    const c = r.indice(10, 10);
-    expect(r.entorno(c, 1)).toHaveLength(7);
-    expect(r.entorno(c, 3)).toHaveLength(37);
-    expect(r.entorno(c, 3)[0]).toBe(c);
-    expect(r.entorno(c, 3).every((h) => r.distancia(c, h) <= 3)).toBe(true);
-  });
-});
-
-describe('fundación', () => {
-  it.each([1, 42, 1234, 20260418, 31337])('semilla %i: almacén junto al agua dulce y una choza por hogar alrededor', (s) => {
+describe('fundación libre', () => {
+  it.each([1, 7, 42, 99, 1234, 4242, 20260418, 31337, 55555, 777])('semilla %i: almacén y una choza por hogar, sin solapes', (s) => {
     const t = mundo(s);
     const e = crearEstado(cfg, s);
-    const centro = fundarAsentamiento(e, t, cfg);
-    expect(t.mapa.distAgua[centro]).toBe(1);
+    const almacen = fundarAsentamiento(e, t, cfg);
     expect(e.edificios.filter((b) => b.tipo === 'almacen')).toHaveLength(1);
-    const chozas = e.edificios.filter((b) => b.tipo === 'choza');
-    expect(chozas).toHaveLength(e.hogares.length);
-    expect(new Set(e.edificios.map((b) => b.hex)).size).toBe(e.edificios.length);
-    for (const h of e.hogares) {
-      expect(h.casa).not.toBeNull();
-      expect(t.rejilla.distancia(centro, h.casa!)).toBeLessThanOrEqual(cfg.obras.radioFundacion);
-    }
+    expect(e.edificios.filter((b) => b.tipo === 'choza')).toHaveLength(e.hogares.length);
+    for (const h of e.hogares) expect(e.edificios.some((b) => b.id === h.casa)).toBe(true);
+    const huellas = e.edificios.map((b) => huellaDe(b.tipo, b, cfg));
+    for (let i = 0; i < huellas.length; i++) for (let j = i + 1; j < huellas.length; j++) expect(rectsSolapan(huellas[i], huellas[j])).toBe(false);
+    for (const b of e.edificios) expect(Math.hypot(b.x - almacen.x, b.z - almacen.z)).toBeLessThanOrEqual(cfg.obras.radioFundacion + 1e-9);
+    // Ningún edificio en el agua.
+    for (const b of e.edificios) expect(Number.isNaN(t.aguaEn(b.x, b.z))).toBe(true);
   });
 });
 
-describe('colocar obras', () => {
-  it('rechaza agua, hexágonos ocupados y requisitos de vecindad, y explica el motivo', () => {
-    const { t, e } = aldea('casa');
-    const rio = t.mapa.rios[0][3];
-    expect(colocarObra(e, t, 'casa', rio, cfg)).toEqual({ motivo: 'terreno' });
-    expect(motivoNoConstruible(e, t, 'casa', e.edificios[0].hex, cfg)).toBe('ocupado');
-    expect(motivoNoConstruible(e, t, 'casa', -1, cfg)).toBe('fuera-del-mapa');
-    const lejos = t.mapa.terreno.findIndex((tr, i) => tr === 'llanura' && t.mapa.distAgua[i] > 3 && !t.rejilla.vecinos(i).some((v) => t.mapa.terreno[v] === 'mar'));
-    if (lejos !== -1) expect(motivoNoConstruible(e, t, 'pesca', lejos, cfg)).toBe('sin-agua-al-lado');
-  });
-
-  it('una obra colocada aparece en cimientos y deja un hecho', () => {
-    const { t, e, hex } = aldea('casa');
-    const r = colocarObra(e, t, 'casa', hex, cfg);
+describe('colocación libre (R21)', () => {
+  it('coloca en cualquier punto con su giro y la obra empieza en «plano»', () => {
+    const { t, e, almacen } = aldea();
+    const u = buscarSitio(e, t, 'casa', almacen, 0.7);
+    const r = colocarObra(e, t, 'casa', u, cfg);
     if (!('id' in r)) throw new Error(r.motivo);
-    expect(obra(e, r.id)).toMatchObject({ etapa: 'cimientos', hex, trabajoHecho: 0 });
+    expect(obra(e, r.id)).toMatchObject({ x: u.x, z: u.z, giro: 0.7, etapa: 'plano', trabajoHecho: 0 });
     expect(e.hechos.at(-1)).toMatchObject({ tipo: 'obra-colocada', sujeto: `obra:${r.id}` });
   });
+
+  it('solape con giro (SAT): pegado y recto cabe, girado 45° choca', () => {
+    const { t, e, almacen } = aldea();
+    const u = buscarSitio(e, t, 'casa', almacen);
+    // Solo la casa A en el mundo: así «pegado» no choca con las chozas de la fundación.
+    e.edificios = [];
+    const a = colocarObra(e, t, 'casa', u, cfg);
+    if (!('id' in a)) throw new Error(a.motivo);
+    const h = cfg.edificios.casa.huella;
+    const junto = { x: u.x + h.ancho + cfg.obras.separacion + 0.02, z: u.z, giro: 0 };
+    expect(motivoNoConstruible(e, t, 'casa', junto, cfg)).not.toBe('ocupado');
+    expect(motivoNoConstruible(e, t, 'casa', { ...junto, giro: Math.PI / 4 }, cfg)).toBe('ocupado');
+    expect(motivoNoConstruible(e, t, 'casa', { ...u, giro: 1.1 }, cfg)).toBe('ocupado');
+  });
+
+  it('explica el motivo: agua, pendiente, fuera del mapa y sin agua al lado', () => {
+    const { t, e } = aldea();
+    const campo = crearCampoAlturas(t.mapa, { ...tuning.alturas, tamanoHex: tuning.render.tamanoHex });
+    const rio = campo.rios[0];
+    const p = rio.puntos[Math.floor(rio.puntos.length / 2)];
+    expect(motivoNoConstruible(e, t, 'casa', { x: p.x, z: p.z, giro: 0 }, cfg)).toBe('agua');
+    expect(motivoNoConstruible(e, t, 'casa', { x: -1000, z: 0, giro: 0 }, cfg)).toBe('fuera-del-mapa');
+    const ladera = buscarMotivo(e, t, 'campo', 'pendiente');
+    expect(ladera).not.toBeNull();
+    expect(buscarMotivo(e, t, 'pesca', 'sin-agua-al-lado')).not.toBeNull();
+  });
 });
 
-describe('obras por etapas', () => {
-  it('sin material suficiente queda en esperando:<bien> y no progresa', () => {
-    const { t, e, hex } = aldea('almacen');
-    e.almacen.adobe = 10; // el almacén pide 60
-    const r = colocarObra(e, t, 'almacen', hex, cfg);
+describe('obras por etapas (R22)', () => {
+  it('recorre plano → preparación → cimientos → estructura → cubierta y solo entonces es edificio', () => {
+    const { t, e, almacen } = aldea();
+    sobrado(e);
+    const r = colocarObra(e, t, 'almacen', buscarSitio(e, t, 'almacen', almacen), cfg);
     if (!('id' in r)) throw new Error(r.motivo);
-    avanzarDias(e, 3, cfg);
-    const o = obra(e, r.id)!;
-    expect(o.etapa).toBe('materiales');
-    expect(o.bloqueo).toBe('esperando:adobe');
-    const hecho = o.trabajoHecho;
-    avanzarDias(e, 20, cfg);
-    expect(o.trabajoHecho).toBe(hecho);
-    expect(o.constructores).toBe(0);
-    expect(e.hechos.filter((h) => h.tipo === 'obra-detenida' && h.sujeto === `obra:${r.id}`)).toHaveLength(1);
-
-    e.almacen.adobe += 100; // llega el adobe: la obra se reanuda y termina
-    avanzarDias(e, 10, cfg);
+    const vistas: string[] = [];
+    for (let d = 0; d < 60 && obra(e, r.id); d++) {
+      const o = obra(e, r.id)!;
+      if (vistas.at(-1) !== o.etapa) vistas.push(o.etapa);
+      expect(e.edificios.some((b) => b.id === r.id)).toBe(false);
+      avanzarDias(e, 1, cfg);
+    }
+    expect(vistas).toEqual([...ETAPAS_OBRA]);
     expect(obra(e, r.id)).toBeUndefined();
     expect(e.edificios.some((b) => b.id === r.id && b.tipo === 'almacen')).toBe(true);
   });
 
-  it('termina tras las personas-día exactas: casa de 15 con 6 constructores → 1 día de cimientos + 3', () => {
-    const { t, e, hex } = aldea('casa');
-    const r = colocarObra(e, t, 'casa', hex, cfg);
+  it('dura las personas-día exactas: casa con 6 constructores → suma de ceil(trabajo de etapa / 6)', () => {
+    const { t, e, almacen } = aldea();
+    sobrado(e);
+    const r = colocarObra(e, t, 'casa', buscarSitio(e, t, 'casa', almacen), cfg);
     if (!('id' in r)) throw new Error(r.motivo);
     const def = cfg.edificios.casa;
-    const cimientos = def.trabajo * cfg.obras.fraccionCimientos;
     const n = cfg.obras.maxConstructoresPorObra;
-    const esperado = Math.ceil(cimientos / n) + Math.ceil((def.trabajo - cimientos) / n);
+    const esperado = ETAPAS_OBRA.reduce((s, et) => s + Math.ceil((def.trabajo * cfg.obras.fraccionTrabajo[et]) / n - 1e-9), 0);
     avanzarDias(e, esperado - 1, cfg);
-    expect(obra(e, r.id)?.trabajoHecho).toBeLessThan(def.trabajo);
+    expect(obra(e, r.id)).toBeDefined();
     avanzarDias(e, 1, cfg);
     expect(obra(e, r.id)).toBeUndefined();
-    const fin = e.hechos.find((h) => h.tipo === 'obra-terminada' && h.sujeto === `obra:${r.id}`);
-    expect(fin?.datos?.dias).toBe(esperado);
+    expect(e.hechos.find((h) => h.tipo === 'obra-terminada' && h.sujeto === `obra:${r.id}`)?.datos?.dias).toBe(esperado);
   });
 
-  it('los constructores se reparten: sin adultos libres la segunda obra espera', () => {
-    const { t, e, hex } = aldea('casa');
+  it('cada etapa espera su parte de los materiales y avisa de qué falta', () => {
+    const { t, e, almacen } = aldea();
+    sobrado(e);
+    e.almacen.adobe = 0;
+    const r = colocarObra(e, t, 'casa', buscarSitio(e, t, 'casa', almacen), cfg);
+    if (!('id' in r)) throw new Error(r.motivo);
+    avanzarDias(e, 10, cfg);
+    const o = obra(e, r.id)!;
+    expect(o.etapa).toBe('cimientos'); // plano y preparación no piden material
+    expect(o.bloqueo).toBe('esperando:adobe');
+    const parte = Math.ceil(cfg.edificios.casa.materiales.adobe! * cfg.obras.fraccionMateriales.cimientos);
+    e.almacen.adobe = parte;
+    avanzarDias(e, 10, cfg);
+    expect(o.etapa).toBe('estructura');
+    expect(o.bloqueo).toBe('esperando:adobe');
+    expect(o.entregado.adobe).toBe(parte);
+  });
+
+  it('cancelar devuelve los materiales entregados', () => {
+    const { t, e, almacen } = aldea();
+    sobrado(e);
+    const antes = { ...e.almacen };
+    const r = colocarObra(e, t, 'casa', buscarSitio(e, t, 'casa', almacen), cfg);
+    if (!('id' in r)) throw new Error(r.motivo);
+    avanzarDias(e, 3, cfg);
+    expect(obra(e, r.id)!.entregado.adobe).toBeGreaterThan(0);
+    // Las raciones también gastan del almacén: solo comparamos los materiales de obra.
+    expect(cancelarObra(e, r.id, cfg)).toBe(true);
+    expect(e.almacen.adobe).toBe(antes.adobe);
+    expect(e.almacen.cana).toBe(antes.cana);
+    expect(obra(e, r.id)).toBeUndefined();
+    expect(e.hechos.at(-1)).toMatchObject({ tipo: 'obra-cancelada' });
+  });
+
+  it('suspendida no avanza; al reanudar sigue donde estaba', () => {
+    const { t, e, almacen } = aldea();
+    sobrado(e);
+    const r = colocarObra(e, t, 'casa', buscarSitio(e, t, 'casa', almacen), cfg);
+    if (!('id' in r)) throw new Error(r.motivo);
+    avanzarDias(e, 1, cfg);
+    const hecho = obra(e, r.id)!.trabajoHecho;
+    suspenderObra(e, r.id, true);
+    avanzarDias(e, 5, cfg);
+    expect(obra(e, r.id)!.trabajoHecho).toBe(hecho);
+    expect(obra(e, r.id)!.bloqueo).toBe('suspendida');
+    suspenderObra(e, r.id, false);
+    avanzarDias(e, 1, cfg);
+    expect(obra(e, r.id)!.trabajoHecho).toBeGreaterThan(hecho);
+  });
+
+  it('la prioridad reparte antes a las obras prioritarias', () => {
+    const { t, e, almacen } = aldea();
+    sobrado(e);
     for (const h of e.hogares) h.adultos = 0;
-    e.hogares[0].adultos = 4;
-    e.almacen.adobe = 200; // que el material no sea el cuello de botella
-    e.almacen.cana = 200;
-    const a = colocarObra(e, t, 'casa', hex, cfg);
-    const otro = t.rejilla.entorno(hex, 6).find((h) => puedeConstruir(e, t, 'casa', h, cfg))!;
-    const b = colocarObra(e, t, 'casa', otro, cfg);
-    if (!('id' in a) || !('id' in b)) throw new Error('no se pudo colocar');
+    e.hogares[0].adultos = 1;
+    const a = colocarObra(e, t, 'casa', buscarSitio(e, t, 'casa', almacen), cfg);
+    if (!('id' in a)) throw new Error(a.motivo);
+    const b = colocarObra(e, t, 'casa', buscarSitio(e, t, 'casa', almacen), cfg);
+    if (!('id' in b)) throw new Error(b.motivo);
+    priorizarObra(e, b.id, 1);
     avanzarDias(e, 1, cfg);
-    expect(obra(e, a.id)!.constructores).toBe(2); // los cimientos de 1,5 solo necesitan 2
-    expect(obra(e, b.id)!.constructores).toBe(2);
-    avanzarDias(e, 1, cfg);
-    expect(obra(e, a.id)!.constructores).toBe(4);
-    expect(obra(e, b.id)!.bloqueo).toBe('sin-trabajadores');
+    expect(obra(e, b.id)!.constructores).toBe(1);
+    expect(obra(e, a.id)!.bloqueo).toBe('sin-trabajadores');
   });
 });
