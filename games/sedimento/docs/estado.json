@@ -24,7 +24,9 @@
         "Qué choca con R20–R23 (hexágonos visibles, edificios en celdas) y cómo se sustituye",
         "Riesgos técnicos y de rendimiento del 3D frente al 2D para cada estilo"
       ],
-      "sesion": "A"
+      "sesion": "A",
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "A2",
@@ -40,7 +42,9 @@
         "Descargas sin evaluar en recursos-sin-revisar/ (fuera de git); las elegidas en public/recursos/<categoría>/ con LICENSE.txt"
       ],
       "sesion": "C",
-      "inicio": "2026-10-19T05:08:21.041Z"
+      "inicio": "2026-10-19T05:08:21.041Z",
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "A3",
@@ -55,7 +59,9 @@
         "Materiales: vista previa PBR con los mapas que trae cada material",
         "Filtros, búsqueda, carga diferida y estados vacíos y de error; distingue visualizable, descargado e integrado",
         "Playwright: todas las secciones sin errores de consola ni tarjetas rotas, en escritorio y en móvil"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "A4",
@@ -70,7 +76,9 @@
         "Construcción progresiva: demo de las 6 etapas, con lo provisional marcado",
         "Comparador: la misma aldea en A, B, C (y D si se justifica), con cada pieza marcada como real, demo o referencia, y sus métricas",
         "Favoritos y comentarios que se guardan en el servidor y sobreviven a recargar"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "A5",
@@ -86,7 +94,9 @@
         "Vegetación y edificios apoyados en la ladera real (sueloEn)",
         "Capturas de cerca y de lejos MIRADAS; shot sin errores"
       ],
-      "sesion": "A"
+      "sesion": "A",
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "A6",
@@ -101,7 +111,9 @@
         "Caminos trazados con puntos y curva sobre el relieve, que aceleran el paso",
         "Vivienda y almacén pasan por plano → preparación → cimientos → estructura → cubierta → terminado según el progreso real; el edificio solo funciona al terminar",
         "Cancelar, suspender y priorizar; motivo del retraso visible; capturas de cada etapa MIRADAS"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "A7",
@@ -114,7 +126,9 @@
         "Tabla de los 13 criterios puntuada para A, B, C y D con las escenas del comparador delante",
         "Métricas de rendimiento por estilo (draw calls, triángulos, MB y fps) con una ciudad representativa",
         "Recomendación escrita en gdd/arte.md y decisión del usuario registrada"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "beta"
     },
     {
       "id": "A8",
@@ -127,7 +141,9 @@
         "gdd/arte.md final: paleta, materiales, escala, reglas de modelado y de integración",
         "Catálogo con los recursos elegidos aprobados y lo que falta por conseguir",
         "Las alternativas siguen en el laboratorio para poder volver a ellas"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "beta"
     },
     {
       "id": "C1",
@@ -156,7 +172,9 @@
         "captura": "C1-cerca, C1-lejos y C1-girado-inclinado miradas con Read"
       },
       "fin": "2026-10-19T05:26:54.377Z",
-      "commit": "08b3b74"
+      "commit": "08b3b74",
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "C2",
@@ -170,7 +188,9 @@
         "Velocidad continua ∝ distancia, desactivable",
         "Todos los parámetros en tuning.render.camara, documentados en gdd/camara.md",
         "test: el mismo recorrido a 30 y a 144 fps acaba en la misma posición (±1 %)"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "C3",
@@ -184,7 +204,9 @@
         "Nunca bajo el suelo: muestras a lo largo del rayo; si choca, acorta la distancia de forma suave, sin teletransporte ni vibración",
         "Solo se atenúa con una transición el edificio que tapa el objetivo, y se restaura después",
         "Capturas en montaña y en ciudad MIRADAS"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "alfa"
     },
     {
       "id": "C4",
@@ -198,7 +220,9 @@
         "Viajes largos: alejarse, viajar y acercarse, sin saltos",
         "Seguir (Mayús + F) con zona muerta; cualquier entrada lo cancela",
         "Seguir una obra mientras la simulación corre"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "beta"
     },
     {
       "id": "C5",
@@ -212,7 +236,9 @@
         "Modos construcción, administración, militar y observación",
         "Ajustes: sensibilidades, invertir ejes y rueda, bordes, suavizado, zoom al cursor, FOV, límites y atajos",
         "Preferencias guardadas en localStorage, con fallback seguro"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "beta"
     },
     {
       "id": "C6",
@@ -225,13 +251,1594 @@
         "?camara-test: terreno continuo, edificios de alturas distintas, caminos, obstáculos y puntos de interés",
         "docs/pruebas/camara.md: las 18 comprobaciones con cómo se probaron, el resultado y las limitaciones",
         "Instrucciones de controles y parámetros; rendimiento medido con una ciudad representativa"
-      ]
+      ],
+      "version": "0.0",
+      "tramo": "beta"
+    },
+    {
+      "id": "F101",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "El terreno continuo en la partida",
+      "objetivo": "Sustituir el render provisional de la partida por el terreno continuo y el estilo elegido en A7",
+      "criterios": [
+        "La partida usa alturas.ts: sin prismas ni hexágonos visibles",
+        "Agua, vegetación y edificios apoyados en el terreno real",
+        "shot sin errores; capturas de cerca y de lejos MIRADAS"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F102",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Fundación de la aldea",
+      "objetivo": "Al empezar, aldea inicial sobre el terreno continuo: almacén, chozas y senda junto al río",
+      "criterios": [
+        "test: la fundación coloca el almacén y las chozas sin solapes ni pendientes inválidas en 10 semillas",
+        "Senda inicial trazada desde el almacén hacia el agua",
+        "La cámara empieza enfocando la aldea"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F103",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Habitantes visibles",
+      "objetivo": "Personas que caminan por el terreno y los caminos con rutas reales (individuos cerca, grupos agregados lejos)",
+      "criterios": [
+        "test: rutas con coste por pendiente, agua y caminos (×1,5 / ×2)",
+        "Cada habitante visible corresponde a una persona o un grupo simulado",
+        "300 habitantes a ≥ 50 fps en el equipo del usuario"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F104",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Trabajo y tareas",
+      "objetivo": "Asignación de empleos y tareas: campesinos, porteadores, constructores, artesanos",
+      "criterios": [
+        "test: los adultos se reparten entre puestos según prioridad y distancia",
+        "Cada persona muestra qué hace y por qué (inspector)",
+        "Sin trabajadores, el edificio se detiene y lo dice"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F105",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Logística física",
+      "objetivo": "Los bienes viajan a hombros entre almacén, obras, campos y talleres, con capacidad de almacenaje",
+      "criterios": [
+        "test: una obra recibe solo el material que llega físicamente",
+        "Almacén lleno → la producción se detiene con su motivo",
+        "Se ven los porteadores con su carga"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F106",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Construcción en la partida",
+      "objetivo": "Menú de construcción por categorías (como en las expectativas), colocación libre, caminos y obras por etapas con porteadores",
+      "criterios": [
+        "Menú inferior: Edificios · Infraestructura · Producción · Población…",
+        "Colocar, girar, cancelar, suspender y priorizar obras",
+        "Las obras suben por etapas según material, brazos y tiempo (capturas MIRADAS)"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F107",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Agricultura y estaciones",
+      "objetivo": "Campos dibujados sobre el terreno, siembra en otoño y cosecha en primavera, según fertilidad y agua",
+      "criterios": [
+        "test: rendimiento = área × fertilidad × agua × trabajo (fórmula en simulacion.md)",
+        "Los campos cambian de aspecto con las estaciones",
+        "La cosecha llega físicamente al almacén"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F108",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Crecida, canales y diques",
+      "objetivo": "Crecida anual variable con pronóstico; canales que riegan y diques que protegen",
+      "criterios": [
+        "test: la crecida inunda las cotas bajas según su magnitud",
+        "Pronóstico visible con incertidumbre",
+        "Los canales amplían el regadío y los diques protegen"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F109",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cadenas de producción",
+      "objetivo": "Arcilla → adobe (adobería), arcilla → hoces (alfar), caña, palmeral y pesca, con herramientas que se gastan",
+      "criterios": [
+        "test: si falla un eslabón, se detiene la cadena y se propaga",
+        "Las hoces se gastan y bajan el rendimiento de los campos",
+        "Inspector: de dónde viene y adónde va cada bien"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F110",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Necesidades y bienestar",
+      "objetivo": "Necesidades por hogar (comida, agua, vivienda, salud) con memoria y expectativas que suben",
+      "criterios": [
+        "test: el bienestar responde a las condiciones reales con inercia",
+        "Las expectativas suben con la prosperidad (nunca cómodo, R2)",
+        "Panel de hogar: qué tiene, qué le falta y por qué"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F111",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Demografía",
+      "objetivo": "Nacimientos, muertes, enfermedad, emigración e inmigración según las condiciones",
+      "criterios": [
+        "test: el hambre prolongada provoca enfermedad y emigración",
+        "La prosperidad atrae inmigrantes que necesitan casa",
+        "La población crece y decrece de forma visible"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F112",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Salinidad y colmatación",
+      "objetivo": "El riego saliniza el suelo y los canales se colmatan si no se dragan",
+      "criterios": [
+        "test: la salinidad baja la fertilidad a lo largo de los años",
+        "Dragado como obra de mantenimiento con su coste",
+        "Capa del mapa de salinidad"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F113",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Inspector «¿por qué?» y capas",
+      "objetivo": "Cualquier punto, edificio, obra u hogar explica su estado; capas de fertilidad, agua, salinidad y riesgo",
+      "criterios": [
+        "Clic en cualquier cosa → desglose causal",
+        "Capas del mapa conmutables",
+        "Las respuestas salen de los hechos registrados (hechos.ts)"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F114",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Crónica y alertas",
+      "objetivo": "Crónica de acontecimientos con causas enlazadas; pocas alertas, con acción sugerida",
+      "criterios": [
+        "La crónica enlaza causa → consecuencia",
+        "Alertas solo para lo importante",
+        "Se puede navegar desde la crónica a la ciudad"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F115",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "HUD de la v0.1",
+      "objetivo": "HUD como el de las expectativas: recursos con ritmo, fecha y estación, objetivos, minimapa y ficha del seleccionado",
+      "criterios": [
+        "Barra de recursos con valor y ritmo diario",
+        "Panel de objetivos y minimapa",
+        "Ficha de la obra o el edificio seleccionado, con progreso y materiales"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F116",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Hitos, victoria y derrota",
+      "objetivo": "Aldea → pueblo → ciudad (con templo); victoria al sostener la ciudad 3 años; derrota al abandonarla",
+      "criterios": [
+        "test: los hitos se alcanzan por población y edificios",
+        "Pantallas de victoria y derrota con resumen de la crónica",
+        "Puntuación de legado"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F117",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Equilibrio de la v0.1",
+      "objetivo": "Equilibrio con simulaciones largas y el test de «no comodidad» (R2, R5)",
+      "criterios": [
+        "Bandas de dificultad documentadas en simulacion.md",
+        "test: ninguna estrategia pasiva sobrevive 3 años",
+        "Las crisis se anuncian antes de golpear"
+      ],
+      "version": "0.1",
+      "tramo": "beta"
+    },
+    {
+      "id": "F118",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Rendimiento de la v0.1",
+      "objetivo": "La aldea completa a ≥ 60 fps en el equipo del usuario",
+      "criterios": [
+        "Presupuesto de draw calls, triángulos y texturas medido",
+        "LOD para los habitantes y la vegetación",
+        "Sin tirones en el GC durante 30 minutos de partida"
+      ],
+      "version": "0.1",
+      "tramo": "beta"
+    },
+    {
+      "id": "F119",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Audio de la v0.1",
+      "objetivo": "Ambiente de río, viento e insectos; obras; música que se tensa con las reservas",
+      "criterios": [
+        "Mezcla por buses con ducking",
+        "La música cambia con el estado de la ciudad",
+        "Volúmenes en ajustes"
+      ],
+      "version": "0.1",
+      "tramo": "beta"
+    },
+    {
+      "id": "F120",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Menús y primer uso",
+      "objetivo": "Nueva partida con semilla, opciones, pausa y una guía de primer uso",
+      "criterios": [
+        "Menú principal y de pausa",
+        "Campo para la semilla",
+        "Onboarding que enseña el bucle en 5 minutos"
+      ],
+      "version": "0.1",
+      "tramo": "beta"
+    },
+    {
+      "id": "F121",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Playtest y pulido de la v0.1",
+      "objetivo": "Playtest a fondo: bugs, game feel y legibilidad",
+      "criterios": [
+        "/playtest sin bugs abiertos de prioridad alta",
+        "Game feel en colocar, construir y cosechar",
+        "Recomendaciones del diseñador aplicadas o archivadas"
+      ],
+      "version": "0.1",
+      "tramo": "beta"
+    },
+    {
+      "id": "F122",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.1",
+      "objetivo": "Build estable, notas de versión y versión etiquetada",
+      "criterios": [
+        "npm run build sin errores",
+        "Notas de versión en docs/",
+        "Bitácora y documentos al día"
+      ],
+      "version": "0.1",
+      "tramo": "beta"
+    },
+    {
+      "id": "F201",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Guardar y cargar",
+      "objetivo": "Guardado con versionado y autoguardado",
+      "criterios": [
+        "test: guardar y cargar devuelve el mismo estado",
+        "Migración de partidas de versiones anteriores",
+        "Autoguardado sin tirones"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F202",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cadenas ampliadas",
+      "objetivo": "Cerveza, tejido, cerámica y ganado",
+      "criterios": [
+        "test: cada cadena depende de insumos, trabajo y transporte",
+        "Bienes de consumo que cubren necesidades",
+        "Inspector de cada cadena"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F203",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Reparto y almacenes de barrio",
+      "objetivo": "Varios almacenes y puntos de reparto: la comida tiene que llegar a cada barrio",
+      "criterios": [
+        "test: hay hambre en un barrio aunque el almacén central esté lleno",
+        "Rutas de reparto visibles",
+        "Capacidad por almacén"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F204",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Grupos sociales",
+      "objetivo": "Campesinos, artesanos, pescadores, sacerdotes y escribas, con intereses y obligaciones",
+      "criterios": [
+        "Cada hogar pertenece a un grupo con sus necesidades",
+        "Los grupos reaccionan distinto ante el mismo hecho",
+        "Panel de grupos"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F205",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Capas de satisfacción",
+      "objetivo": "Bienestar, servicios, seguridad material, confianza y cohesión, por separado",
+      "criterios": [
+        "test: una ciudad rica puede ser inestable",
+        "Cada capa con sus causas",
+        "Sin una barra única de felicidad"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F206",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Agravios con memoria",
+      "objetivo": "Agravios concretos y fechados que se desvanecen a ritmos distintos",
+      "criterios": [
+        "test: una represión deja resentimiento durante años",
+        "Inspector de agravios por grupo",
+        "Los agravios alimentan la presión política"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F207",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Protestas y huelgas",
+      "objetivo": "Las protestas nacen de causas trazables y tienen respuestas con consecuencias",
+      "criterios": [
+        "test: con los agravios por encima del umbral, protesta con causa visible",
+        "Respuestas: negociar, conceder o reprimir",
+        "Gente parada en la calle (se ve)"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F208",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Epidemias e incendios",
+      "objetivo": "Enfermedad por hacinamiento y agua; fuego en chozas de caña",
+      "criterios": [
+        "test: el hacinamiento sube el riesgo de epidemia",
+        "Prevención con coste (pozos, distancia, adobe)",
+        "Efectos en cadena"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F209",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Casas que evolucionan",
+      "objetivo": "Choza de caña → casa de adobe → casa con patio, según la prosperidad del hogar",
+      "criterios": [
+        "Mejoran y empeoran con el hogar",
+        "Cada nivel con su modelo (estilo de A7)",
+        "Capturas MIRADAS"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F210",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Templo y religión básica",
+      "objetivo": "Culto, ofrendas y fiestas que dan legitimidad y cohesión con su coste",
+      "criterios": [
+        "Las ofrendas consumen bienes reales",
+        "Fiestas que suben la cohesión",
+        "Sacerdotes como grupo con intereses"
+      ],
+      "version": "0.2",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F211",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Equilibrio social",
+      "objetivo": "Crisis encadenadas creíbles y recuperables",
+      "criterios": [
+        "test: simulaciones largas sin colapsos absurdos",
+        "Bandas de equilibrio documentadas",
+        "Playtest de una crisis completa"
+      ],
+      "version": "0.2",
+      "tramo": "beta"
+    },
+    {
+      "id": "F212",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Rendimiento con 1.000 habitantes",
+      "objetivo": "LOD de simulación: individuos cerca, agregados lejos",
+      "criterios": [
+        "1.000 habitantes a ≥ 50 fps",
+        "La simulación es coherente con los detalles visuales apagados",
+        "Medición documentada"
+      ],
+      "version": "0.2",
+      "tramo": "beta"
+    },
+    {
+      "id": "F213",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Interfaz de la sociedad",
+      "objetivo": "Paneles de grupos, agravios y protestas legibles",
+      "criterios": [
+        "Desde cada número se llega a su causa",
+        "Sin saturar la pantalla",
+        "Probado en móvil y escritorio"
+      ],
+      "version": "0.2",
+      "tramo": "beta"
+    },
+    {
+      "id": "F214",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.2",
+      "objetivo": "Build, notas y documentos",
+      "criterios": [
+        "Build estable",
+        "Notas de versión",
+        "Bitácora al día"
+      ],
+      "version": "0.2",
+      "tramo": "beta"
+    },
+    {
+      "id": "F301",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Plata y mercado",
+      "objetivo": "Mercado con precios que responden a la oferta y la demanda",
+      "criterios": [
+        "test: la escasez encarece y el exceso abarata",
+        "El dinero tiene un origen identificable",
+        "Gráfica de precios"
+      ],
+      "version": "0.3",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F302",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Finanzas del Estado",
+      "objetivo": "Impuestos, tasas, gastos, reservas y emergencias",
+      "criterios": [
+        "test: subir impuestos tiene efectos según el contexto",
+        "Presupuesto visible",
+        "Reservas del templo y del palacio"
+      ],
+      "version": "0.3",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F303",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Leyes",
+      "objetivo": "Leyes con requisitos, beneficiarios, perjudicados, costes y efectos a largo plazo",
+      "criterios": [
+        "Cada ley muestra a quién beneficia y a quién perjudica",
+        "Ninguna ley es siempre la mejor",
+        "Efectos persistentes"
+      ],
+      "version": "0.3",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F304",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Formas de gobierno",
+      "objetivo": "Ensi, lugal, consejo de ancianos o templo, con instituciones distintas",
+      "criterios": [
+        "Cada forma cambia poderes y derechos",
+        "Cambio de gobierno con sus condiciones",
+        "Base histórica marcada [H] o [I]"
+      ],
+      "version": "0.3",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F305",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Facciones",
+      "objetivo": "Facciones con objetivos, influencia y memoria de tus actos",
+      "criterios": [
+        "test: una facción retira su apoyo cuando se tocan sus intereses",
+        "Coaliciones",
+        "Panel de facciones"
+      ],
+      "version": "0.3",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F306",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Legitimidad y estabilidad",
+      "objetivo": "Legitimidad del gobernante y estabilidad social con sus causas",
+      "criterios": [
+        "test: una derrota o el hambre bajan la legitimidad",
+        "Indicadores separados",
+        "Inspector causal"
+      ],
+      "version": "0.3",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F307",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Responder a las crisis",
+      "objetivo": "Negociar, reformar, conceder, cambiar de ministros o usar la fuerza, con consecuencias",
+      "criterios": [
+        "Cada respuesta tiene riesgos y efectos posteriores",
+        "Memoria de las respuestas",
+        "Hechos en la crónica"
+      ],
+      "version": "0.3",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F308",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Rebelión y sucesión",
+      "objetivo": "Rebelión, golpe y crisis sucesoria a partir de causas acumuladas",
+      "criterios": [
+        "test: no hay rebelión sin causas acumuladas",
+        "Guerra civil posible",
+        "Recuperación posible"
+      ],
+      "version": "0.3",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F309",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Equilibrio político",
+      "objetivo": "La política interactúa de verdad con la economía y la sociedad",
+      "criterios": [
+        "Simulaciones largas estables",
+        "Playtest político",
+        "Bandas documentadas"
+      ],
+      "version": "0.3",
+      "tramo": "beta"
+    },
+    {
+      "id": "F310",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Interfaz política",
+      "objetivo": "Paneles de leyes, facciones y finanzas claros",
+      "criterios": [
+        "Legibles sin manual",
+        "Responsive",
+        "Probados"
+      ],
+      "version": "0.3",
+      "tramo": "beta"
+    },
+    {
+      "id": "F311",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.3",
+      "objetivo": "Build, notas y documentos",
+      "criterios": [
+        "Build estable",
+        "Notas de versión",
+        "Bitácora al día"
+      ],
+      "version": "0.3",
+      "tramo": "beta"
+    },
+    {
+      "id": "F401",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Mapa regional y mundial",
+      "objetivo": "Mapa grande con biomas por latitud (de la tundra a la selva) y regiones con identidad",
+      "criterios": [
+        "Todos los biomas reales en orden lógico (R10)",
+        "Recursos repartidos de forma desigual",
+        "La cámara pasa de la ciudad a la región sin cortes"
+      ],
+      "version": "0.4",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F402",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Varias ciudades propias",
+      "objetivo": "Fundar asentamientos, provincias, administración y coste de los territorios lejanos",
+      "criterios": [
+        "La expansión cuesta defensa, administración y recursos",
+        "Autonomía urbana",
+        "Panel de provincias"
+      ],
+      "version": "0.4",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F403",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Ciudades rivales vivas",
+      "objetivo": "Ciudades con IA agregada que producen, comercian y sufren sus propias crisis",
+      "criterios": [
+        "test: un rival puede colapsar sin que intervengas",
+        "Visibles en el mapa, como en las expectativas",
+        "Personalidad e intereses"
+      ],
+      "version": "0.4",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F404",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Comercio",
+      "objetivo": "Caravanas y barcos con rutas, tiempo de viaje y riesgos",
+      "criterios": [
+        "Los bienes tardan en llegar",
+        "Rutas bloqueables",
+        "Especialización regional"
+      ],
+      "version": "0.4",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F405",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Diplomacia con memoria",
+      "objetivo": "Tratados, alianzas y exigencias según intereses, reputación y memoria",
+      "criterios": [
+        "test: traicionar baja la confianza de todos",
+        "Sin una puntuación de amistad simple",
+        "Propuestas de la IA"
+      ],
+      "version": "0.4",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F406",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Fronteras y territorio",
+      "objetivo": "Fronteras con significado económico y político; reclamaciones",
+      "criterios": [
+        "Disputas por agua, pasos o tierras",
+        "Negociación de fronteras",
+        "Capa de territorio"
+      ],
+      "version": "0.4",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F407",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Espionaje básico",
+      "objetivo": "Reconocimiento, contraespionaje y apoyo encubierto, con riesgos",
+      "criterios": [
+        "Detección con consecuencias diplomáticas",
+        "La IA también espía",
+        "Integrado con la diplomacia"
+      ],
+      "version": "0.4",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F408",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Información imperfecta",
+      "objetivo": "La IA distingue entre lo que sabe, lo que sospecha y lo que ignora",
+      "criterios": [
+        "test: la IA no ve lo que no ha explorado",
+        "Niebla de información",
+        "Sin trampas en las dificultades altas"
+      ],
+      "version": "0.4",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F409",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Equilibrio de la IA",
+      "objetivo": "IA competente y coherente",
+      "criterios": [
+        "Partidas largas con rivales creíbles",
+        "Playtest diplomático",
+        "Bandas documentadas"
+      ],
+      "version": "0.4",
+      "tramo": "beta"
+    },
+    {
+      "id": "F410",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Rendimiento con varias ciudades",
+      "objetivo": "Simulación por niveles de detalle para muchas ciudades",
+      "criterios": [
+        "10 ciudades estables",
+        "Medición documentada",
+        "Sin bloqueos del hilo principal"
+      ],
+      "version": "0.4",
+      "tramo": "beta"
+    },
+    {
+      "id": "F411",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.4",
+      "objetivo": "Build, notas y documentos",
+      "criterios": [
+        "Build estable",
+        "Notas de versión",
+        "Bitácora al día"
+      ],
+      "version": "0.4",
+      "tramo": "beta"
+    },
+    {
+      "id": "F501",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Reclutamiento",
+      "objetivo": "Milicia y levas que restan mano de obra; equipo y entrenamiento",
+      "criterios": [
+        "test: reclutar baja la producción",
+        "Coste en armas y comida",
+        "Panel militar"
+      ],
+      "version": "0.5",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F502",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Ejércitos en campaña",
+      "objetivo": "Ejércitos que se mueven en tiempo real con suministro, fatiga y enfermedad",
+      "criterios": [
+        "test: lejos del suministro hay deserción",
+        "Rutas de suministro visibles",
+        "El terreno condiciona el movimiento"
+      ],
+      "version": "0.5",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F503",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Batallas tácticas por turnos",
+      "objetivo": "Al chocar los ejércitos, batalla por turnos sobre el terreno real con una rejilla temporal (R35)",
+      "criterios": [
+        "El mundo se congela durante la batalla",
+        "Máximo 12 turnos y retirada",
+        "La rejilla solo existe en la batalla"
+      ],
+      "version": "0.5",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F504",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Unidades y combate",
+      "objetivo": "Infantería, lanceros, arqueros, honderos y carros; moral, formación, terreno y flanqueo",
+      "criterios": [
+        "test: el resultado depende de varios factores, no solo del número",
+        "Ruptura por moral",
+        "Bonus de terreno justificados"
+      ],
+      "version": "0.5",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F505",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Resolución automática",
+      "objetivo": "Resolver una batalla sin jugarla, con el mismo modelo",
+      "criterios": [
+        "Resultados coherentes con el táctico",
+        "Resumen de la batalla",
+        "Opcional en cada combate"
+      ],
+      "version": "0.5",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F506",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Fortificaciones y asedios",
+      "objetivo": "Murallas, asedios con tiempo, reservas y máquinas",
+      "criterios": [
+        "test: un asedio consume las reservas de la ciudad",
+        "Murallas como obra progresiva",
+        "Capitulación"
+      ],
+      "version": "0.5",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F507",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Puertos y barcos",
+      "objetivo": "Transporte naval, bloqueo de puertos y combate naval básico",
+      "criterios": [
+        "Puerto con muelles (como en las expectativas)",
+        "Bloqueo que corta el comercio",
+        "Tormentas y riesgos"
+      ],
+      "version": "0.5",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F508",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Diplomacia militar",
+      "objetivo": "Guerra con justificación, tratados de paz, reparaciones y cesiones",
+      "criterios": [
+        "La IA valora si le conviene la guerra",
+        "Paz con condiciones",
+        "Coste político interno"
+      ],
+      "version": "0.5",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F509",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Equilibrio militar",
+      "objetivo": "Se puede ganar batallas y perder la guerra por la economía",
+      "criterios": [
+        "Playtest de guerra completa",
+        "Costes sociales y económicos visibles",
+        "Bandas documentadas"
+      ],
+      "version": "0.5",
+      "tramo": "beta"
+    },
+    {
+      "id": "F510",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cámara militar",
+      "objetivo": "Modo militar de la cámara y seguimiento de ejércitos (gdd/camara.md)",
+      "criterios": [
+        "Seguir un ejército sin perder el entorno",
+        "Sin información que no tendrías",
+        "Probado"
+      ],
+      "version": "0.5",
+      "tramo": "beta"
+    },
+    {
+      "id": "F511",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.5",
+      "objetivo": "Build, notas y documentos",
+      "criterios": [
+        "Build estable",
+        "Notas de versión",
+        "Bitácora al día"
+      ],
+      "version": "0.5",
+      "tramo": "beta"
+    },
+    {
+      "id": "F601",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Árbol tecnológico",
+      "objetivo": "Tecnologías con requisitos, costes, tiempo y dependencias; costes de oportunidad",
+      "criterios": [
+        "No se puede desbloquear todo",
+        "Cada avance abre opciones reales",
+        "Árbol visible"
+      ],
+      "version": "0.6",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F602",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cultura y conocimiento",
+      "objetivo": "Escribas, escuelas, tablillas y prestigio cultural",
+      "criterios": [
+        "La cultura atrae población e influencia",
+        "Separada de la ciencia",
+        "Coste en recursos y gente"
+      ],
+      "version": "0.6",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F603",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Religión",
+      "objetivo": "Doctrinas, instituciones y relación con el poder",
+      "criterios": [
+        "Las decisiones religiosas afectan a la cohesión y la legitimidad",
+        "Templos con funciones",
+        "Conflictos religiosos posibles"
+      ],
+      "version": "0.6",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F604",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Reformas institucionales",
+      "objetivo": "Reformas que se desbloquean por condiciones históricas, económicas o sociales",
+      "criterios": [
+        "No solo con puntos",
+        "Condiciones visibles",
+        "Efectos a largo plazo"
+      ],
+      "version": "0.6",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F605",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Desastres ampliados",
+      "objetivo": "Sequía, langosta, terremotos y tormentas con prevención y efectos en cadena",
+      "criterios": [
+        "test: la preparación reduce los daños",
+        "Prevención con coste",
+        "Recuperación posible"
+      ],
+      "version": "0.6",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F606",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Eventos escritos",
+      "objetivo": "Eventos históricos y decisiones morales que complementan la simulación",
+      "criterios": [
+        "Se disparan por el estado del mundo",
+        "Nunca sustituyen la simulación",
+        "Marcados [H]/[I]/[D]"
+      ],
+      "version": "0.6",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F607",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Arquitectura por eras",
+      "objetivo": "Los edificios y la ciudad cambian con la tecnología y la riqueza",
+      "criterios": [
+        "Cada era con su aspecto",
+        "Coherente con el estilo de A7",
+        "Capturas MIRADAS"
+      ],
+      "version": "0.6",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F608",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Equilibrio de la progresión",
+      "objetivo": "Estrategias de especialización viables",
+      "criterios": [
+        "Varias rutas ganadoras",
+        "Playtest largo",
+        "Bandas documentadas"
+      ],
+      "version": "0.6",
+      "tramo": "beta"
+    },
+    {
+      "id": "F609",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.6",
+      "objetivo": "Build, notas y documentos",
+      "criterios": [
+        "Build estable",
+        "Notas de versión",
+        "Bitácora al día"
+      ],
+      "version": "0.6",
+      "tramo": "beta"
+    },
+    {
+      "id": "F701",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Egipto jugable",
+      "objetivo": "Segunda civilización con una presión muy distinta (el Nilo, la monarquía centralizada)",
+      "criterios": [
+        "Ventajas y dificultades con base histórica",
+        "Jugable de principio a fin",
+        "Marcado [H]/[I]/[D]"
+      ],
+      "version": "0.7",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F702",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Arte de Egipto",
+      "objetivo": "Arquitectura, vestido y paisaje egipcios en el estilo elegido",
+      "criterios": [
+        "Edificios propios",
+        "Coherente con Sumer",
+        "Capturas MIRADAS"
+      ],
+      "version": "0.7",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F703",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Asimetría real",
+      "objetivo": "Instituciones, economía y ejército distintos, no solo estética",
+      "criterios": [
+        "Estrategias distintas para cada civilización",
+        "Sin bonus arbitrarios",
+        "Documentado"
+      ],
+      "version": "0.7",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F704",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Provincias profundas",
+      "objetivo": "Varias ciudades propias con administración regional",
+      "criterios": [
+        "Delegación y control",
+        "Separatismo posible",
+        "Panel de provincias"
+      ],
+      "version": "0.7",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F705",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Tercera civilización",
+      "objetivo": "Elegir y hacer jugable una tercera civilización (candidatas: Fenicia o Grecia)",
+      "criterios": [
+        "Elegida con criterios de experiencia distinta",
+        "Jugable",
+        "Base histórica"
+      ],
+      "version": "0.7",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F706",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Equilibrio entre civilizaciones",
+      "objetivo": "Ninguna civilización domina siempre",
+      "criterios": [
+        "Partidas comparadas",
+        "Ajustes documentados",
+        "Playtest"
+      ],
+      "version": "0.7",
+      "tramo": "beta"
+    },
+    {
+      "id": "F707",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.7",
+      "objetivo": "Build, notas y documentos",
+      "criterios": [
+        "Build estable",
+        "Notas de versión",
+        "Bitácora al día"
+      ],
+      "version": "0.7",
+      "tramo": "beta"
+    },
+    {
+      "id": "F801",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Modo histórico",
+      "objetivo": "Los mitos como creencias, presagios, arte y fiestas",
+      "criterios": [
+        "Sin criaturas físicas",
+        "Influye en la legitimidad y las ceremonias",
+        "Fuentes marcadas"
+      ],
+      "version": "0.8",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F802",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Modo mitológico",
+      "objetivo": "Criaturas legendarias reales, raras, con señales, causas y respuestas",
+      "criterios": [
+        "Aparición con condiciones identificables",
+        "Nunca una unidad militar más",
+        "Equilibrado"
+      ],
+      "version": "0.8",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F803",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Criaturas por cultura",
+      "objetivo": "Criaturas investigadas y fieles a su tradición (mesopotámica, egipcia…)",
+      "criterios": [
+        "Procedencia documentada",
+        "Sin mezclas arbitrarias",
+        "Arte coherente"
+      ],
+      "version": "0.8",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F804",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Expediciones y lugares sagrados",
+      "objetivo": "Expediciones, relatos que investigar y lugares especiales",
+      "criterios": [
+        "Riesgos y recompensas",
+        "Interpretaciones distintas por cultura",
+        "Hechos en la crónica"
+      ],
+      "version": "0.8",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F805",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Equilibrio mitológico",
+      "objetivo": "La mitología no rompe la economía",
+      "criterios": [
+        "Playtest de ambos modos",
+        "Frecuencias documentadas",
+        "Ajustes"
+      ],
+      "version": "0.8",
+      "tramo": "beta"
+    },
+    {
+      "id": "F806",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.8",
+      "objetivo": "Build, notas y documentos",
+      "criterios": [
+        "Build estable",
+        "Notas de versión",
+        "Bitácora al día"
+      ],
+      "version": "0.8",
+      "tramo": "beta"
+    },
+    {
+      "id": "F901",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Dificultad por ejes",
+      "objetivo": "Niveles que cambian la economía, las crisis, la IA, la logística y la información, sin trampas",
+      "criterios": [
+        "Del accesible al exigente",
+        "La IA no es omnisciente",
+        "Documentado"
+      ],
+      "version": "0.9",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F902",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Victorias múltiples",
+      "objetivo": "Victoria militar, económica, científica, cultural, diplomática y de supervivencia",
+      "criterios": [
+        "Compatibles con la duración de la partida",
+        "Derrotas parciales (vasallaje, fragmentación)",
+        "Pantallas de fin"
+      ],
+      "version": "0.9",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F903",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Comparación de motores",
+      "objetivo": "Comparación formal de three.js, Godot, Unity y Unreal con datos reales (R37)",
+      "criterios": [
+        "Benchmark con la simulación real",
+        "Coste de portar estimado",
+        "Decisión del usuario registrada"
+      ],
+      "version": "0.9",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F904",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Diagnóstico y partidas largas",
+      "objetivo": "Herramientas de diagnóstico y estabilidad durante horas de juego",
+      "criterios": [
+        "Partida de 4 h sin errores ni fugas",
+        "Panel de diagnóstico",
+        "Tests de simulación prolongada"
+      ],
+      "version": "0.9",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F905",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Optimización global",
+      "objetivo": "Rendimiento con ciudades grandes y muchos rivales",
+      "criterios": [
+        "Objetivos de fps medibles cumplidos",
+        "Medición documentada",
+        "Sin regresiones"
+      ],
+      "version": "0.9",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F906",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Playtest externo",
+      "objetivo": "Pruebas con jugadores fuera del estudio",
+      "criterios": [
+        "Feedback recogido y priorizado",
+        "Bugs críticos cerrados",
+        "Ajustes aplicados"
+      ],
+      "version": "0.9",
+      "tramo": "beta"
+    },
+    {
+      "id": "F907",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Accesibilidad e idiomas",
+      "objetivo": "Accesibilidad (controles, texto, color) y estructura para traducir",
+      "criterios": [
+        "Atajos reasignables",
+        "Textos en archivos de idioma",
+        "Contraste revisado"
+      ],
+      "version": "0.9",
+      "tramo": "beta"
+    },
+    {
+      "id": "F908",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Cierre de la v0.9",
+      "objetivo": "Build, notas y documentos",
+      "criterios": [
+        "Build estable",
+        "Notas de versión",
+        "Bitácora al día"
+      ],
+      "version": "0.9",
+      "tramo": "beta"
+    },
+    {
+      "id": "F1001",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Contenido completo",
+      "objetivo": "Tres civilizaciones de era a era con todos los sistemas conectados",
+      "criterios": [
+        "Partida completa jugable con cada civilización",
+        "Todos los sistemas responden a las cuatro preguntas",
+        "Documentación al día"
+      ],
+      "version": "1.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F1002",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Escenarios",
+      "objetivo": "Escenarios o una campaña ligera con contexto histórico",
+      "criterios": [
+        "Al menos 3 escenarios",
+        "Objetivos y finales",
+        "Base histórica marcada"
+      ],
+      "version": "1.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F1003",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Producto final",
+      "objetivo": "Menús, guardado robusto, ajustes completos y créditos",
+      "criterios": [
+        "Guardado a prueba de fallos",
+        "Ajustes completos",
+        "Créditos y licencias (creditos.md)"
+      ],
+      "version": "1.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F1004",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Beta pública",
+      "objetivo": "Beta con jugadores y corrección de bugs",
+      "criterios": [
+        "Bugs críticos a cero",
+        "Rendimiento validado en varios equipos",
+        "Feedback incorporado"
+      ],
+      "version": "1.0",
+      "tramo": "beta"
+    },
+    {
+      "id": "F1005",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Pulido final",
+      "objetivo": "Pulido audiovisual y de interfaz",
+      "criterios": [
+        "Revisión completa con capturas MIRADAS",
+        "Audio final",
+        "Sin textos provisionales"
+      ],
+      "version": "1.0",
+      "tramo": "beta"
+    },
+    {
+      "id": "F1006",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T06:08:08.989Z",
+      "titulo": "Lanzamiento 1.0",
+      "objetivo": "Versión 1.0 publicada",
+      "criterios": [
+        "Build final",
+        "Notas de lanzamiento",
+        "Plan posterior a la 1.0"
+      ],
+      "version": "1.0",
+      "tramo": "beta"
     },
     {
       "id": "P1",
-      "estado": "en-curso",
+      "estado": "hecha",
       "hecho": [
-        "Roadmap reiniciado desde los textos del 19-10; la bitácora anterior está en docs/archivo/estado-2026-10-18-hexagonal.json"
+        "Roadmap reiniciado desde los textos del 19-10; la bitácora anterior está en docs/archivo/estado-2026-10-18-hexagonal.json",
+        "Iconos 🆕 nuevo · 🔄 actualizado · ● sin leer · ✓ leído en fases, decisiones, errores, faltas, recomendaciones y conceptos, persistentes en el navegador",
+        "Resumen de novedades con «marcar todo como leído»; «Ahora mismo» con la sesión que lleva cada fase; roadmap por bloques con avance; pestañas con contadores",
+        "Laboratorio de arte (antes Modelos) con three.js servido en local (sin CDN)",
+        "npm run panel:probar: 34 comprobaciones en escritorio y móvil"
       ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Panel del estudio claro, con «nuevo» y «leído»",
@@ -242,7 +1849,41 @@
         "Organización clara: resumen arriba, roadmap por bloques, decisiones y aprendizajes en pestañas",
         "Playwright: todas las vistas sin errores y en móvil, con la marca de leído comprobada"
       ],
-      "sesion": "A"
+      "sesion": "A",
+      "verificacion": {
+        "tests": "34/34 panel:probar",
+        "resultado": "sin errores de consola ni scroll horizontal en escritorio y móvil"
+      },
+      "fin": "2026-10-19T06:05:12.614Z",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P2",
+      "estado": "hecha",
+      "hecho": [
+        "121 fases de la v0.0 a la v1.0 con version y tramo (alfa/beta), sacadas de prompts/maestro.md y de los textos del 19-10",
+        "El panel agrupa por versión, plegable, con tramos ALFA/BETA, rango de fases y avance; recuerda qué versiones abriste",
+        "versiones.md con la tabla de rangos por versión"
+      ],
+      "creada": "2026-10-19T06:05:12.822Z",
+      "titulo": "Roadmap completo por versiones en el panel",
+      "objetivo": "Todas las fases del juego hasta la 1.0, organizadas por versión con tramo alfa y beta (R38), visibles y agrupadas en el panel",
+      "criterios": [
+        "versiones.md con cada versión partida en alfa y beta y su rango de fases",
+        "estado.json con todas las fases (≤ 5 criterios cada una) y el campo version",
+        "El panel agrupa por versión con su avance (p. ej., 0.1 alfa: F101–F112)",
+        "Cada fase respeta los textos de docs/prompts/ y las decisiones R35–R38",
+        "panel:probar en verde"
+      ],
+      "sesion": "A",
+      "version": "0.0",
+      "tramo": "alfa",
+      "verificacion": {
+        "tests": "34/34 panel:probar",
+        "resultado": "121/121 fases visibles y marcadas; sin errores en escritorio ni en móvil"
+      },
+      "fin": "2026-10-19T06:09:25.798Z"
     }
   ],
   "errores": [],
@@ -477,6 +2118,26 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-19T06:09:25.828Z",
+      "texto": "Fase P2 → hecha: Roadmap completo por versiones en el panel"
+    },
+    {
+      "t": "2026-10-19T06:08:08.989Z",
+      "texto": "Roadmap completo por versiones (alfa → beta) hasta la 1.0: 105 fases nuevas"
+    },
+    {
+      "t": "2026-10-19T06:05:13.000Z",
+      "texto": "Traspaso A (19-10): cierre de sesiones A, B y C por contexto. Leer .claude/docs/traspaso.md antes de empezar. Pendiente principal: P2 (roadmap completo por versiones a partir de docs/prompts/maestro.md, con alfa y beta), A1 auditoría, A5 terreno continuo (src/logic/alturas.ts sin tests; agua continua en docs/archivo/wip/), A3 laboratorio. Mirar games/sedimento/espertativas/ (docs/expectativas.md)."
+    },
+    {
+      "t": "2026-10-19T06:05:12.849Z",
+      "texto": "Fase P2 creada: Roadmap completo por versiones en el panel"
+    },
+    {
+      "t": "2026-10-19T06:05:12.668Z",
+      "texto": "Fase P1 → hecha: Panel del estudio claro, con «nuevo» y «leído»"
+    },
+    {
       "t": "2026-10-19T05:27:30.894Z",
       "texto": "Traspaso B (C1, commit 08b3b74, hecha y verificada con shot y 3 capturas). Código: src/logic/camara.ts (+tests/camara.test.ts, 22 tests) y src/render/camara/{rig,entrada,preferencias,index}.ts; escena.ts importa ./camara (index). Controles: WASD/flechas relativas al giro, arrastre central e izquierdo (solo si hayHerramienta() es false y >5 px), bordes de pantalla (margen 12 px), botón derecho gira e inclina, Q/E, R/F, Alt+arrastre, rueda al cursor (preferencias en localStorage sedimento.camara). Todo en tuning.render.camara. Preparado y sin usar: opciones.alturaEn / control.fijarAlturaEn(fn) para el terreno continuo (y suavizada), alturaMinimaSobreSuelo (para C2: colisión con suelo). Falta de la especificación (docs/prompts/camara.md): colisión con el suelo, oclusión de edificios, enfocar/seguir (doble clic ya centra), modos, UI de preferencias, escena ?camara-test y docs/pruebas/camara.md. Cómo probar: npm run shot -- --acciones \"wheel:-1500:480:300,wait:2500,drag:480:300:380:300:middle\" (wheel:0:3:300 lleva el ratón al borde; esperar 2500 ms tras la rueda con swiftshader); estado en estado.camara. G3 (iluminación realista, pausada) guardado como diff en docs/archivo/g3-iluminacion-realista.diff. Para cablear la herramienta de construcción: crearControlCamara(dom,cfg,caja,{hayHerramienta}) en escena.ts."
     },
@@ -553,5 +2214,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-19T05:27:30.894Z"
+  "actualizado": "2026-10-19T06:09:25.828Z"
 }

@@ -1,4 +1,4 @@
-# SEDIMENTO
+# CIMIENTOS (nombre provisional · slug técnico `sedimento`)
 
 > Gobierna una ciudad-estado sumeria viva en un paisaje continuo en tiempo real: construyes donde quieras, ves levantarse cada edificio, y cada cosecha, ley y crecida tiene consecuencias que se propagan por toda la sociedad.
 
@@ -16,8 +16,9 @@ three.js (3D) · TypeScript · Vite · Vitest · Playwright — slug de bitácor
 
 ## Lo que manda (leer antes de tocar nada)
 
-- **`docs/prompts/`**: textos literales del usuario (dirección artística, construcción y cámara). Mandan sobre todo lo demás.
-- **`docs/requisitos-usuario.md`**: R1–R33 con su estado. Innegociables: **terreno continuo sin hexágonos ni casillas visibles (R20)**, **construcción libre (R21)** y **progresiva por etapas (R22)**, y **no fijar un sistema gráfico antes de comparar estilos en el laboratorio (R23)**.
+- **`docs/prompts/`**: textos literales del usuario: `maestro.md` (la visión completa del juego), `direccion-artistica.md`, `camara.md` y `recursos-recomendados.md`. Mandan sobre todo lo demás.
+- **`espertativas/`** (imágenes de la meta visual que sube el usuario) y **`docs/expectativas.md`** (qué se aprende de cada una): míralas al empezar y antes de decidir nada de arte (R39).
+- **`docs/requisitos-usuario.md`**: R1–R40 con su estado (R35: batallas por turnos; R36: nombre CIMIENTOS; R37: three.js hasta la 0.9; R38: versiones alfa → beta; R40: documentarlo todo siempre). Innegociables: **terreno continuo sin hexágonos ni casillas visibles (R20)**, **construcción libre (R21)** y **progresiva por etapas (R22)**, y **no fijar un sistema gráfico antes de comparar estilos en el laboratorio (R23)**.
 - **Prioridades (R27):** diversión y mecánicas > construcción y simulación coherentes > estilo atractivo y consistente > rendimiento > efectos.
 - GDD: `docs/gdd/README.md` (general), `construccion.md`, `camara.md`, `arte.md`, `mapa.md` y `simulacion.md`. Recursos y licencias: `docs/recursos/catalogo.md` y `docs/creditos.md`.
 

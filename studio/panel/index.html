@@ -133,6 +133,62 @@ section h3 .count { font-size: 12px; color: var(--muted); font-weight: 500; }
   .progress-num { text-align: left; }
   .pbody { padding-left: 0; }
 }
+
+/* Marcas de lectura y nueva organización (P1) */
+.marca { display:inline-flex; align-items:center; justify-content:center; width:22px; font-size:13px; flex:none; }
+.m-nuevo { color: var(--info); } .m-actualizado { color: var(--warn); } .m-sinleer { color: var(--accent); } .m-leido { color: var(--muted); opacity:.7; }
+.phase summary { grid-template-columns: 24px 44px 1fr auto auto; }
+.ses { font-size: 11px; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.novedades { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px; padding:12px 16px; }
+.nov-txt { flex: 1 1 260px; }
+.leyenda { display:flex; gap:10px; font-size:12px; color:var(--muted); flex-wrap:wrap; }
+.btn-sm { border:1px solid var(--line); background:var(--surface); color:var(--text); border-radius:8px; padding:4px 10px; cursor:pointer; font:inherit; font-size:13px; }
+.btn-sm:hover { border-color: var(--accent); }
+.ahora { margin-bottom: 16px; }
+.ahora .eyebrow { margin-bottom: 8px; }
+.ahora-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:10px; }
+.ahora .now { margin:0; padding:14px; }
+.ahora .now h2 { font-size:16px; margin:6px 0 4px; }
+.now-head { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+.now-obj { font-size:13px; color:var(--muted); }
+.bloque { padding: 4px 0 10px; border-top: 1px solid var(--line); }
+.bloque:first-of-type { border-top: 0; }
+.bloque-head { display:flex; justify-content:space-between; align-items:baseline; margin-top:8px; }
+.bloque-desc { font-size:12px; color:var(--muted); }
+.minibar { height:4px; background:var(--surface-2); border-radius:99px; overflow:hidden; margin:6px 0 4px; }
+.minibar i { display:block; height:100%; background: var(--ok); }
+.subtabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid var(--line); margin:-4px 0 12px; }
+.subtab { border:0; background:none; color:var(--muted); font:inherit; font-size:13px; padding:6px 10px; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; }
+.subtab[aria-selected="true"] { color:var(--text); border-bottom-color: var(--accent); font-weight:600; }
+.pill { display:inline-block; min-width:18px; padding:0 6px; border-radius:999px; background:var(--accent); color:#fff; font-size:11px; line-height:18px; text-align:center; }
+.subtab-tools { display:flex; justify-content:flex-end; margin-bottom:6px; }
+.subtab-body h4 { margin: 12px 0 6px; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.item { display:grid; grid-template-columns: 24px 1fr; gap:6px; align-items:start; cursor:pointer; }
+.item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.item .err { border-top: 0; padding: 0; }
+.grid { grid-template-columns: 1.25fr 1fr; }
+@media (max-width: 860px) {
+  .grid { grid-template-columns: 1fr; }
+  .phase summary { grid-template-columns: 22px 34px 1fr auto; gap: 6px; }
+  .phase summary .ses { display: none; }
+  .pbody { padding-left: 0; }
+}
+
+.version { border-top: 1px solid var(--line); padding: 4px 0; }
+.version:first-of-type { border-top: 0; }
+.version-head { list-style: none; cursor: pointer; display: flex; gap: 8px; align-items: center; padding: 8px 0 2px; }
+.version-head::-webkit-details-marker { display: none; }
+.version-head::before { content: '▸'; color: var(--muted); width: 12px; }
+.version[open] > .version-head::before { content: '▾'; }
+.version-head .count { margin-left: auto; color: var(--muted); font-size: 12px; }
+.vnum { font: 700 13px ui-monospace, Consolas, monospace; color: var(--accent); min-width: 36px; }
+.tramo { margin: 6px 0 4px 20px; }
+.tramo-head { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); margin: 8px 0 2px; }
+.tramo-head .count { margin-left: auto; }
+.tr { font-weight: 700; text-transform: uppercase; letter-spacing: .06em; padding: 1px 7px; border-radius: 999px; font-size: 10px; }
+.tr-alfa { background: var(--warn-soft); color: var(--warn); } .tr-beta { background: var(--info-soft); color: var(--info); }
+.rango { font-family: ui-monospace, Consolas, monospace; }
+@media (max-width: 860px) { .tramo { margin-left: 0; } }
 </style>
 </head>
 <body>
@@ -142,7 +198,7 @@ section h3 .count { font-size: 12px; color: var(--muted); font-weight: 500; }
     <nav class="games" id="games" aria-label="Juegos"></nav>
     <button class="view-tab" id="v-progreso" type="button">Progreso</button>
     <button class="view-tab" id="v-guia" type="button">Comandos</button>
-    <button class="view-tab" id="v-modelos" type="button">Modelos</button>
+    <button class="view-tab" id="v-modelos" type="button">Laboratorio de arte</button>
     <div class="live"><span class="dot" id="dot"></span><span id="updated">—</span></div>
     <button class="theme-btn" id="theme" type="button" title="Cambiar tema">◐</button>
   </header>
@@ -181,11 +237,58 @@ const badge = (txt) => `<span class="badge b-${esc(txt)}">${esc(txt)}</span>`;
 const prio = { alta: 0, media: 1, baja: 2 };
 const porPrio = (a, b) => (a.cerrado - b.cerrado) || ((prio[a.prioridad] ?? 1) - (prio[b.prioridad] ?? 1));
 
-function fase(f, slug) {
+// ── Marcas «nuevo · actualizado · sin leer · leído» ──────────────────────────────────────
+// Cada elemento tiene una firma que cambia cuando cambia algo importante (estado, avance…).
+// «Nuevo/actualizado» compara con lo que había en tu visita anterior; «leído» se guarda al abrirlo.
+const marcas = {
+  slug: null, previo: {}, leidos: {},
+  iniciar(slug, items) {
+    if (this.slug === slug) return;
+    this.slug = slug;
+    const leerJson = (k) => { try { return JSON.parse(store.get(k) || '{}'); } catch { return {}; } };
+    this.previo = leerJson(`panel.vistos.${slug}`);
+    this.leidos = leerJson(`panel.leidos.${slug}`);
+    // Lo que ves ahora deja de ser «nuevo» en tu próxima visita (no en esta).
+    store.set(`panel.vistos.${slug}`, JSON.stringify(Object.fromEntries(items.map((i) => [i.clave, i.firma]))));
+  },
+  estado(i) {
+    if (this.leidos[i.clave] === i.firma) return 'leido';
+    if (!(i.clave in this.previo)) return 'nuevo';
+    if (this.previo[i.clave] !== i.firma) return 'actualizado';
+    return 'sinleer';
+  },
+  leer(items) {
+    for (const i of items) this.leidos[i.clave] = i.firma;
+    store.set(`panel.leidos.${this.slug}`, JSON.stringify(this.leidos));
+  },
+};
+const ICONO = { nuevo: ['🆕', 'Nuevo desde tu última visita'], actualizado: ['🔄', 'Ha cambiado desde tu última visita'], sinleer: ['●', 'Sin leer'], leido: ['✓', 'Leído'] };
+const marca = (i) => { const e = marcas.estado(i); return `<span class="marca m-${e}" title="${ICONO[e][1]}" aria-label="${ICONO[e][1]}">${ICONO[e][0]}</span>`; };
+
+/** Todos los elementos marcables de la bitácora, con su clave y su firma. */
+function marcables(e) {
+  return [
+    ...(e.fases || []).map((f) => ({ tipo: 'fase', clave: `fase:${f.id}`, firma: `${f.estado}|${f.hecho?.length ?? 0}|${f.commit ?? ''}|${f.motivo ?? ''}`, ref: f })),
+    ...e.decisiones.map((x) => ({ tipo: 'decision', clave: `dec:${x.id}`, firma: x.id, ref: x })),
+    ...e.errores.map((x) => ({ tipo: 'error', clave: `err:${x.id}`, firma: `${x.id}|${x.estado}`, ref: x })),
+    ...e.faltantes.map((x) => ({ tipo: 'falta', clave: `fal:${x.id}`, firma: `${x.id}|${x.cerrado ? 1 : 0}`, ref: x })),
+    ...e.recomendaciones.map((x) => ({ tipo: 'reco', clave: `rec:${x.id}`, firma: `${x.id}|${x.cerrado ? 1 : 0}`, ref: x })),
+    ...e.conceptos.map((x) => ({ tipo: 'concepto', clave: `con:${x.id}`, firma: x.id, ref: x })),
+  ];
+}
+
+const BLOQUES = [
+  { pref: 'A', nombre: 'Dirección artística y prototipos', desc: 'Laboratorio de arte, terreno continuo y construcción libre' },
+  { pref: 'C', nombre: 'Cámara', desc: 'Cámara de estrategia (docs/prompts/camara.md)' },
+  { pref: 'P', nombre: 'Panel del estudio', desc: 'Este panel' },
+];
+const SESION = { A: 'A · Opus', B: 'B · Sonnet 5.5', C: 'C · Sonnet 5' };
+
+function fase(f, slug, item) {
   const v = f.verificacion || {};
   const capturas = [].concat(v.captura || v.capturas || []);
-  return `<details class="phase" data-id="${esc(f.id)}">
-    <summary><span class="pid">${esc(f.id)}</span><span class="ptitle">${esc(f.titulo)}</span>${badge(f.estado)}</summary>
+  return `<details class="phase" data-id="${esc(f.id)}" data-clave="${esc(item.clave)}">
+    <summary>${marca(item)}<span class="pid">${esc(f.id)}</span><span class="ptitle">${esc(f.titulo)}</span>${f.sesion ? `<span class="ses">${esc(SESION[f.sesion] ?? f.sesion)}</span>` : ''}${badge(f.estado)}</summary>
     <div class="pbody">
       ${f.objetivo ? `<div>${esc(f.objetivo)}</div>` : ''}
       ${f.criterios?.length ? `<div class="meta" style="margin-top:6px">Criterios</div><ul>${f.criterios.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
@@ -200,17 +303,42 @@ function lista(items, render, vacio) {
   return items.length ? items.map(render).join('') : `<p class="empty">${vacio}</p>`;
 }
 
+let pestana = store.get('panel.pestana') || 'decisiones';
+const NOMBRE_VERSION = { '0.0': 'Base: laboratorio, terreno, construcción y cámara', '0.1': 'La aldea junto al río', '0.2': 'La casa del dios', '0.3': 'El ensi y los poderosos', '0.4': 'Tierra entre ríos', '0.5': 'Lanzas de cobre', '0.6': 'Tablillas y templos', '0.7': 'Otras orillas', '0.8': 'Los que guardan los cedros', '0.9': 'Equilibrio', '1.0': 'Lanzamiento' };
+let versionesTocadas = store.get('panel.versiones') !== null;
+const versionesAbiertas = new Set((() => { try { return JSON.parse(store.get('panel.versiones') || '[]'); } catch { return []; } })());
+
 function render(e) {
   const slug = e.juego.slug;
   const F = e.fases || [];
+  const items = marcables(e);
+  marcas.iniciar(slug, items);
+  const porClave = new Map(items.map((i) => [i.clave, i]));
+  const it = (clave) => porClave.get(clave);
   const n = (s) => F.filter((f) => f.estado === s).length;
   const total = F.length || 1;
-  const actual = F.find((f) => f.estado === 'en-curso') || F.find((f) => f.estado === 'bloqueada');
-  const sig = F.find((f) => f.estado === 'pendiente');
-  const errAb = e.errores.filter((x) => x.estado === 'abierto').length;
+  const activas = F.filter((f) => f.estado === 'en-curso' || f.estado === 'bloqueada');
+  const cuenta = (filtro) => { const c = { nuevo: 0, actualizado: 0, sinleer: 0 }; for (const i of items.filter(filtro)) { const s = marcas.estado(i); if (s in c) c[s]++; } return c; };
+  const total0 = cuenta(() => true);
+  const pend = (tipo) => { const c = cuenta((i) => i.tipo === tipo); return c.nuevo + c.actualizado + c.sinleer; };
+  const abiertos = new Set([...document.querySelectorAll('details.phase[open]')].map((d) => d.dataset.id));
   const faltAb = e.faltantes.filter((x) => !x.cerrado);
   const recoAb = e.recomendaciones.filter((x) => !x.cerrado);
-  const abiertos = new Set([...document.querySelectorAll('details.phase[open]')].map((d) => d.dataset.id));
+
+  const fila = (i, contenido) => `<div class="item ${i.ref.cerrado ? 'closed' : ''}" data-clave="${esc(i.clave)}" tabindex="0">${marca(i)}<div class="item-c">${contenido}</div></div>`;
+  const PESTANAS = {
+    decisiones: { titulo: 'Decisiones', tipo: 'decision', html: () => lista([...e.decisiones].reverse(), (x) => fila(it(`dec:${x.id}`), `<div class="row"><span>${esc(x.texto)}</span>${x.fase ? `<span class="pid">${esc(x.fase)}</span>` : ''}</div>${x.porque ? `<div class="why">${esc(x.porque)}</div>` : ''}`), 'Sin decisiones registradas.') },
+    pendientes: { titulo: 'Faltas y recomendaciones', tipo: ['falta', 'reco'], html: () =>
+      `<h4>Lo que falta</h4>` + lista([...e.faltantes].sort(porPrio), (x) => fila(it(`fal:${x.id}`), `<div class="row"><span>${esc(x.texto)}</span>${badge(x.prioridad)}</div>${x.area ? `<div class="why">${esc(x.area)}</div>` : ''}`), 'Nada pendiente detectado.') +
+      `<h4>Recomendaciones</h4>` + lista([...e.recomendaciones].sort(porPrio), (x) => fila(it(`rec:${x.id}`), `<div class="row"><span><b>${esc(x.area || 'general')}</b> · ${esc(x.texto)}</span>${badge(x.prioridad)}</div>${x.porque ? `<div class="why">${esc(x.porque)}</div>` : ''}`), 'Sin recomendaciones todavía.') },
+    errores: { titulo: 'Errores', tipo: 'error', html: () => lista([...e.errores].reverse(), (x) => fila(it(`err:${x.id}`), `<div class="err">
+          <div class="err-head"><span class="pid">${esc(x.id)}</span>${x.fase ? `<span>${esc(x.fase)}</span>` : ''}${badge(x.estado)}<span>${hora(x.t)}</span></div>
+          <div><div class="k">Síntoma</div>${esc(x.sintoma)}</div><div><div class="k">Causa</div>${esc(x.causa || '—')}</div><div><div class="k">Solución</div>${esc(x.solucion || '—')}</div></div>`), 'Sin errores registrados.') },
+    conceptos: { titulo: 'Aprendizaje', tipo: 'concepto', html: () => lista([...e.conceptos].reverse(), (x) => fila(it(`con:${x.id}`), `<b>${esc(x.concepto)}</b><div class="why">${esc(x.explicacion)}</div>`), 'Aquí aparecerán conceptos de gamedev explicados.') },
+    actividad: { titulo: 'Actividad', tipo: null, html: () => `<div class="feed">${lista(e.actividad.slice(0, 60), (a) => `<div><time>${hora(a.t)}</time><span>${esc(a.texto)}</span></div>`, 'Sin actividad.')}</div>` },
+  };
+  if (!PESTANAS[pestana]) pestana = 'decisiones';
+  const pendPestana = (p) => p.tipo ? [].concat(p.tipo).reduce((s, t) => s + pend(t), 0) : 0;
 
   $('#app').innerHTML = `
   <div class="card hero">
@@ -227,53 +355,75 @@ function render(e) {
     </div>
   </div>
 
-  <div class="stats">
-    <div class="card stat"><div class="n">${e.errores.length}</div><div class="l">errores encontrados · ${errAb} abiertos</div></div>
-    <div class="card stat"><div class="n">${faltAb.length}</div><div class="l">cosas que faltan</div></div>
-    <div class="card stat"><div class="n">${recoAb.length}</div><div class="l">recomendaciones</div></div>
-    <div class="card stat"><div class="n">${e.decisiones.length}</div><div class="l">decisiones para revisar</div></div>
+  <div class="card novedades">
+    <div class="nov-txt">${total0.nuevo + total0.actualizado + total0.sinleer === 0 ? '<b>✓ Estás al día.</b> No hay nada nuevo ni sin leer.' :
+      `<b>Novedades:</b> <span class="m-nuevo">🆕 ${total0.nuevo} nuevos</span> · <span class="m-actualizado">🔄 ${total0.actualizado} actualizados</span> · <span class="m-sinleer">● ${total0.sinleer} sin leer</span>`}</div>
+    <div class="leyenda"><span>🆕 nuevo</span><span>🔄 actualizado</span><span>● sin leer</span><span>✓ leído</span></div>
+    ${total0.nuevo + total0.actualizado + total0.sinleer ? '<button class="btn-sm" type="button" id="leer-todo">Marcar todo como leído</button>' : ''}
   </div>
 
-  ${actual ? `<div class="card now ${actual.estado === 'bloqueada' ? 'blocked' : ''}">
-      <div class="eyebrow">${actual.estado === 'bloqueada' ? 'Bloqueada — necesita tu atención' : 'Ahora mismo'} · ${esc(actual.id)}</div>
-      <h2>${esc(actual.titulo)}</h2>
-      <div>${esc(actual.objetivo)}</div>
-      ${actual.motivo ? `<div style="color:var(--bad);margin-top:6px">${esc(actual.motivo)}</div>` : ''}
-      ${actual.criterios?.length ? `<ul class="criteria">${actual.criterios.map((c) => `<li>${esc(c)}</li>`).join('')}</ul>` : ''}
-    </div>` : `<div class="card now"><div class="eyebrow">Ahora mismo</div><h2>Sin fase en curso</h2><div>${sig ? `Siguiente: <b>${esc(sig.id)} ${esc(sig.titulo)}</b>` : 'No hay fases pendientes.'}</div></div>`}
+  <section class="ahora">
+    <div class="eyebrow">Ahora mismo · ${activas.length} en curso</div>
+    <div class="ahora-grid">${activas.length ? activas.map((f) => `<div class="card now ${f.estado === 'bloqueada' ? 'blocked' : ''}">
+        <div class="now-head"><span class="pid">${esc(f.id)}</span>${f.sesion ? `<span class="ses">${esc(SESION[f.sesion] ?? f.sesion)}</span>` : ''}${badge(f.estado)}</div>
+        <h2>${esc(f.titulo)}</h2><div class="now-obj">${esc(f.objetivo)}</div>
+        ${f.motivo ? `<div style="color:var(--bad);margin-top:6px">${esc(f.motivo)}</div>` : ''}
+      </div>`).join('') : `<div class="card now"><h2>Sin fases en curso</h2></div>`}</div>
+  </section>
 
   <div class="grid">
-    <div class="stack">
-      <section class="card"><h3>Fases <span class="count">${n('hecha')} hechas · ${n('pendiente')} pendientes</span></h3>
-        ${lista(F, (f) => fase(f, slug), 'Todavía no hay roadmap. Usa /roadmap.')}
-      </section>
-      <section class="card"><h3>Errores y cómo se resolvieron <span class="count">${e.errores.length}</span></h3>
-        ${lista([...e.errores].reverse(), (x) => `<div class="err">
-          <div class="err-head"><span class="pid">${esc(x.id)}</span>${x.fase ? `<span>${esc(x.fase)}</span>` : ''}${badge(x.estado)}<span>${hora(x.t)}</span></div>
-          <div><div class="k">Síntoma</div>${esc(x.sintoma)}</div>
-          <div><div class="k">Causa</div>${esc(x.causa || '—')}</div>
-          <div><div class="k">Solución</div>${esc(x.solucion || '—')}</div></div>`, 'Sin errores registrados.')}
-      </section>
-      <section class="card"><h3>Decisiones que tomó Claude <span class="count">revísalas cuando puedas</span></h3>
-        ${lista([...e.decisiones].reverse(), (x) => `<div class="item"><div class="row"><span>${esc(x.texto)}</span>${x.fase ? `<span class="pid">${esc(x.fase)}</span>` : ''}</div>${x.porque ? `<div class="why">${esc(x.porque)}</div>` : ''}</div>`, 'Sin decisiones registradas.')}
-      </section>
-    </div>
-    <div class="stack">
-      <section class="card"><h3>Lo que falta <span class="count">${faltAb.length} abiertos</span></h3>
-        ${lista([...e.faltantes].sort(porPrio), (x) => `<div class="item ${x.cerrado ? 'closed' : ''}"><div class="row"><span>${esc(x.texto)}</span>${badge(x.prioridad)}</div>${x.area ? `<div class="why">${esc(x.area)}</div>` : ''}</div>`, 'Nada pendiente detectado.')}
-      </section>
-      <section class="card"><h3>Recomendaciones <span class="count">${recoAb.length} abiertas</span></h3>
-        ${lista([...e.recomendaciones].sort(porPrio), (x) => `<div class="item ${x.cerrado ? 'closed' : ''}"><div class="row"><span><b>${esc(x.area || 'general')}</b> · ${esc(x.texto)}</span>${badge(x.prioridad)}</div>${x.porque ? `<div class="why">${esc(x.porque)}</div>` : ''}</div>`, 'Sin recomendaciones todavía.')}
-      </section>
-      <section class="card"><h3>Conceptos que vas aprendiendo <span class="count">${e.conceptos.length}</span></h3>
-        ${lista([...e.conceptos].reverse(), (x) => `<div class="item concept"><b>${esc(x.concepto)}</b><span class="why">${esc(x.explicacion)}</span></div>`, 'Aquí aparecerán conceptos de gamedev explicados.')}
-      </section>
-      <section class="card"><h3>Actividad reciente</h3>
-        <div class="feed">${lista(e.actividad.slice(0, 40), (a) => `<div><time>${hora(a.t)}</time><span>${esc(a.texto)}</span></div>`, 'Sin actividad.')}</div>
-      </section>
-    </div>
+    <section class="card"><h3>Roadmap hasta la 1.0 <span class="count">${n('hecha')} hechas · ${n('en-curso')} en curso · ${n('pendiente')} pendientes · ${F.length} fases</span></h3>
+      ${(() => {
+        // Roadmap por versiones (R38): cada versión, plegable, con su tramo alfa y beta y su rango de fases.
+        const versiones = [...new Set(F.map((f) => f.version ?? 'sin versión'))];
+        return versiones.map((v) => {
+          const fv = F.filter((f) => (f.version ?? 'sin versión') === v);
+          const hv = fv.filter((f) => f.estado === 'hecha').length;
+          const activa = fv.some((f) => f.estado === 'en-curso' || f.estado === 'bloqueada');
+          const abierta = versionesAbiertas.has(v) || (!versionesTocadas && activa);
+          const tramos = ['alfa', 'beta', undefined].map((tr) => fv.filter((f) => f.tramo === tr)).filter((x) => x.length);
+          return `<details class="version" data-version="${esc(v)}" ${abierta ? 'open' : ''}>
+            <summary class="version-head"><span class="vnum">${v === 'sin versión' ? '—' : 'v' + esc(v)}</span><b>${esc(NOMBRE_VERSION[v] ?? '')}</b>${activa ? '<span class="badge b-en-curso">en curso</span>' : ''}<span class="count">${hv}/${fv.length}</span></summary>
+            <div class="minibar"><i style="width:${(hv / fv.length) * 100}%"></i></div>
+            ${tramos.map((ft) => { const h = ft.filter((f) => f.estado === 'hecha').length; const tr = ft[0].tramo;
+              return `<div class="tramo"><div class="tramo-head">${tr ? `<span class="tr tr-${esc(tr)}">${esc(tr)}</span>` : ''}<span class="rango">${esc(ft[0].id)}${ft.length > 1 ? ' – ' + esc(ft[ft.length - 1].id) : ''}</span><span class="count">${h}/${ft.length}</span></div>
+                ${ft.map((f) => fase(f, slug, it(`fase:${f.id}`))).join('')}</div>`; }).join('')}
+          </details>`;
+        }).join('');
+      })()}
+      ${F.length ? '' : '<p class="empty">Todavía no hay roadmap. Usa /roadmap.</p>'}
+    </section>
+    <section class="card">
+      <div class="subtabs" role="tablist">${Object.entries(PESTANAS).map(([k, p]) => { const c = pendPestana(p);
+        return `<button type="button" role="tab" class="subtab" data-p="${k}" aria-selected="${k === pestana}">${esc(p.titulo)}${c ? ` <span class="pill">${c}</span>` : ''}</button>`; }).join('')}</div>
+      <div class="subtab-body">
+        ${PESTANAS[pestana].tipo ? `<div class="subtab-tools"><button class="btn-sm" type="button" id="leer-pestana">Marcar esta pestaña como leída</button></div>` : ''}
+        ${PESTANAS[pestana].html()}
+      </div>
+    </section>
   </div>`;
+
   abiertos.forEach((id) => document.querySelector(`details.phase[data-id="${CSS.escape(id)}"]`)?.setAttribute('open', ''));
+  document.querySelectorAll('details.version').forEach((d) => d.addEventListener('toggle', () => {
+    versionesTocadas = true;
+    d.open ? versionesAbiertas.add(d.dataset.version) : versionesAbiertas.delete(d.dataset.version);
+    store.set('panel.versiones', JSON.stringify([...versionesAbiertas]));
+  }));
+  const repintar = () => { ultimo = null; render(e); ultimo = e.actualizado; };
+  // Abrir una fase o tocar un elemento lo marca como leído.
+  document.querySelectorAll('details.phase').forEach((d) => d.addEventListener('toggle', () => { if (d.open) { const i = porClave.get(d.dataset.clave); if (i && marcas.estado(i) !== 'leido') { marcas.leer([i]); d.querySelector('.marca').outerHTML = marca(i); actualizarResumen(); } } }));
+  document.querySelectorAll('.item[data-clave]').forEach((el) => { const leer = () => { const i = porClave.get(el.dataset.clave); if (i && marcas.estado(i) !== 'leido') { marcas.leer([i]); el.querySelector('.marca').outerHTML = marca(i); actualizarResumen(); } };
+    el.addEventListener('click', leer); el.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); leer(); } }); });
+  document.querySelectorAll('.subtab').forEach((b) => b.onclick = () => { pestana = b.dataset.p; store.set('panel.pestana', pestana); repintar(); });
+  $('#leer-todo')?.addEventListener('click', () => { marcas.leer(items); repintar(); });
+  $('#leer-pestana')?.addEventListener('click', () => { const tipos = [].concat(PESTANAS[pestana].tipo); marcas.leer(items.filter((i) => tipos.includes(i.tipo))); repintar(); });
+  // El resumen de novedades se recalcula sin repintar todo (no se cierran las fases abiertas).
+  function actualizarResumen() {
+    const c = cuenta(() => true);
+    const txt = $('.nov-txt');
+    if (txt) txt.innerHTML = c.nuevo + c.actualizado + c.sinleer === 0 ? '<b>✓ Estás al día.</b> No hay nada nuevo ni sin leer.' : `<b>Novedades:</b> <span class="m-nuevo">🆕 ${c.nuevo} nuevos</span> · <span class="m-actualizado">🔄 ${c.actualizado} actualizados</span> · <span class="m-sinleer">● ${c.sinleer} sin leer</span>`;
+    document.querySelectorAll('.subtab').forEach((b) => { const k = pendPestana(PESTANAS[b.dataset.p]); b.innerHTML = esc(PESTANAS[b.dataset.p].titulo) + (k ? ` <span class="pill">${k}</span>` : ''); });
+  }
 }
 
 let vista = ['guia', 'modelos'].includes(store.get('panel.vista')) ? store.get('panel.vista') : 'progreso';
@@ -380,7 +530,7 @@ async function tick() {
 tick();
 setInterval(tick, 5000);
 </script>
-<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+<script type="importmap">{ "imports": { "three": "/vendor/three/build/three.module.js", "three/addons/": "/vendor/three/examples/jsm/" } }</script>
 <script type="module">
 // Pestaña «Modelos»: todos los modelos 3D del juego (propios y descargados CC0) con filtros,
 // miniaturas, visor interactivo y comparación lado a lado.

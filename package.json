@@ -1,0 +1,10 @@
+{
+  "name": "estudio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "panel": "node studio/panel/server.mjs",
+    "bitacora": "node studio/bitacora.mjs",
+    "panel:probar": "node studio/panel/probar.mjs"
+  }
+}

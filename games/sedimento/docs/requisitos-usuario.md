@@ -75,3 +75,14 @@ Los textos largos del usuario están literales en `docs/prompts/` y mandan sobre
 |---|---|---|---|---|
 | R32 | 19-10 | **Panel del estudio limpio y desde cero:** quitar las fases viejas y lo que ya no sirve. | ✅ | `estado.json` (lo viejo, en `docs/archivo/`) |
 | R33 | 19-10 | **Panel más intuitivo y mejor organizado:** iconos de leído, no leído y nuevo en todo lo que aparece, y **probado a fondo**. | ✅ | `studio/panel/`, fase P1 |
+
+## Decisiones del 19-10 sobre el documento maestro (`prompts/maestro.md`)
+
+| # | Fecha | Requisito | Estado | Dónde se concreta |
+|---|---|---|---|---|
+| R35 | 19-10 | **Guerra:** la campaña, la economía y la diplomacia son en tiempo real, pero las **batallas tácticas son por turnos** (R7 confirmado por el usuario frente a §11 del maestro). La rejilla táctica, si la hay, solo existe durante la batalla. | ✅ | `gdd/README.md` §11, versión 0.5 |
+| R36 | 19-10 | **Nombre provisional: CIMIENTOS** (ni IMPERIUM ni SEDIMENTO hasta que el usuario decida). El *slug* técnico sigue siendo `sedimento` (carpeta y bitácora) hasta tener nombre definitivo. | ✅ | `brief.md`, `estado.json` |
+| R37 | 19-10 | **Motor:** seguir con **three.js** (web) con la lógica portable; la comparación formal de motores (§21 del maestro) se hace en la versión 0.9. | ✅ | `versiones.md` |
+| R38 | 19-10 | **Versiones en dos tramos:** cada versión tiene una **alfa** (las mecánicas funcionan) y una **beta** (pulida, equilibrada y probada): 0.1 alfa → 0.1 beta → 0.2 alfa… → 1.0 beta → 1.0. **Todas las fases** del juego, hasta la 1.0, deben estar en el panel, organizadas por versión. | ✅ | `versiones.md`, panel (fase P2) |
+| R39 | 19-10 | **Carpeta de expectativas `games/sedimento/espertativas/`:** el usuario sube imágenes de la meta visual. **Mirarlas de vez en cuando** (al empezar cada sesión A y antes de decidir sobre el arte) y tenerlas en cuenta en el laboratorio. | ✅ | `.claude/docs/traspaso.md` |
+| R40 | 19-10 | **Dejar siempre todo documentado.** | ✅ | todas las sesiones |

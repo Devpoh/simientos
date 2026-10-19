@@ -71,6 +71,15 @@ createServer((req, res) => {
     if (p === '/api/juegos') return json(res, juegos());
     const m = p.match(/^\/api\/estado\/([\w-]+)$/);
     if (m) { const e = leerEstado(m[1]); return e ? json(res, e) : json(res, { error: 'sin estado' }, 404); }
+    // three.js servido desde el juego: el laboratorio funciona sin depender de un CDN externo.
+    const vt = p.match(/^\/vendor\/three\/(.+)$/);
+    if (vt) {
+      const base = join(GAMES, 'sedimento', 'node_modules', 'three');
+      const file = normalize(join(base, vt[1]));
+      if (!file.startsWith(base + sep) || !existsSync(file) || !statSync(file).isFile()) { res.writeHead(404); return res.end(); }
+      res.writeHead(200, { 'content-type': 'text/javascript; charset=utf-8', 'cache-control': 'max-age=3600' });
+      return res.end(readFileSync(file));
+    }
     const am = p.match(/^\/api\/modelos\/([\w-]+)$/);
     if (am) return json(res, modelos(am[1]));
     const mo = p.match(/^\/modelos\/([\w-]+)\/(.+)$/);

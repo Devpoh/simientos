@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.vite/
+*.log
+.DS_Store
+Thumbs.db
+
+# Claude Code — archivos privados
+CLAUDE.local.md
+.claude/settings.local.json
+
+# Estado local del estudio
+studio/activo.txt
+studio/panel/pruebas/
