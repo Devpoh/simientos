@@ -14,8 +14,12 @@
   "fases": [
     {
       "id": "A1",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "docs/auditoria.md: inventario de lógica, render, UI, panel y dependencias con estado (funciona/provisional/a rehacer)",
+        "Choques con R20–R23 y su sustituto con fase (A5, A6, A7, F101)",
+        "Riesgos técnicos y de rendimiento por estilo A–D con presupuesto inicial para B"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Auditoría del proyecto",
       "objetivo": "Inventario honesto de qué funciona, qué se conserva y qué se rehace por los textos del 19-10 (Fase A)",
@@ -26,7 +30,11 @@
       ],
       "sesion": "A",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "verificacion": {
+        "check": "117/117"
+      },
+      "fin": "2026-10-19T06:16:17.542Z"
     },
     {
       "id": "A2",
@@ -178,7 +186,7 @@
     },
     {
       "id": "C2",
-      "estado": "pendiente",
+      "estado": "en-curso",
       "hecho": [],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Cámara: suavizado y velocidad adaptativa",
@@ -190,7 +198,8 @@
         "test: el mismo recorrido a 30 y a 144 fps acaba en la misma posición (±1 %)"
       ],
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "inicio": "2026-10-19T06:15:37.823Z"
     },
     {
       "id": "C3",
@@ -1888,7 +1897,17 @@
   ],
   "errores": [],
   "faltantes": [],
-  "recomendaciones": [],
+  "recomendaciones": [
+    {
+      "id": "R001",
+      "t": "2026-10-19T06:16:17.855Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Si el estilo C (pixel art isométrico) entra en serio en A7, decidirlo antes de C3–C6: obliga a limitar el giro de cámara a 90°",
+      "porque": "Los sprites solo se ven bien desde ángulos fijos y la cámara libre de C1 lo contradice"
+    }
+  ],
   "decisiones": [
     {
       "id": "D001",
@@ -1968,6 +1987,13 @@
       "t": "2026-10-19T05:27:08.212Z",
       "texto": "Cada versión tiene un tramo alfa y otro beta; todas las fases hasta la 1.0 irán en el panel agrupadas por versión",
       "porque": "Petición del usuario (R38)"
+    },
+    {
+      "id": "D014",
+      "t": "2026-10-19T06:16:17.717Z",
+      "fase": "A1",
+      "texto": "Las celdas hexagonales se conservan solo como rejilla invisible de datos; todo lo visible y la ubicación de edificios pasan a coordenadas libres (x, z, giro)",
+      "porque": "R20 permite una rejilla interna de datos y así se conserva mapa.ts, clima y la simulación ya testeados"
     }
   ],
   "conceptos": [
@@ -2118,6 +2144,22 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-19T06:16:17.857Z",
+      "texto": "Recomendación (arte): Si el estilo C (pixel art isométrico) entra en serio en A7, decidirlo antes de C3–C6: obliga a limitar el giro de cámara a 90°"
+    },
+    {
+      "t": "2026-10-19T06:16:17.719Z",
+      "texto": "Decisión: Las celdas hexagonales se conservan solo como rejilla invisible de datos; todo lo visible y la ubicación de edificios pasan a coordenadas libres (x, z, giro)"
+    },
+    {
+      "t": "2026-10-19T06:16:17.571Z",
+      "texto": "Fase A1 → hecha: Auditoría del proyecto"
+    },
+    {
+      "t": "2026-10-19T06:15:37.851Z",
+      "texto": "Fase C2 → en-curso: Cámara: suavizado y velocidad adaptativa"
+    },
+    {
       "t": "2026-10-19T06:09:25.828Z",
       "texto": "Fase P2 → hecha: Roadmap completo por versiones en el panel"
     },
@@ -2214,5 +2256,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-19T06:09:25.828Z"
+  "actualizado": "2026-10-19T06:16:17.857Z"
 }
