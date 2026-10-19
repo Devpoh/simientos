@@ -2,7 +2,9 @@
 
 Registro de R25. Un bloque por paquete, con los 13 campos pedidos. **Popularidad:** solo con la fuente y la fecha de la consulta; si no está verificada, se pone «sin verificar». **Estado:** `aprobado` (licencia verificada y estética evaluada) · `pendiente` (falta verificar algo) · `descartado` (con el motivo) · `referencia` (solo para comparar, no se integra). **Valoración:** impresión de C, siempre marcada «(C, provisional)» — la evaluación artística final la hace el usuario en el laboratorio visual.
 
-Consultado el 2026-10-19. 20 paquetes evaluados (mínimo pedido: 15). **Regla R43 (cero gasto, 2026-10-19): solo recursos gratuitos.** Los paquetes de pago (Beelim, #11 y #12) quedan descartados por esta regla, no por estética.
+Consultado el 2026-10-19. 30 paquetes evaluados (mínimo pedido: 15). **Regla R43 (cero gasto, 2026-10-19): solo recursos gratuitos.** Los paquetes de pago (Beelim, #11 y #12; Civilization Builder Mega Pack, referencia en `reco` R004) quedan descartados por esta regla, no por estética.
+
+**Nota del usuario (2026-10-19):** la partida empieza en Sumer, pero habrá más civilizaciones aliadas y enemigas (Roma, Egipto…) más adelante. Los recursos de otras estéticas antiguas (p. ej. #17 LPC Desert Ruins, egipcio) no se descartan por «no ser sumerios»: son candidatos para esas civilizaciones futuras, no para la v0.1.
 
 ## Resumen
 
@@ -28,8 +30,19 @@ Consultado el 2026-10-19. 20 paquetes evaluados (mínimo pedido: 15). **Regla R4
 | 18 | Stylized Water Waves of Pools (Others 0020) | TextureCan | CC0 1.0 | Gratis | aprobado (normal map de agua) |
 | 19 | Mpumalanga Veld (Pure Sky) — HDRI | Poly Haven | CC0 1.0 | Gratis | aprobado (HDRI atardecer dorado) |
 | 20 | Kloofendal 43d Clear (Pure Sky) — HDRI | Poly Haven | CC0 1.0 | Gratis | aprobado (HDRI mediodía despejado) |
+| 21 | Isometric Tiles - Town Pack ♦ | Screaming Brain Studios (itch.io) | CC0 | Gratis | aprobado — descargado |
+| 22 | Isometric Tiles - Overworld Pack ♦ | Screaming Brain Studios (itch.io) | CC0 | Gratis | aprobado — descargado (incluye agua) |
+| 23 | Sandbox Style - Terrain Pack | Screaming Brain Studios (itch.io) | CC0 | Gratis | pendiente (no descargado; biomas variados, sin agua) |
+| 24 | Isometric Miniature Farm ♦ | Kenney (itch.io) | CC0 | Gratis | aprobado — descargado |
+| 25 | Sketch Desert ♦ | Kenney (itch.io) | CC0 | Gratis | aprobado — descargado |
+| 26 | Pixel Art Isometric Map Tileset | Newc42 (itch.io) | CC0 | Gratis | pendiente (no descargado; 69 tiles, incluye 3 de agua) |
+| 27 | 2D Village Asset Pack | styloo (itch.io) | CC0 | Gratis | pendiente (no descargado; top-down 8 direcciones, no isométrico) |
+| 28 | 8 Directional 2DHD Pixel Art Animated Character | Hormelz (itch.io) | CC0 | Gratis | pendiente (no descargado; un solo personaje de muestra) |
+| 29 | Pixel Art Wooden GUI v1 ♦ | Narik (itch.io) | CC0 | Gratis | aprobado — descargado |
+| 30 | Generic Dark Pixel UI | Flatus (itch.io) | CC0 | Gratis | pendiente (no descargado; alternativa oscura a la #29) |
 
 ★ = candidato más prometedor para la estética sumeria encontrado en esta ronda (descartado por R43, ver #11).
+♦ = de los 5 descargados en A2b (ver top 3 razonado al final del catálogo).
 
 ---
 
@@ -237,6 +250,124 @@ Consultado el 2026-10-19. 20 paquetes evaluados (mínimo pedido: 15). **Regla R4
 - **Compatibilidad three.js/glTF:** sí (`RGBELoader` + `PMREMGenerator`)
 - **Valoración (C, provisional):** mediodía despejado, luz cálida de alto contraste — alternativa para escenas de mediodía mediterráneo si el atardecer dorado (#19) resulta demasiado oscuro para jugar.
 - **Estado:** aprobado · descargado en `recursos-sin-revisar/hdri/kloofendal_43d_clear_puresky_2k.hdr`
+
+## 21. Isometric Tiles - Town Pack ♦
+- **Autor:** Screaming Brain Studios · **Enlace:** https://screamingbrainstudios.itch.io/iso-town-pack
+- **Tipo · formatos:** tiles isométricos de edificios y tejados, pixel art · PNG con fondo teal, tilesets `.tsx` para Tiled
+- **Licencia:** CC0 1.0 (barra lateral de itch.io, verificada 2026-10-19). Cita textual: assets "released under the Public Domain (CC0) license". El autor responde en los comentarios: «All Screaming Brain Studios assets are CC0, no credit required!»
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Precio:** gratis (pay-what-you-want, mínimo 0 — `min_price:0` confirmado en el JSON de la página)
+- **Popularidad:** sin verificar (itch.io no publica contador público)
+- **Compatibilidad three.js/glTF:** no aplica directamente (PNG 2D); útil como referencia visual para el laboratorio de pixel art (estilo C), no para la escena three.js actual
+- **Valoración (C, provisional):** 443 tiles (216 tipos de edificio × 2 direcciones de luz + 11 tejados), estilo limpio y neutro (no medieval-fantástico marcado), fácil de adaptar a adobe/caña con una repaleta de color.
+- **Estado:** aprobado · descargado en `recursos-sin-revisar/pixelart/sbs-iso-town-pack/pack.rar` (sin extraer, formato RAR v5; LICENSE.txt y preview guardados)
+
+## 22. Isometric Tiles - Overworld Pack ♦
+- **Autor:** Screaming Brain Studios · **Enlace:** https://screamingbrainstudios.itch.io/iso-overworld-pack
+- **Tipo · formatos:** tiles isométricos de terreno y agua, pixel art · PNG con fondo negro/magenta, `.tsx` para Tiled (20 tilesets)
+- **Licencia:** CC0 1.0 (igual que #21, mismo autor y misma declaración pública de licencia)
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Precio:** gratis (pay-what-you-want, mínimo 0)
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica (PNG 2D)
+- **Valoración (C, provisional):** 360 tiles de terreno variado más **1 hoja de agua con 36 tiles en dos estilos** — el único paquete de esta ronda que trae agua ya integrada en un tileset isométrico coherente con el resto.
+- **Estado:** aprobado · descargado en `recursos-sin-revisar/pixelart/sbs-iso-overworld-pack/pack.rar` (versión «Large», 6.8 MB; LICENSE.txt y preview guardados)
+
+## 23. Sandbox Style - Terrain Pack
+- **Autor:** Screaming Brain Studios · **Enlace:** https://screamingbrainstudios.itch.io/sbst-pack
+- **Tipo · formatos:** cubos isométricos de terreno, pixel art · PNG con fondo negro/teal, `.tsx` para Tiled
+- **Licencia:** CC0 1.0. Cita textual: assets "released under the Public Domain (CC0) license"
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Precio:** gratis (pay-what-you-want, mínimo 0)
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica
+- **Valoración (C, provisional):** 204 cubos (140 + 64 de ladrillos) en biomas hierba/desierto/nieve/tierra/piedra/mineral; sin agua. Más genérico que #22, se descarta de la descarga por redundancia.
+- **Estado:** pendiente (no descargado; candidato de respaldo si #22 no cubre algún bioma)
+
+## 24. Isometric Miniature Farm ♦
+- **Autor:** Kenney · **Enlace (itch.io):** https://kenney-assets.itch.io/isometric-miniature-farm · **Enlace (kenney.nl):** https://kenney.nl/assets/isometric-miniature-farm
+- **Tipo · formatos:** sprites isométricos de granja y personajes, pixel art · PNG, con muestra para Tiled y Unity
+- **Licencia:** CC0 1.0 Universal (ambas páginas). Cita textual de itch.io: "You're allowed to use these game assets in any project including commercial ones."
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Precio:** gratis (pay-what-you-want, mínimo 0)
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica
+- **Valoración (C, provisional):** más de 60 tiles de campos de cultivo, graneros y personajes pequeños — encaja directamente con la economía agrícola del juego (campo productivo de `docs/expectativas.md`).
+- **Estado:** aprobado · descargado en `recursos-sin-revisar/pixelart/kenney-isometric-miniature-farm/pack.zip` (vía kenney.nl; LICENSE.txt y preview guardados)
+
+## 25. Sketch Desert ♦
+- **Autor:** Kenney · **Enlace (itch.io):** https://kenney-assets.itch.io/sketch-desert · **Enlace (kenney.nl):** https://kenney.nl/assets/sketch-desert
+- **Tipo · formatos:** sprites de bioma desértico, pixel art/sketch · PNG, con muestra para Tiled
+- **Licencia:** CC0 1.0 Universal (ambas páginas), misma cita textual que #24
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Precio:** gratis (pay-what-you-want, mínimo 0)
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica
+- **Valoración (C, provisional):** más de 240 sprites de arena, dunas, oasis y vegetación árida — ambienta el entorno fuera de la ciudad en un estilo pixel art coherente con #21/#22/#24.
+- **Estado:** aprobado · descargado en `recursos-sin-revisar/pixelart/kenney-sketch-desert/pack.zip` (vía kenney.nl; LICENSE.txt y preview guardados)
+
+## 26. Pixel Art Isometric Map Tileset
+- **Autor:** Newc42 · **Enlace:** https://newc-42.itch.io/pixel-art-isometric-map-tileset
+- **Tipo · formatos:** tileset isométrico multibioma, pixel art · `.png` y `.aseprite`
+- **Licencia:** CC0. Cita textual: "This package is available under the CC0 license, which means you can use this in any project without attribution."
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Precio:** gratis (pay-what-you-want, mínimo 0)
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica
+- **Valoración (C, provisional):** 69 tiles (38 templado, 12 ártico, 12 desértico, 2 montaña, 2 lava) con **3 tiles de agua**; más pequeño que #22 pero con archivos `.aseprite` editables.
+- **Estado:** pendiente (no descargado; alternativa a #22 si se necesita editar los tiles directamente)
+
+## 27. 2D Village Asset Pack
+- **Autor:** styloo · **Enlace:** https://styloo.itch.io/2d-village
+- **Tipo · formatos:** sprites de pueblo en 8 direcciones (top-down, no isométrico), pixel art · PNG
+- **Licencia:** CC0 1.0 Universal. El autor confirma en los comentarios: «yes of course, it's cc0 license, you can do whatever you want :)»
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Precio:** gratis (pay-what-you-want, mínimo 0)
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica
+- **Valoración (C, provisional):** más de 500 sprites de casas y props, pero en top-down puro (no isométrico): no combina directamente con #21/#22. Útil solo si el laboratorio decide un estilo top-down en vez de isométrico.
+- **Estado:** pendiente (no descargado; estilo de proyección distinto al resto de la ronda)
+
+## 28. 8 Directional 2DHD Pixel Art Animated Character
+- **Autor:** Hormelz · **Enlace:** https://hormelz.itch.io/8-directional-char
+- **Tipo · formatos:** personaje animado en 8 direcciones, pixel art 2.5D · PNG transparente, lienzo 256×256
+- **Licencia:** CC0 1.0 Universal. El mismo autor aclara en otro pack: «These assets are CC0, meaning you can basically use them however you like, short of reposting them.»
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** no re-publicar el paquete tal cual
+- **Precio:** gratis (pay-what-you-want, mínimo 0)
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica
+- **Valoración (C, provisional):** un único personaje de muestra con 13 animaciones (caminar, correr, atacar, morir…); útil como referencia de rig 2.5D para personajes pequeños, pero no es un paquete de población variada.
+- **Estado:** pendiente (no descargado; de baja prioridad frente a un paquete con más variedad de personajes)
+
+## 29. Pixel Art Wooden GUI v1 ♦
+- **Autor:** Narik · **Enlace:** https://soulofkiran.itch.io/pixel-art-wooden-gui-v1
+- **Tipo · formatos:** interfaz (botones, marcos) de madera, pixel art · un único PNG, 32×32 por elemento
+- **Licencia:** CC0 1.0 Universal. Cita textual: "You can use this asset for personal and commercial purpose. You can edit it to fit your need." / "Credit is not required but would be greatly appreciated."
+- **Uso comercial:** sí · **Atribución:** no obligatoria (se agradece) · **Restricciones:** ninguna
+- **Precio:** gratis (pay-what-you-want, mínimo 0)
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica (es UI, se usaría como overlay HTML/CSS o sprite 2D, no en la escena 3D)
+- **Valoración (C, provisional):** más de 70 botones en 3 tonos de madera con animación de clic. El tono cálido de madera encaja mejor con la «interfaz oscura con detalles dorados» de `docs/expectativas.md` que una UI genérica oscura.
+- **Estado:** aprobado · descargado en `recursos-sin-revisar/pixelart/narik-wooden-gui/Wooden-Pixel-Art-GUI-32x32.png` (LICENSE.txt y preview guardados)
+
+## 30. Generic Dark Pixel UI
+- **Autor:** Flatus · **Enlace:** https://flatus.itch.io/generic-dark-pixel-ui
+- **Tipo · formatos:** iconos e interfaz oscura, pixel art · PNG y `.aseprite`, dos hojas (iconos + UI)
+- **Licencia:** CC0 1.0 Universal (la tipografía incluida también se indica como "CC0 Licensed")
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Precio:** gratis ("It's Is Here and it's Free!")
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** no aplica
+- **Valoración (C, provisional):** alternativa oscura y neutra a #29; incluye un tema listo para Godot 4, no aplicable directamente aquí, pero los iconos sueltos podrían servir de inspiración para una ficha de selección oscura.
+- **Estado:** pendiente (no descargado; se prefirió #29 por el tono cálido de madera, más coherente con la dirección de arte actual)
+
+## Top 3 razonado para SEDIMENTO (estilo C — pixel art)
+
+1. **#22 Isometric Tiles - Overworld Pack** — es el único paquete con agua integrada en el mismo tileset que el terreno (36 tiles de agua en dos estilos), y comparte autor y proyección isométrica con el pack de edificios (#21). Sería la base de terreno si el laboratorio elige el estilo C.
+2. **#21 Isometric Tiles - Town Pack** — 443 tiles de edificios y tejados del mismo autor que #22, con iluminación en 2 direcciones ya resuelta; es la pieza que falta para levantar una aldea isométrica completa junto con #22 y #24.
+3. **#24 Isometric Miniature Farm (Kenney)** — cubre la economía agrícola (campos, graneros) que ni #21 ni #22 tienen, y Kenney ya es la fuente CC0 más usada en el catálogo (coherencia de procedencia y de calidad).
+
+**Quedan fuera del top 3 pero descargados:** #25 Sketch Desert (ambientación del entorno árido fuera de la ciudad) y #29 Pixel Art Wooden GUI v1 (única opción de interfaz cálida encontrada, frente a las UI oscuras/neutras de #30 y otras descartadas en la búsqueda de GUI).
 
 ---
 
