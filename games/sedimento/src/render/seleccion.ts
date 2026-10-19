@@ -17,14 +17,21 @@ export interface Seleccion {
   liberar(): void;
 }
 
-/** Hexágono bajo el ratón: se avanza por el rayo hasta que baja de la altura del suelo de la celda que pisa. */
-export function crearSeleccion(disp: Disposicion, cfg: ConfigRender): Seleccion {
+/** Lados del círculo de selección (R20: nada de hexágonos visibles). */
+const LADOS_MARCA = 40;
+
+/**
+ * Celda de datos bajo el ratón: se avanza por el rayo hasta que baja del suelo continuo (o del agua).
+ * La marca es un círculo en el punto exacto, no la celda: la rejilla es solo de datos.
+ */
+export function crearSeleccion(disp: Disposicion, cfg: ConfigRender, superficieEn: (x: number, z: number) => number): Seleccion {
   const R = cfg.tamanoHex;
   const s = cfg.seleccion;
   const color = new THREE.Color(s.color);
 
-  const relleno = new THREE.CircleGeometry(R, 6, Math.PI / 2).rotateX(-Math.PI / 2);
-  const borde = new THREE.RingGeometry(R * (1 - s.grosorBorde), R, 6, 1, Math.PI / 2).rotateX(-Math.PI / 2);
+  const radio = R * s.radioMarca;
+  const relleno = new THREE.CircleGeometry(radio, LADOS_MARCA).rotateX(-Math.PI / 2);
+  const borde = new THREE.RingGeometry(radio * (1 - s.grosorBorde), radio, LADOS_MARCA, 1).rotateX(-Math.PI / 2);
   // Se dibuja encima de todo (sin test de profundidad): así se ve también tras picos o árboles.
   const matRelleno = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: s.opacidadRelleno, depthTest: false, depthWrite: false, fog: false });
   const matBorde = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: s.opacidadBorde, depthTest: false, depthWrite: false, fog: false });
@@ -41,6 +48,7 @@ export function crearSeleccion(disp: Disposicion, cfg: ConfigRender): Seleccion 
   const techo = disp.caja.max.y;
   const paso = Math.max(PASO_MINIMO, s.pasoRayo);
   const p = new THREE.Vector3();
+  const punto = new THREE.Vector3();
   let hex = -1;
 
   const buscar = (): number => {
@@ -54,7 +62,10 @@ export function crearSeleccion(disp: Disposicion, cfg: ConfigRender): Seleccion 
       const { q, r } = mundoAAxial(p.x, p.z, R);
       const i = disp.rejilla.indiceAxial(q, r);
       if (i === -1) continue;
-      if (p.y <= disp.alturaSeleccion[i]) return i;
+      if (p.y <= superficieEn(p.x, p.z)) {
+        punto.copy(p);
+        return i;
+      }
     }
     return -1;
   };
@@ -74,8 +85,7 @@ export function crearSeleccion(disp: Disposicion, cfg: ConfigRender): Seleccion 
       }
       raiz.visible = hex !== -1;
       if (hex !== -1) {
-        const y = (Number.isNaN(disp.aguaY[hex]) ? disp.cima[hex] : Math.max(disp.cima[hex], disp.aguaY[hex])) + ALZA_RESALTE;
-        raiz.position.set(disp.x[hex], y, disp.z[hex]);
+        raiz.position.set(punto.x, superficieEn(punto.x, punto.z) + ALZA_RESALTE, punto.z);
       }
     },
     liberar() {

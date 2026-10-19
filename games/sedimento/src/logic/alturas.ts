@@ -16,11 +16,15 @@ export interface ConfigAlturas {
   paso: number;
   /** Unidades de mundo por metro de altitud. */
   escalaVertical: number;
+  /** Cota mínima de la tierra firme: una llanura a 0 m no puede quedar a ras del mar. */
+  tierraMin: number;
   /** Radio (en hexágonos) del suavizado gaussiano entre hexágonos vecinos. */
   sigma: number;
   /** Amplitud del relieve fino por tipo de terreno. */
   detalle: { llanura: number; colina: number; montana: number; frecuencia: number };
   mar: { profundidadCosta: number; pendiente: number; profundidadMax: number };
+  /** Caída al mar en el borde del mapa: ancho de la franja (celdas), irregularidad (celdas) y profundidad final. */
+  borde: { ancho: number; ruido: number; frecuencia: number; profundidad: number };
   lago: { margen: number; profundidad: number };
   rio: { anchoNacimiento: number; anchoDesembocadura: number; profundidad: number; vega: number; margenOrilla: number; pasosCurva: number };
 }
@@ -45,9 +49,16 @@ export interface CampoAlturas {
   readonly rios: Rio[];
   /** Cota de la lámina de cada lago, por hexágono de lago (NaN si no es lago). */
   readonly laminaLago: Float32Array;
+  /** Cota de la superficie del agua en cada muestra (río, lago o mar); NaN donde está seco. */
+  readonly superficieAgua: Float32Array;
   /** Altura del suelo en cualquier punto (interpolación bilineal de la rejilla). */
   alturaEn(x: number, z: number): number;
+  /** Cota del agua en el punto (muestra más cercana), o NaN si está seco: para no plantar en el agua. */
+  aguaEn(x: number, z: number): number;
 }
+
+/** La celda y sus 6 vecinas, en coordenadas axiales. */
+const VECINDAD = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [1, -1], [-1, 1]] as const;
 
 const suave = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -72,7 +83,7 @@ export function crearCampoAlturas(mapa: Mapa, cfg: ConfigAlturas): CampoAlturas 
   for (let i = 0; i < n; i++) {
     const t = mapa.terreno[i];
     if (t === 'mar') base[i] = -Math.min(cfg.mar.profundidadMax, cfg.mar.profundidadCosta + cfg.mar.pendiente * (distCostaDe(rejilla, mapa, i) - 1));
-    else if (!esAgua(t)) base[i] = mapa.metros[i] * cfg.escalaVertical;
+    else if (!esAgua(t)) base[i] = Math.max(cfg.tierraMin, mapa.metros[i] * cfg.escalaVertical);
   }
   const mediaTierraVecina = (i: number) => {
     const v = rejilla.vecinos(i).filter((j) => !esAgua(mapa.terreno[j]));
@@ -164,6 +175,10 @@ export function crearCampoAlturas(mapa: Mapa, cfg: ConfigAlturas): CampoAlturas 
         }
         h += amp * ((loma / total) * (1 - cre) + (cresta / total) * cre);
       }
+      // 4. Borde del mapa: la tierra baja al mar en pendiente, con una costa irregular (no recta ni con festones de celda).
+      const dBorde = Math.min(x - minX, maxX - x, z - minZ, maxZ - z) + (ruidoValor(semillas[0], x * cfg.borde.frecuencia, z * cfg.borde.frecuencia) - 0.5) * 2 * cfg.borde.ruido * R;
+      const tierra = suave(-R, cfg.borde.ancho * R, dBorde);
+      h = -cfg.borde.profundidad + (h + cfg.borde.profundidad) * tierra;
       alturas[f * columnas + c] = h;
     }
 
@@ -185,7 +200,11 @@ export function crearCampoAlturas(mapa: Mapa, cfg: ConfigAlturas): CampoAlturas 
   for (const cauce of mapa.rios) {
     const centros = cauce.map((i) => ({ x: cx[i], z: cz[i] }));
     if (centros.length < 2) continue;
-    const puntos = suavizarPolilinea(centros, cfg.rio.pasosCurva);
+    // El nacimiento puede caer en la franja del borde que ya es mar: el río empieza en la primera tierra firme.
+    const suavizado = suavizarPolilinea(centros, cfg.rio.pasosCurva);
+    const inicio = suavizado.findIndex((p) => alturaEn(p.x, p.z) > cfg.tierraMin);
+    if (inicio === -1 || suavizado.length - inicio < 2) continue;
+    const puntos = suavizado.slice(inicio);
     const lamina: number[] = [];
     const ancho: number[] = [];
     puntos.forEach((p, k) => {
@@ -205,13 +224,39 @@ export function crearCampoAlturas(mapa: Mapa, cfg: ConfigAlturas): CampoAlturas 
     }
     rios.push({ puntos, lamina, ancho });
   }
-  for (const rio of rios) excavar(rio, cfg, alturas, columnas, filas, origenX, origenZ);
+  const superficieAgua = new Float32Array(columnas * filas).fill(NaN);
+  for (const rio of rios) excavar(rio, cfg, alturas, superficieAgua, columnas, filas, origenX, origenZ);
 
-  return { paso: cfg.paso, columnas, filas, origenX, origenZ, alturas, nivelMar: 0, rios, laminaLago, alturaEn };
+  // 5. Lagos y mar: hay agua donde el suelo queda bajo su lámina.
+  const nivelMar = 0;
+  const subir = (v: number, cota: number) => {
+    superficieAgua[v] = Number.isNaN(superficieAgua[v]) ? cota : Math.max(cota, superficieAgua[v]);
+  };
+  for (let f = 0; f < filas; f++)
+    for (let c = 0; c < columnas; c++) {
+      const v = f * columnas + c;
+      const { q, r } = mundoAAxial(origenX + c * cfg.paso, origenZ + f * cfg.paso, R);
+      let lago = NaN;
+      for (const [dq, dr] of VECINDAD) {
+        const j = rejilla.indiceAxial(q + dq, r + dr);
+        if (j !== -1 && !Number.isNaN(laminaLago[j])) lago = Number.isNaN(lago) ? laminaLago[j] : Math.min(lago, laminaLago[j]);
+      }
+      if (alturas[v] < lago) subir(v, lago);
+      if (alturas[v] < nivelMar) subir(v, nivelMar);
+    }
+
+  const aguaEn = (x: number, z: number): number => {
+    const c = Math.round((x - origenX) / cfg.paso);
+    const f = Math.round((z - origenZ) / cfg.paso);
+    if (c < 0 || f < 0 || c >= columnas || f >= filas) return nivelMar;
+    return superficieAgua[f * columnas + c];
+  };
+
+  return { paso: cfg.paso, columnas, filas, origenX, origenZ, alturas, nivelMar, rios, laminaLago, superficieAgua, alturaEn, aguaEn };
 }
 
 /** Rebaja el terreno a lo largo del cauce: lecho en U bajo la lámina y vega que desciende hacia él. */
-function excavar(rio: Rio, cfg: ConfigAlturas, alturas: Float32Array, columnas: number, filas: number, origenX: number, origenZ: number): void {
+function excavar(rio: Rio, cfg: ConfigAlturas, alturas: Float32Array, agua: Float32Array, columnas: number, filas: number, origenX: number, origenZ: number): void {
   const { puntos, lamina, ancho } = rio;
   for (let k = 0; k + 1 < puntos.length; k++) {
     const a = puntos[k];
@@ -238,6 +283,7 @@ function excavar(rio: Rio, cfg: ConfigAlturas, alturas: Float32Array, columnas: 
         const lecho = d < w ? sup - cfg.rio.profundidad * (1 - (d / w) ** 2) : sup + cfg.rio.margenOrilla * 0.5;
         const objetivo = d < w ? lecho : lecho + (alturas[i] - lecho) * suave(w, w * cfg.rio.vega, d);
         alturas[i] = Math.min(alturas[i], objetivo);
+        if (alturas[i] < sup) agua[i] = Number.isNaN(agua[i]) ? sup : Math.max(agua[i], sup);
       }
   }
 }

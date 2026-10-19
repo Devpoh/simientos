@@ -38,10 +38,16 @@
     },
     {
       "id": "A2",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Verificada la licencia de Craftpix (uso comercial si, sin atribucion obligatoria, sin reventa de archivos sueltos)",
+        "Buscado normal map de agua CC0: Poly Haven y ambientCG no tienen ninguna textura de agua (verificado con sus APIs); usado TextureCan (CC0 1.0), descargado en recursos-sin-revisar/texturas/agua/others_0020/",
+        "Descargados 2 HDRI CC0 de Poly Haven 2k (mpumalanga_veld_puresky y kloofendal_43d_clear_puresky) en recursos-sin-revisar/hdri/",
+        "Aplicada R43 (cero gasto): paquetes Beelim #11 y #12 marcados como descartados por ser de pago",
+        "catalogo.md actualizado a 20 paquetes evaluados"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
-      "titulo": "Catálogo de recursos con licencias",
+      "titulo": "Catalogo de recursos graficos",
       "objetivo": "Investigar fuentes reales de 3D, pixel art, materiales y entorno, con licencia y popularidad verificadas (Fase B)",
       "criterios": [
         "docs/recursos/catalogo.md con ≥ 15 paquetes evaluados y los 13 campos de R25",
@@ -52,11 +58,12 @@
       "sesion": "C",
       "inicio": "2026-10-19T05:08:21.041Z",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "fin": "2026-10-19T06:39:35.740Z"
     },
     {
       "id": "A3",
-      "estado": "pendiente",
+      "estado": "en-curso",
       "hecho": [],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Art Direction Lab: base, modelos y materiales",
@@ -69,7 +76,8 @@
         "Playwright: todas las secciones sin errores de consola ni tarjetas rotas, en escritorio y en móvil"
       ],
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "inicio": "2026-10-19T06:23:04.571Z"
     },
     {
       "id": "A4",
@@ -90,8 +98,15 @@
     },
     {
       "id": "A5",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "render/terrenoContinuo.ts: una malla continua (87 097 vértices) con color por vértice mezclado de forma gaussiana entre celdas, roca en pendientes, vega verde, lecho, playa y lecho marino",
+        "logic/alturas.ts: tierraMin, superficieAgua y aguaEn, costa en pendiente e irregular en el borde del mapa, y nacimiento del río recortado a tierra firme",
+        "agua.ts continua (cinta de río, lámina de lago y plano de mar) recuperada del wip; anchoCinta en tuning",
+        "Vegetación y decorado apoyados en alturaEn y nunca dentro del agua; rocas y nenúfares sobre aguaEn",
+        "Selección: círculo en el punto exacto del terreno (sin hexágono visible); terreno.ts y relieve.ts eliminados",
+        "tests/alturas.test.ts: continuidad, lámina que nunca sube aguas abajo, mar bajo cota 0, lecho bajo el agua y determinismo (11 tests)"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Prototipo de terreno continuo",
       "objetivo": "Terreno 3D continuo sin hexágonos ni casillas visibles, con relieve, agua y vegetación integrados (Fase E)",
@@ -104,7 +119,13 @@
       ],
       "sesion": "A",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "verificacion": {
+        "tests": "135/135",
+        "resultado": "shot sin errores ni avisos; 34 draw calls y 604 k triángulos",
+        "captura": "A5-terreno-cerca.png"
+      },
+      "fin": "2026-10-19T06:39:33.060Z"
     },
     {
       "id": "A6",
@@ -186,8 +207,14 @@
     },
     {
       "id": "C2",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "logic/camara.ts: suavizarEstado, factorSuavizado y tiempoAsentamiento (puros), usados por el rig",
+        "Suavizado independiente de posición, giro y zoom; frenada 0,23/0,21/0,23 s (95 %); primer fotograma a 60 fps recorre ≈19 %",
+        "Velocidad ∝ distancia^0,9 desactivable (ya existía), cubierta por tests",
+        "docs/gdd/camara.md: tabla de todos los parámetros de render.camara y cómo se mide el suavizado",
+        "8 tests nuevos, incluido el mismo recorrido a 30/60/144/240 fps (±1 %)"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Cámara: suavizado y velocidad adaptativa",
       "objetivo": "Respuesta inmediata con frenada suave y velocidad según la distancia (Fase C)",
@@ -199,7 +226,14 @@
       ],
       "version": "0.0",
       "tramo": "alfa",
-      "inicio": "2026-10-19T06:15:37.823Z"
+      "inicio": "2026-10-19T06:15:37.823Z",
+      "verificacion": {
+        "tests": "124/124",
+        "resultado": "shot sin errores ni avisos: W y Q/E mueven y asientan la cámara; recorrido idéntico entre fps por test",
+        "captura": "C2-suavizado.png"
+      },
+      "fin": "2026-10-19T06:22:21.221Z",
+      "commit": "7bf264b"
     },
     {
       "id": "C3",
@@ -1906,6 +1940,15 @@
       "area": "arte",
       "texto": "Si el estilo C (pixel art isométrico) entra en serio en A7, decidirlo antes de C3–C6: obliga a limitar el giro de cámara a 90°",
       "porque": "Los sprites solo se ven bien desde ángulos fijos y la cámara libre de C1 lo contradice"
+    },
+    {
+      "id": "R002",
+      "t": "2026-10-19T06:39:33.234Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "mapa",
+      "texto": "Que mapa.ts genere la forma de isla o costa (cabos, bahías, golfo) como dato, en vez de recortar el rectángulo en alturas.ts",
+      "porque": "Al ensanchar el recorte del borde las montañas encogen; la silueta del territorio es un dato de diseño (afecta a la navegación y al comercio), no del render"
     }
   ],
   "decisiones": [
@@ -1994,6 +2037,27 @@
       "fase": "A1",
       "texto": "Las celdas hexagonales se conservan solo como rejilla invisible de datos; todo lo visible y la ubicación de edificios pasan a coordenadas libres (x, z, giro)",
       "porque": "R20 permite una rejilla interna de datos y así se conserva mapa.ts, clima y la simulación ya testeados"
+    },
+    {
+      "id": "D015",
+      "t": "2026-10-19T06:19:44.123Z",
+      "fase": "A5",
+      "texto": "Por delegación del usuario (R42), A elige como dirección provisional el estilo B (3D cálido con texturas PBR CC0 sobre terreno continuo), el más cercano a espertativas/. Se implementa por capas: primero la geometría continua con color por vértice (sirve de base A), y luego el material con texturas (B). A7 lo confirma con métricas y el laboratorio conserva las alternativas",
+      "porque": "El usuario pidió avances visibles al despertar y delegó la elección; las dos imágenes de expectativas son 3D realista, cálido y detallado"
+    },
+    {
+      "id": "D016",
+      "t": "2026-10-19T06:22:21.079Z",
+      "fase": "C2",
+      "texto": "El paso de suavizado sale del rig a logic/camara.ts (suavizarEstado, factorSuavizado, tiempoAsentamiento) y suavizado y suavizadoZoom suben a 13 (antes 11 y 9)",
+      "porque": "El criterio «frenada < 0,25 s» se mide como 95 % del recorrido: ln(20)/k < 0,25 exige k ≥ 12. Con 11 y 9 tardaba 0,27 s y 0,33 s. Al ser lógica pura, el test de 30 vs 144 fps ejecuta el mismo código que el juego"
+    },
+    {
+      "id": "D017",
+      "t": "2026-10-19T06:34:17.134Z",
+      "fase": "A2",
+      "texto": "No se compra ningún recurso: el paquete Beelim y cualquier otro de pago quedan descartados. Solo CC0 o CC-BY gratuitos, o modelos propios",
+      "porque": "El usuario lo dijo explícitamente el 19-10: «no compro nada, no tengo ni 0,1 dólar para gastar»"
     }
   ],
   "conceptos": [
@@ -2140,9 +2204,81 @@
       "t": "2026-10-19T05:26:54.094Z",
       "concepto": "Normalizar el movimiento diagonal",
       "explicacion": "Si W y D suman sus vectores, la diagonal mide √2 y es un 41 % más rápida. Se normaliza la entrada para que con dos ejes se avance lo mismo que con uno. Es lógica pura (src/logic/camara.ts) y por eso se prueba con tests."
+    },
+    {
+      "id": "C025",
+      "t": "2026-10-19T06:22:20.938Z",
+      "concepto": "Suavizado independiente de los FPS",
+      "explicacion": "La cámara real persigue a la deseada avanzando 1 − e^(−k·dt) del camino que le queda en cada frame. Como dos medios pasos equivalen exactamente a uno entero, a 30 o a 144 fps se llega al mismo sitio. k es el ritmo: la frenada (95 % del recorrido) dura ln(20)/k segundos, así que k=13 da 0,23 s."
+    },
+    {
+      "id": "C026",
+      "t": "2026-10-19T06:39:33.382Z",
+      "concepto": "Mapa de alturas (heightmap)",
+      "explicacion": "El terreno es una rejilla de alturas y alturaEn(x, z) interpola entre los 4 puntos más cercanos (interpolación bilineal). Así cualquier cosa (árbol, casa, cámara) sabe a qué altura está el suelo en cualquier punto, sin hexágonos. Las celdas de datos siguen existiendo, pero invisibles: solo deciden el bioma y la altura objetivo."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-19T06:39:35.768Z",
+      "texto": "Fase A2 → hecha: Catalogo de recursos graficos"
+    },
+    {
+      "t": "2026-10-19T06:39:33.384Z",
+      "texto": "Concepto: Mapa de alturas (heightmap)"
+    },
+    {
+      "t": "2026-10-19T06:39:33.236Z",
+      "texto": "Recomendación (mapa): Que mapa.ts genere la forma de isla o costa (cabos, bahías, golfo) como dato, en vez de recortar el rectángulo en alturas.ts"
+    },
+    {
+      "t": "2026-10-19T06:39:33.090Z",
+      "texto": "Fase A5 → hecha: Prototipo de terreno continuo"
+    },
+    {
+      "t": "2026-10-19T06:34:17.136Z",
+      "texto": "Decisión: No se compra ningún recurso: el paquete Beelim y cualquier otro de pago quedan descartados. Solo CC0 o CC-BY gratuitos, o modelos propios"
+    },
+    {
+      "t": "2026-10-19T06:34:16.979Z",
+      "texto": "Autopiloto iniciado (A, proyectos-gc-bd): objetivo cerrar A2, A2b, A3, A5 y el prototipo de pixel art, y avanzar A4 y C3 si da tiempo"
+    },
+    {
+      "t": "2026-10-19T06:29:53.756Z",
+      "texto": "A3 (B) a medias por límite de uso: descargados los 4 kits Kenney (survival, castle, pirate, fantasy-town; GLB + LICENSE.txt) en public/recursos/modelos3d/ (≈10 MB, sin commit). FALTA: server.mjs (rutas /recursos-sin-revisar y /recursos, API de paquetes desde el catálogo), portada, sección Materiales (esfera y plano PBR de terreno/* y edificios/*), tarjetas de los 17 paquetes con previews, descargas 2D gratuitas (LPC Desert Ruins, Mesopotamian Tombs), pruebas probar.mjs y capturas escritorio/móvil. Hallazgos: others_0020_1k.zip de texturas/agua está corrupto; las texturas no traen LICENSE.txt por carpeta pese a lo que dice el catálogo."
+    },
+    {
+      "t": "2026-10-19T06:27:28.832Z",
+      "texto": "C (proyectos-gc-9e) también cortada por límite a mitad de A2-cierre. Craftpix verificado (https://craftpix.net/file-licenses/: uso comercial sí, atribución opcional, no redistribuir los archivos fuente). Normal map de agua CC0 de texturecan «Others 0020» descargado en recursos-sin-revisar/texturas/agua/others_0020/. Falta: volcarlo en catalogo.md, el HDRI, el commit y la tarea A2b (pixel art de itch.io)."
+    },
+    {
+      "t": "2026-10-19T06:27:18.691Z",
+      "texto": "A (proyectos-gc-bd) cortada por límite de uso a mitad de A5. Hecho sin commit: terrenoContinuo.ts, alturas.ts (tierraMin, superficieAgua, aguaEn), agua.ts restaurada del wip, mundo/disposicion/seleccion/decorado/vegetacion cableados al campo continuo, terreno.ts y relieve.ts borrados con git rm, tuning (alturas, render.terreno, agua.anchoCinta, seleccion.radioMarca). Falta: npm run shot y MIRAR la captura, ajustar valores, tests de alturas.ts (asignables a C) y commit de A5. Pendiente también: prototipo de pixel art que pidió el usuario (prototypes/, cuando C entregue A2b) y avisar a B para C3 al cerrar A5. B está con A3 y C con A2-cierre y luego A2b."
+    },
+    {
+      "t": "2026-10-19T06:23:04.600Z",
+      "texto": "Fase A3 → en-curso: Art Direction Lab: base, modelos y materiales"
+    },
+    {
+      "t": "2026-10-19T06:22:29.276Z",
+      "texto": "Fase C2 actualizada: Cámara: suavizado y velocidad adaptativa"
+    },
+    {
+      "t": "2026-10-19T06:22:21.249Z",
+      "texto": "Fase C2 → hecha: Cámara: suavizado y velocidad adaptativa"
+    },
+    {
+      "t": "2026-10-19T06:22:21.080Z",
+      "texto": "Decisión: El paso de suavizado sale del rig a logic/camara.ts (suavizarEstado, factorSuavizado, tiempoAsentamiento) y suavizado y suavizadoZoom suben a 13 (antes 11 y 9)"
+    },
+    {
+      "t": "2026-10-19T06:22:20.940Z",
+      "texto": "Concepto: Suavizado independiente de los FPS"
+    },
+    {
+      "t": "2026-10-19T06:19:44.125Z",
+      "texto": "Decisión: Por delegación del usuario (R42), A elige como dirección provisional el estilo B (3D cálido con texturas PBR CC0 sobre terreno continuo), el más cercano a espertativas/. Se implementa por capas: primero la geometría continua con color por vértice (sirve de base A), y luego el material con texturas (B). A7 lo confirma con métricas y el laboratorio conserva las alternativas"
+    },
     {
       "t": "2026-10-19T06:16:17.857Z",
       "texto": "Recomendación (arte): Si el estilo C (pixel art isométrico) entra en serio en A7, decidirlo antes de C3–C6: obliga a limitar el giro de cámara a 90°"
@@ -2256,5 +2392,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-19T06:16:17.857Z"
+  "actualizado": "2026-10-19T06:39:35.768Z"
 }

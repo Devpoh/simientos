@@ -35,8 +35,32 @@
     "variacionTemperatura": 1.5,
     "variacionLluvia": 0.25
   },
+  "alturas": {
+    "paso": 0.25,
+    "escalaVertical": 0.0011,
+    "tierraMin": 0.12,
+    "sigma": 0.55,
+    "detalle": { "llanura": 0.08, "colina": 0.35, "montana": 1.2, "frecuencia": 0.35 },
+    "mar": { "profundidadCosta": 0.35, "pendiente": 0.4, "profundidadMax": 3 },
+    "borde": { "ancho": 4, "ruido": 2.5, "frecuencia": 0.07, "profundidad": 1.5 },
+    "lago": { "margen": 0.08, "profundidad": 0.35 },
+    "rio": { "anchoNacimiento": 0.14, "anchoDesembocadura": 0.45, "profundidad": 0.3, "vega": 3, "margenOrilla": 0.06, "pasosCurva": 6 }
+  },
   "render": {
     "tamanoHex": 1,
+    "terreno": {
+      "sigmaColor": 0.5,
+      "vegaColor": 4,
+      "fuerzaVega": 0.55,
+      "pendienteRocaDesde": 0.18,
+      "pendienteRocaHasta": 0.45,
+      "fuerzaRoca": 0.85,
+      "altoPlaya": 0.12,
+      "profundidadLechoMar": 1.2,
+      "frecuenciaVariacion": 0.12,
+      "variacionColor": 0.07,
+      "rugosidad": 0.95
+    },
     "alturaNivel": 0.3,
     "rebajeAgua": 0.45,
     "profundidadLecho": 0.3,
@@ -72,6 +96,7 @@
       "ladoInferior": "#74603f"
     },
     "agua": {
+      "anchoCinta": 1.25,
       "opacidad": 0.86,
       "rugosidad": 0.28,
       "profundidadMaxMar": 5,
@@ -171,7 +196,8 @@
       "color": "#fff2b0",
       "opacidadRelleno": 0.22,
       "opacidadBorde": 0.95,
-      "grosorBorde": 0.08,
+      "radioMarca": 0.45,
+      "grosorBorde": 0.14,
       "pasoRayo": 0.12
     },
     "vegetacion": {

@@ -35,13 +35,18 @@ if (!contenedor) throw new Error('Falta #juego en index.html');
 
 const semilla = resolverSemilla();
 const mapa = generarMapa({ ...tuning.mapa, semilla }, tuning.clima);
-const mundo = crearMundo(mapa, tuning.render);
+const mundo = crearMundo(mapa, tuning.render, tuning.alturas);
 const vista = crearEscena(contenedor, tuning.render, mundo.caja);
 vista.escena.add(mundo.raiz);
 const lienzo = vista.renderer.domElement;
 lienzo.style.display = 'block';
 
-const seleccion = crearSeleccion(mundo.disposicion, tuning.render);
+const superficieEn = (x: number, z: number) => {
+  const agua = mundo.campo.aguaEn(x, z);
+  const suelo = mundo.campo.alturaEn(x, z);
+  return Number.isNaN(agua) ? suelo : Math.max(suelo, agua);
+};
+const seleccion = crearSeleccion(mundo.disposicion, tuning.render, superficieEn);
 vista.escena.add(seleccion.raiz);
 // Posición del ratón sobre el lienzo (null si está fuera): se evalúa cada frame porque la cámara también se mueve.
 let cursor: { x: number; y: number } | null = null;
@@ -106,7 +111,7 @@ etiqueta.style.cssText = 'position:absolute;left:12px;bottom:10px;font:12px syst
 contenedor.appendChild(etiqueta);
 
 exponer('mapa', () => ({ semilla: mapa.semilla, hexagonos: mapa.terreno.length, rios: mapa.rios.length, hash: hashMapa(mapa), terrenos: contarTerrenos(mapa), biomas: contarBiomas(mapa) }));
-exponer('render', () => ({ drawCalls: vista.renderer.info.render.calls, triangulos: vista.renderer.info.render.triangles, vegetacion: mundo.ejemplaresVegetacion }));
+exponer('render', () => ({ drawCalls: vista.renderer.info.render.calls, triangulos: vista.renderer.info.render.triangles, vegetacion: mundo.ejemplaresVegetacion, verticesTerreno: mundo.verticesTerreno, rios: mundo.campo.rios.length }));
 exponer('camara', () => vista.control.estado());
 exponer('seleccion', () => {
   const i = seleccion.hex;

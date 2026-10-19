@@ -62,7 +62,7 @@ const suavizar = (t: number) => {
  * Objetos de los paquetes CC0 (Kenney y KayKit): arbustos, flores, troncos, rocas de río, nenúfares,
  * plantas acuáticas y nubes. Se cargan en segundo plano: el mapa se ve ya y esto aparece al llegar.
  */
-export function crearDecorado(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, suelo: SueloEn, charcas: readonly Charca[] = []): Decorado {
+export function crearDecorado(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, suelo: SueloEn, charcas: readonly Charca[] = [], aguaEn: (x: number, z: number) => number = () => NaN): Decorado {
   const d = cfg.decorado;
   const rng = crearRng(derivarSemilla(mapa.semilla, 'render-decorado'));
   const raiz = new THREE.Group();
@@ -75,10 +75,13 @@ export function crearDecorado(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, 
   const entre = (r: Rng, [min, max]: readonly number[]) => min + r() * (max - min);
   const elegir = <T>(lista: readonly T[]): T => lista[Math.floor(rng() * lista.length)];
   const anadir = (ruta: string, x: number, y: number, z: number, escala: number) => {
+    // Nada de tierra bajo el agua (cauce, lago o mar del terreno continuo); y si y es NaN, no hay agua donde debía.
+    if (Number.isNaN(y)) return;
     const lista = colocaciones.get(ruta) ?? [];
     lista.push({ x, y, z, escala, giro: rng() * Math.PI * 2, brillo: 0.92 + rng() * 0.16 });
     colocaciones.set(ruta, lista);
   };
+  const enTierra = (i: number, x: number, z: number) => (Number.isNaN(aguaEn(x, z)) ? suelo(i, x, z) : NaN);
   const puntoEn = (i: number, alcance: number): [number, number] => {
     const radio = Math.sqrt(rng()) * alcance * cfg.tamanoHex;
     const ang = rng() * Math.PI * 2;
@@ -95,7 +98,7 @@ export function crearDecorado(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, 
       if (!construible && fert >= 0.25 && rng() < d.probArbusto) {
         for (let k = enteroEntre(rng, 1, 2); k > 0; k--) {
           const [x, z] = puntoEn(i, ALCANCE);
-          anadir(elegir(ARBUSTOS), x, suelo(i, x, z), z, entre(rng, d.escalaArbusto));
+          anadir(elegir(ARBUSTOS), x, enTierra(i, x, z), z, entre(rng, d.escalaArbusto));
         }
       }
       if (fert >= 0.5 && rng() < d.probFlores) {
@@ -103,28 +106,28 @@ export function crearDecorado(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, 
         for (let k = enteroEntre(rng, 2, 4); k > 0; k--) {
           const x = cx + (rng() - 0.5) * 0.3;
           const z = cz + (rng() - 0.5) * 0.3;
-          anadir(elegir(FLORES), x, suelo(i, x, z), z, entre(rng, d.escalaFlor));
+          anadir(elegir(FLORES), x, enTierra(i, x, z), z, entre(rng, d.escalaFlor));
         }
       }
       if (mapa.vegetacion[i] === 'bosque' && rng() < d.probTronco) {
         const [x, z] = puntoEn(i, ALCANCE);
-        anadir(elegir(TRONCOS), x, suelo(i, x, z), z, entre(rng, d.escalaTronco));
+        anadir(elegir(TRONCOS), x, enTierra(i, x, z), z, entre(rng, d.escalaTronco));
       }
     } else if (terreno === 'rio' || terreno === 'lago') {
       if (rng() < d.probRocasAgua) {
         for (let k = enteroEntre(rng, 1, 2); k > 0; k--) {
           const [x, z] = puntoEn(i, ALCANCE);
-          anadir(elegir(ROCAS_AGUA), x, disp.aguaY[i] - HUNDIMIENTO_ROCA_AGUA, z, entre(rng, d.escalaRocaAgua));
+          anadir(elegir(ROCAS_AGUA), x, aguaEn(x, z) - HUNDIMIENTO_ROCA_AGUA, z, entre(rng, d.escalaRocaAgua));
         }
       }
       if (terreno === 'lago' && rng() < d.probNenufares) {
         for (let k = enteroEntre(rng, 1, 3); k > 0; k--) {
           const [x, z] = puntoEn(i, ALCANCE);
-          anadir(elegir(NENUFARES), x, disp.aguaY[i] + ALZA_NENUFAR, z, entre(rng, d.escalaNenufar));
+          anadir(elegir(NENUFARES), x, aguaEn(x, z) + ALZA_NENUFAR, z, entre(rng, d.escalaNenufar));
         }
         if (rng() < 0.5) {
           const [x, z] = puntoEn(i, ALCANCE);
-          anadir(elegir(PLANTAS_ACUATICAS), x, disp.aguaY[i], z, entre(rng, d.escalaNenufar));
+          anadir(elegir(PLANTAS_ACUATICAS), x, aguaEn(x, z), z, entre(rng, d.escalaNenufar));
         }
       }
     }

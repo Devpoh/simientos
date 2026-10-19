@@ -415,7 +415,7 @@ function pedidosDe(mapa: Mapa, disp: Disposicion, i: number, rng: Rng, v: Config
   return pedidos;
 }
 
-function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng, suelo: SueloEn): Ejemplar[] {
+function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng, suelo: SueloEn, aguaEn: (x: number, z: number) => number): Ejemplar[] {
   const v = cfg.vegetacion;
   const res: Ejemplar[] = [];
   const escalaArbol: [number, number] = [v.escalaMin, v.escalaMax];
@@ -442,6 +442,8 @@ function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng, sue
         const dx = Math.cos(ang) * radio;
         const dz = Math.sin(ang) * radio;
         if (puestos.some((p) => Math.hypot(p.x - dx, p.z - dz) < separacion)) continue;
+        // En el terreno continuo el cauce es estrecho: nada crece dentro del agua.
+        if (!Number.isNaN(aguaEn(disp.x[i] + dx, disp.z[i] + dz))) continue;
         puestos.push({ x: dx, z: dz });
         colocadas++;
         const [min, max] = escalas[especie];
@@ -471,9 +473,9 @@ function colocar(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, rng: Rng, sue
 }
 
 /** Plantas y piedras de todo el mapa: una malla instanciada por especie y variante de forma. */
-export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, paleta: Paleta, suelo: SueloEn): Vegetacion {
+export function crearVegetacion(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, paleta: Paleta, suelo: SueloEn, aguaEn: (x: number, z: number) => number = () => NaN): Vegetacion {
   const rng = crearRng(derivarSemilla(mapa.semilla, 'render-veg'));
-  const ejemplares = colocar(mapa, disp, cfg, rng, suelo);
+  const ejemplares = colocar(mapa, disp, cfg, rng, suelo, aguaEn);
 
   const material = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.9, metalness: 0, side: THREE.DoubleSide });
   const geometrias: THREE.BufferGeometry[] = [];

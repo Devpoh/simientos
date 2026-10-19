@@ -75,6 +75,7 @@ Los textos largos del usuario están literales en `docs/prompts/` y mandan sobre
 |---|---|---|---|---|
 | R32 | 19-10 | **Panel del estudio limpio y desde cero:** quitar las fases viejas y lo que ya no sirve. | ✅ | `estado.json` (lo viejo, en `docs/archivo/`) |
 | R33 | 19-10 | **Panel más intuitivo y mejor organizado:** iconos de leído, no leído y nuevo en todo lo que aparece, y **probado a fondo**. | ✅ | `studio/panel/`, fase P1 |
+| R41 | 19-10 | **El laboratorio debe enseñar también lo descargado sin revisar** (`recursos-sin-revisar/`): sección de Materiales con cada textura en 3D, tarjetas de los 17 paquetes del catálogo con imagen de muestra, licencia y precio marcadas «sin revisar», y descargar los paquetes gratuitos para verlos en 3D. | ⏳ | fase A3 |
 
 ## Decisiones del 19-10 sobre el documento maestro (`prompts/maestro.md`)
 
@@ -86,3 +87,6 @@ Los textos largos del usuario están literales en `docs/prompts/` y mandan sobre
 | R38 | 19-10 | **Versiones en dos tramos:** cada versión tiene una **alfa** (las mecánicas funcionan) y una **beta** (pulida, equilibrada y probada): 0.1 alfa → 0.1 beta → 0.2 alfa… → 1.0 beta → 1.0. **Todas las fases** del juego, hasta la 1.0, deben estar en el panel, organizadas por versión. | ✅ | `versiones.md`, panel (fase P2) |
 | R39 | 19-10 | **Carpeta de expectativas `games/sedimento/espertativas/`:** el usuario sube imágenes de la meta visual. **Mirarlas de vez en cuando** (al empezar cada sesión A y antes de decidir sobre el arte) y tenerlas en cuenta en el laboratorio. | ✅ | `.claude/docs/traspaso.md` |
 | R40 | 19-10 | **Dejar siempre todo documentado.** | ✅ | todas las sesiones |
+| R42 | 19-10 | **Delegación nocturna del arte:** «escoge tú los diseños que más vayan acorde a lo que queremos, así mañana veo avances». A elige estilo y recursos gratuitos según `espertativas/` y avanza lo visual; lo de pago lo decide el usuario. | ✅ | decisión en la bitácora, fase A5 en adelante |
+| R43 | 19-10 | **Cero gasto:** «no compro nada». Solo recursos gratuitos (CC0 o CC-BY) o propios. | ✅ innegociable | catálogo, A2 |
+| R44 | 19-10 | **Prototipo sencillo en pixel art** para ver qué calidad gráfica se consigue en ese estilo, y abrírselo al usuario para que lo vea. | ⏳ | `prototypes/pixel-cimientos/` |
