@@ -2,7 +2,7 @@
 
 Registro de R25. Un bloque por paquete, con los 13 campos pedidos. **Popularidad:** solo con la fuente y la fecha de la consulta; si no está verificada, se pone «sin verificar». **Estado:** `aprobado` (licencia verificada y estética evaluada) · `pendiente` (falta verificar algo) · `descartado` (con el motivo) · `referencia` (solo para comparar, no se integra). **Valoración:** impresión de C, siempre marcada «(C, provisional)» — la evaluación artística final la hace el usuario en el laboratorio visual.
 
-Consultado el 2026-10-19. 17 paquetes evaluados (mínimo pedido: 15).
+Consultado el 2026-10-19. 20 paquetes evaluados (mínimo pedido: 15). **Regla R43 (cero gasto, 2026-10-19): solo recursos gratuitos.** Los paquetes de pago (Beelim, #11 y #12) quedan descartados por esta regla, no por estética.
 
 ## Resumen
 
@@ -25,8 +25,11 @@ Consultado el 2026-10-19. 17 paquetes evaluados (mínimo pedido: 15).
 | 15 | Superpowers Asset Packs | GitHub (sparklinlabs) | CC0-1.0 (confirmado por la API de GitHub) | Gratis | pendiente (2D variado, no especializado en Sumer) |
 | 16 | Free-Game-Dev-Assets (catálogo) | GitHub (TMHSDigital) | No es un paquete: cada fuente listada tiene su propia licencia | Gratis | referencia (para descubrir más fuentes) |
 | 17 | [LPC] Desert Ruins | OpenGameArt (bluecarrot16) | OGA-BY 3.0+ / CC-BY 3.0+ / GPL 2.0+ | Gratis | pendiente (ruinas egipcias en pixel art, exige atribución) |
+| 18 | Stylized Water Waves of Pools (Others 0020) | TextureCan | CC0 1.0 | Gratis | aprobado (normal map de agua) |
+| 19 | Mpumalanga Veld (Pure Sky) — HDRI | Poly Haven | CC0 1.0 | Gratis | aprobado (HDRI atardecer dorado) |
+| 20 | Kloofendal 43d Clear (Pure Sky) — HDRI | Poly Haven | CC0 1.0 | Gratis | aprobado (HDRI mediodía despejado) |
 
-★ = candidato más prometedor para la estética sumeria encontrado en esta ronda.
+★ = candidato más prometedor para la estética sumeria encontrado en esta ronda (descartado por R43, ver #11).
 
 ---
 
@@ -131,7 +134,7 @@ Consultado el 2026-10-19. 17 paquetes evaluados (mínimo pedido: 15).
 - **Valoración (C, provisional):** no se ha usado todavía porque Poly Haven ya cubrió los 11 usos pedidos con buena calidad; queda como fuente alternativa o de respaldo si algún material de Poly Haven se descarta en el laboratorio.
 - **Estado:** pendiente (no descargado)
 
-## 11. Ancient Buildings 5: Akkadian and Babylonian sprites ★
+## 11. Ancient Buildings 5: Akkadian and Babylonian sprites ★ — descartado por R43 (CERO gasto)
 - **Autor:** Beelim Solutions · **Enlace:** https://beelim-solutions.itch.io/ancient-buildings-5-akkadian-and-babylonian-sprites
 - **Tipo · formatos:** renders isométricos pre-renderizados (sprites 2D) · ZIP de imágenes (16 MB; los archivos fuente 3D se venden aparte en CGTrader)
 - **Licencia:** no es CC0. Cita textual de la ficha: «We charge no royalties on our works» y «Please credit [Beelim Solutions] as the source of any and all of your files» (crédito pedido como cortesía, no como condición explícita)
@@ -139,10 +142,10 @@ Consultado el 2026-10-19. 17 paquetes evaluados (mínimo pedido: 15).
 - **Precio:** 1,35 USD o más
 - **Popularidad:** sin verificar
 - **Compatibilidad three.js/glTF:** no aplica (son sprites 2D pre-renderizados, no modelos 3D ni glTF); servirían para un estilo C/D (pixel art o 2.5D), no para el estilo B de three.js actual
-- **Valoración (C, provisional):** **el mejor encaje estético encontrado para Sumer en esta ronda.** La vista previa muestra un zigurat escalonado con rampa y una torre con muralla, en tonos arena/adobe muy coherentes con Mesopotamia. Recomiendo que el usuario lo revise en el laboratorio visual antes de comprarlo (1,35 USD, bajo coste).
-- **Estado:** pendiente · preview guardado en `recursos-sin-revisar/previews/beelim-set5-akkadian-babylonian.jpg`
+- **Valoración (C, provisional):** el mejor encaje estético encontrado para Sumer en esta ronda, pero es de pago.
+- **Estado:** **descartado (R43, 2026-10-19: regla de cero gasto — solo recursos gratuitos, sin excepciones de bajo coste)** · preview guardado en `recursos-sin-revisar/previews/beelim-set5-akkadian-babylonian.jpg`
 
-## 12. Ancient Buildings 4: Egyptian and Levantine sprites
+## 12. Ancient Buildings 4: Egyptian and Levantine sprites — descartado por R43 (CERO gasto)
 - **Autor:** Beelim Solutions · **Enlace:** https://beelim-solutions.itch.io/ancient-buildings-4-egyptian-and-levantine-sprites
 - **Tipo · formatos:** renders isométricos pre-renderizados (sprites 2D) · ZIP de imágenes
 - **Licencia:** mismos términos que el Set 5 (sin regalías, crédito solicitado, no obligatorio)
@@ -150,8 +153,8 @@ Consultado el 2026-10-19. 17 paquetes evaluados (mínimo pedido: 15).
 - **Precio:** 1,28 USD o más
 - **Popularidad:** sin verificar
 - **Compatibilidad three.js/glTF:** no aplica (sprites 2D)
-- **Valoración (C, provisional):** complementa al Set 5 con un templo con columnas, una estructura con rampa y una torre con muralla curva; útil si se quiere variedad egipcia/levantina además de la mesopotámica.
-- **Estado:** pendiente · preview guardado en `recursos-sin-revisar/previews/beelim-set4-egyptian-levantine.jpg`
+- **Valoración (C, provisional):** complementa al Set 5 con un templo con columnas, una estructura con rampa y una torre con muralla curva; útil si se quiere variedad egipcia/levantina además de la mesopotámica, pero es de pago.
+- **Estado:** **descartado (R43, 2026-10-19: regla de cero gasto)** · preview guardado en `recursos-sin-revisar/previews/beelim-set4-egyptian-levantine.jpg`
 
 ## 13. Mesopotamian Tombs
 - **Autor:** ACTG · **Enlace:** https://actg.itch.io/mesopotamian-tombs
@@ -166,12 +169,13 @@ Consultado el 2026-10-19. 17 paquetes evaluados (mínimo pedido: 15).
 ## 14. Villagers Sprite Sheets Free Pixel Art Pack
 - **Autor:** Free Game Assets / Craftpix · **Enlace:** https://free-game-assets.itch.io/villagers-sprite-sheets-free-pixel-art-pack
 - **Tipo · formatos:** sprites de personaje animados · PNG, hojas de sprites de 48 px de alto
-- **Licencia:** licencia de archivo de Craftpix (https://craftpix.net/file-licenses/); el autor respondió «Yes, of course» sobre uso comercial en un comentario, pero el texto legal no se verificó directamente
-- **Uso comercial:** sin verificar con certeza (respuesta informal del autor, no el texto de la licencia) · **Atribución:** sin verificar · **Restricciones:** sin verificar
+- **Licencia:** licencia de archivo gratuito de Craftpix (https://craftpix.net/file-licenses/, verificada 2026-10-19). Cita textual, sección 2.1.1: «You are permitted to use the resources in any number of personal and commercial projects for yourself or a client» (2.1.3 añade que se pueden vender y distribuir juegos con estos activos). Sección 2.1: «No attribution or link back to this site is required, however any credit will be highly appreciated». Sección 2.2.1: «You can NOT resell the art source files (PNG, JPG, EPS, Adobe Illustrator, etc) or slightly modified version of the art» (no redistribuir los archivos sueltos, solo usarlos integrados en el juego). Sección 3.1.1 prohíbe además usarlos para entrenar IA.
+- **Uso comercial:** sí (verificado en el texto legal) · **Atribución:** no obligatoria (se agradece) · **Restricciones:** no revender ni redistribuir los archivos de arte sueltos o levemente modificados; no usarlos para entrenar IA
 - **Popularidad:** sin verificar
 - **Compatibilidad three.js/glTF:** no aplica (sprites 2D)
 - **Valoración (C, provisional):** animaciones (ataque, muerte, daño, reposo, caminar) útiles para trabajadores genéricos, pero el estilo es campesino medieval genérico, no sumerio.
-- **Estado:** pendiente (falta verificar el texto legal de Craftpix antes de aprobar)
+- **Veredicto:** **usable en juego comercial.** Licencia verificada y suficiente para integrarlo si el estilo encajara; sigue sin encajar estéticamente con Sumer.
+- **Estado:** pendiente (licencia verificada 2026-10-19; estética no prioritaria)
 
 ## 15. Superpowers Asset Packs
 - **Autor:** sparklinlabs (GitHub) · **Enlace:** https://github.com/sparklinlabs/superpowers-asset-packs
@@ -202,6 +206,37 @@ Consultado el 2026-10-19. 17 paquetes evaluados (mínimo pedido: 15).
 - **Compatibilidad three.js/glTF:** no aplica (tileset 2D)
 - **Valoración (C, provisional):** muros interiores/exteriores, pirámides lisas y escalonadas y estatuas en ruinas; estéticamente más egipcio/greco que sumerio, pero el mejor resultado modular encontrado en OpenGameArt para arquitectura antigua en ruinas.
 - **Estado:** pendiente · preview guardado en `recursos-sin-revisar/previews/lpc-desert-ruins.png`
+
+## 18. Stylized Water Waves of Pools (Others 0020)
+- **Autor:** TextureCan · **Enlace:** https://www.texturecan.com/details/282/
+- **Tipo · formatos:** textura PBR estilizada de agua · JPG (difusa, rugosidad, AO) + PNG (normal DirectX y OpenGL, altura) + SBSAR
+- **Licencia:** CC0 1.0 (verificada en https://www.texturecan.com/terms/, 2026-10-19). Cita textual: «are under the Creative Commons CC0 1.0 Universe License», «All textures can be used for any purposes, including commercial use», «No credit or attribution is required», «The textures are allowed to be redistributed togehter with your projects and 3D assets» (sic, errata del original)
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Popularidad:** sin verificar (TextureCan no publica contador)
+- **Compatibilidad three.js/glTF:** sí (JPG/PNG estándar para `THREE.TextureLoader`; se usó el normal OpenGL, coherente con las demás texturas de Poly Haven del catálogo)
+- **Nota de búsqueda:** ni Poly Haven ni ambientCG tienen ninguna textura de agua (verificado con sus APIs oficiales el 2026-10-19: Poly Haven no tiene categoría "water" entre sus 869 texturas; la búsqueda "water" en ambientCG da 0 resultados). TextureCan fue la alternativa CC0 con mapas completos.
+- **Valoración (C, provisional):** olas estilizadas con brillos ajustables (vía SBSAR), 1K descargado; encaja mejor con un estilo B/pictórico que con agua fotorrealista.
+- **Estado:** aprobado · descargado en `recursos-sin-revisar/texturas/agua/others_0020/` (`difusa.jpg`, `normal.png`, `rugosidad.jpg`, `altura.png`, `oclusion.jpg`, 1K)
+
+## 19. Mpumalanga Veld (Pure Sky) — HDRI
+- **Autor:** Poly Haven · **Enlace:** https://polyhaven.com/a/mpumalanga_veld_puresky
+- **Tipo · formatos:** HDRI de cielo puro (sin paisaje) · HDR/EXR, 2K descargado (hasta 16K disponible)
+- **Licencia:** CC0 1.0 (ficha de la propia web, igual que la entrada #9)
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** sí (`RGBELoader` + `PMREMGenerator`)
+- **Valoración (C, provisional):** atardecer cálido, cielo despejado, luz dorada de baja altura — coincide con la «luz dorada de tarde» descrita en `docs/expectativas.md` para el estilo B. Es un "Pure Sky" (solo cielo, sin terreno fotografiado), ideal para iluminación ambiental sin arrastrar un paisaje ajeno.
+- **Estado:** aprobado · descargado en `recursos-sin-revisar/hdri/mpumalanga_veld_puresky_2k.hdr`
+
+## 20. Kloofendal 43d Clear (Pure Sky) — HDRI
+- **Autor:** Poly Haven · **Enlace:** https://polyhaven.com/a/kloofendal_43d_clear_puresky
+- **Tipo · formatos:** HDRI de cielo puro · HDR/EXR, 2K descargado (hasta 24K disponible)
+- **Licencia:** CC0 1.0 (ficha de la propia web)
+- **Uso comercial:** sí · **Atribución:** no · **Restricciones:** ninguna
+- **Popularidad:** sin verificar
+- **Compatibilidad three.js/glTF:** sí (`RGBELoader` + `PMREMGenerator`)
+- **Valoración (C, provisional):** mediodía despejado, luz cálida de alto contraste — alternativa para escenas de mediodía mediterráneo si el atardecer dorado (#19) resulta demasiado oscuro para jugar.
+- **Estado:** aprobado · descargado en `recursos-sin-revisar/hdri/kloofendal_43d_clear_puresky_2k.hdr`
 
 ---
 
