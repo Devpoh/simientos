@@ -17,9 +17,6 @@ export interface Seleccion {
   liberar(): void;
 }
 
-/** Lados del círculo de selección (R20: nada de hexágonos visibles). */
-const LADOS_MARCA = 40;
-
 /**
  * Celda de datos bajo el ratón: se avanza por el rayo hasta que baja del suelo continuo (o del agua).
  * La marca es un círculo en el punto exacto, no la celda: la rejilla es solo de datos.
@@ -30,8 +27,8 @@ export function crearSeleccion(disp: Disposicion, cfg: ConfigRender, superficieE
   const color = new THREE.Color(s.color);
 
   const radio = R * s.radioMarca;
-  const relleno = new THREE.CircleGeometry(radio, LADOS_MARCA).rotateX(-Math.PI / 2);
-  const borde = new THREE.RingGeometry(radio * (1 - s.grosorBorde), radio, LADOS_MARCA, 1).rotateX(-Math.PI / 2);
+  const relleno = new THREE.CircleGeometry(radio, s.lados).rotateX(-Math.PI / 2);
+  const borde = new THREE.RingGeometry(radio * (1 - s.grosorBorde), radio, s.lados, 1).rotateX(-Math.PI / 2);
   // Se dibuja encima de todo (sin test de profundidad): así se ve también tras picos o árboles.
   const matRelleno = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: s.opacidadRelleno, depthTest: false, depthWrite: false, fog: false });
   const matBorde = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: s.opacidadBorde, depthTest: false, depthWrite: false, fog: false });

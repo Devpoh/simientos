@@ -19,6 +19,17 @@ export const DIRECCIONES: readonly Axial[] = [
   { q: 0, r: 1 },
 ];
 
+/** Una celda y sus 6 vecinas, como desplazamientos [dq, dr] (incluye [0, 0]). */
+export const VECINDAD: readonly (readonly [number, number])[] = [
+  [0, 0],
+  [1, 0],
+  [-1, 0],
+  [0, 1],
+  [0, -1],
+  [1, -1],
+  [-1, 1],
+];
+
 export function offsetAAxial(col: number, fila: number): Axial {
   return { q: col - (fila - (fila & 1)) / 2, r: fila };
 }

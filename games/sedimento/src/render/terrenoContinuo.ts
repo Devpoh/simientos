@@ -17,8 +17,13 @@ export interface ConfigTerreno {
   pendienteRocaDesde: number;
   pendienteRocaHasta: number;
   fuerzaRoca: number;
+  /** Máscara del cauce (en anchos de río): empieza a desvanecerse → ya no queda lecho. */
+  cauceDesde: number;
+  cauceHasta: number;
   /** Alto de la franja de arena sobre el nivel del agua. */
   altoPlaya: number;
+  /** Fracción de `altoPlaya` que usan la media playa (costa) y la orilla de lago. */
+  fraccionPlayaLago: number;
   /** Profundidad a la que el lecho marino alcanza su color. */
   profundidadLechoMar: number;
   frecuenciaVariacion: number;
@@ -65,8 +70,21 @@ export function crearTerrenoContinuo(mapa: Mapa, campo: CampoAlturas, ct: Config
       const d = a + columnas;
       const e = d + 1;
       // Diagonal alterna: evita el «peinado» de todas las diagonales en la misma dirección.
-      if ((c + f) % 2 === 0) indices.set([a, d, b, b, d, e], k);
-      else indices.set([a, d, e, a, e, b], k);
+      if ((c + f) % 2 === 0) {
+        indices[k] = a;
+        indices[k + 1] = d;
+        indices[k + 2] = b;
+        indices[k + 3] = b;
+        indices[k + 4] = d;
+        indices[k + 5] = e;
+      } else {
+        indices[k] = a;
+        indices[k + 1] = d;
+        indices[k + 2] = e;
+        indices[k + 3] = a;
+        indices[k + 4] = e;
+        indices[k + 5] = b;
+      }
       k += 6;
     }
   const geometria = new THREE.BufferGeometry();
@@ -112,7 +130,7 @@ export function crearTerrenoContinuo(mapa: Mapa, campo: CampoAlturas, ct: Config
           const dist = Math.hypot(x - (a.x + dx * t), z - (a.z + dz * t));
           const w = ancho[s] + (ancho[s + 1] - ancho[s]) * t;
           const v = f * columnas + c;
-          cauce[v] = Math.max(cauce[v], 1 - suave(w * 0.8, w * 1.25, dist));
+          cauce[v] = Math.max(cauce[v], 1 - suave(w * ct.cauceDesde, w * ct.cauceHasta, dist));
           vega[v] = Math.max(vega[v], 1 - suave(w, w * ct.vegaColor, dist));
         }
     }
@@ -151,10 +169,10 @@ export function crearTerrenoContinuo(mapa: Mapa, campo: CampoAlturas, ct: Config
     const ny = normales.getY(v);
     color.lerp(paleta.roca, suave(ct.pendienteRocaDesde, ct.pendienteRocaHasta, 1 - ny) * ct.fuerzaRoca);
     // Costa: arena justo sobre el nivel del mar y lecho marino por debajo.
-    if (h < campo.nivelMar + ct.altoPlaya) color.lerp(paleta.playa, 1 - suave(campo.nivelMar + ct.altoPlaya * 0.5, campo.nivelMar + ct.altoPlaya, h));
+    if (h < campo.nivelMar + ct.altoPlaya) color.lerp(paleta.playa, 1 - suave(campo.nivelMar + ct.altoPlaya * ct.fraccionPlayaLago, campo.nivelMar + ct.altoPlaya, h));
     if (h < campo.nivelMar) color.lerp(paleta.lechoMar, suave(0, ct.profundidadLechoMar, campo.nivelMar - h));
     // Lago: lecho bajo su lámina y una orilla de barro claro.
-    if (!Number.isNaN(laminaLago) && h < laminaLago + ct.altoPlaya * 0.5) color.lerp(paleta.lecho, 1 - suave(laminaLago, laminaLago + ct.altoPlaya * 0.5, h));
+    if (!Number.isNaN(laminaLago) && h < laminaLago + ct.altoPlaya * ct.fraccionPlayaLago) color.lerp(paleta.lecho, 1 - suave(laminaLago, laminaLago + ct.altoPlaya * ct.fraccionPlayaLago, h));
     // Variación de baja frecuencia: rompe la uniformidad de las llanuras grandes.
     const n = ruidoValor(semillaRuido, x * ct.frecuenciaVariacion, z * ct.frecuenciaVariacion) - 0.5;
     color.multiplyScalar(1 + n * 2 * ct.variacionColor);

@@ -1,6 +1,6 @@
 import { derivarSemilla } from './azar';
 import { suavizarPolilinea, type Punto } from './geometria2d';
-import { axialAMundo, mundoAAxial, Rejilla } from './hex';
+import { axialAMundo, mundoAAxial, Rejilla, VECINDAD } from './hex';
 import { esAgua, type Mapa } from './mapa';
 import { ruidoValor } from './ruido';
 
@@ -18,6 +18,8 @@ export interface ConfigAlturas {
   escalaVertical: number;
   /** Cota mínima de la tierra firme: una llanura a 0 m no puede quedar a ras del mar. */
   tierraMin: number;
+  /** Cota de la superficie del mar (y del resto del agua en reposo). */
+  nivelMar: number;
   /** Radio (en hexágonos) del suavizado gaussiano entre hexágonos vecinos. */
   sigma: number;
   /** Amplitud del relieve fino por tipo de terreno. */
@@ -26,7 +28,8 @@ export interface ConfigAlturas {
   /** Caída al mar en el borde del mapa: ancho de la franja (celdas), irregularidad (celdas) y profundidad final. */
   borde: { ancho: number; ruido: number; frecuencia: number; profundidad: number };
   lago: { margen: number; profundidad: number };
-  rio: { anchoNacimiento: number; anchoDesembocadura: number; profundidad: number; vega: number; margenOrilla: number; pasosCurva: number };
+  /** `laminaMin`: cota mínima de la lámina de un río (no puede quedar bajo el lecho cerca del nacimiento). */
+  rio: { anchoNacimiento: number; anchoDesembocadura: number; profundidad: number; vega: number; margenOrilla: number; pasosCurva: number; laminaMin: number };
 }
 
 export interface Rio {
@@ -56,9 +59,6 @@ export interface CampoAlturas {
   /** Cota del agua en el punto (muestra más cercana), o NaN si está seco: para no plantar en el agua. */
   aguaEn(x: number, z: number): number;
 }
-
-/** La celda y sus 6 vecinas, en coordenadas axiales. */
-const VECINDAD = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [1, -1], [-1, 1]] as const;
 
 const suave = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
@@ -211,7 +211,7 @@ export function crearCampoAlturas(mapa: Mapa, cfg: ConfigAlturas): CampoAlturas 
       const t = k / (puntos.length - 1);
       ancho.push(cfg.rio.anchoNacimiento + (cfg.rio.anchoDesembocadura - cfg.rio.anchoNacimiento) * t);
       const orilla = alturaEn(p.x, p.z) - cfg.rio.margenOrilla;
-      lamina.push(Math.max(0.02, k === 0 ? orilla : Math.min(lamina[k - 1], orilla)));
+      lamina.push(Math.max(cfg.rio.laminaMin, k === 0 ? orilla : Math.min(lamina[k - 1], orilla)));
     });
     // Si desemboca en otro río ya trazado, termina a la cota de ese punto (sin escalón hacia arriba).
     const fin = puntos[puntos.length - 1];
@@ -228,7 +228,7 @@ export function crearCampoAlturas(mapa: Mapa, cfg: ConfigAlturas): CampoAlturas 
   for (const rio of rios) excavar(rio, cfg, alturas, superficieAgua, columnas, filas, origenX, origenZ);
 
   // 5. Lagos y mar: hay agua donde el suelo queda bajo su lámina.
-  const nivelMar = 0;
+  const nivelMar = cfg.nivelMar;
   const subir = (v: number, cota: number) => {
     superficieAgua[v] = Number.isNaN(superficieAgua[v]) ? cota : Math.max(cota, superficieAgua[v]);
   };

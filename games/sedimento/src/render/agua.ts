@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { crearRng, derivarSemilla, enteroEntre } from '../logic/azar';
 import type { CampoAlturas } from '../logic/alturas';
-import { mundoAAxial } from '../logic/hex';
+import { mundoAAxial, VECINDAD } from '../logic/hex';
 import type { Mapa } from '../logic/mapa';
 import type { ConfigRender } from './config';
 import type { Disposicion } from './disposicion';
@@ -219,7 +219,7 @@ export function crearAgua(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, pale
       const z = origenZ + (f + 0.5) * paso;
       const { q, r } = mundoAAxial(x, z, R);
       let lamina = NaN;
-      for (const [dq, dr] of [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [1, -1], [-1, 1]]) {
+      for (const [dq, dr] of VECINDAD) {
         const j = disp.rejilla.indiceAxial(q + dq, r + dr);
         if (j !== -1 && !Number.isNaN(campo.laminaLago[j])) lamina = Number.isNaN(lamina) ? campo.laminaLago[j] : Math.min(lamina, campo.laminaLago[j]);
       }

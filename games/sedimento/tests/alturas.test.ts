@@ -53,6 +53,33 @@ describe('campo de alturas continuo (R20)', () => {
     expect(Number.isNaN(campo.aguaEn(p.x, p.z))).toBe(false);
   });
 
+  it.each(SEMILLAS)('aguaEn da NaN en tierra firme, lejos de cualquier agua (semilla %i)', (semilla) => {
+    const { campo } = campoDe(semilla);
+    let probado = false;
+    for (let v = 0; v < campo.alturas.length; v++) {
+      if (Number.isNaN(campo.superficieAgua[v]) && campo.alturas[v] > tuning.alturas.tierraMin + 0.2) {
+        const c = v % campo.columnas;
+        const f = Math.floor(v / campo.columnas);
+        const x = campo.origenX + c * campo.paso;
+        const z = campo.origenZ + f * campo.paso;
+        expect(Number.isNaN(campo.aguaEn(x, z))).toBe(true);
+        probado = true;
+        break;
+      }
+    }
+    expect(probado).toBe(true);
+  });
+
+  it.each(SEMILLAS)('el primer punto de cada río nace en tierra firme (semilla %i)', (semilla) => {
+    const { campo } = campoDe(semilla);
+    expect(campo.rios.length).toBeGreaterThan(0);
+    // El nacimiento se elige con alturaEn(p0) > tierraMin ANTES de excavar el cauce (alturas.ts);
+    // el propio río cava su lecho justo ahí después, así que alturaEn(p0) ya no sirve para
+    // comprobarlo. lamina[0] + margenOrilla reconstruye esa cota de orilla previa a la excavación
+    // (el margen nunca baja la lámina por debajo de la orilla real, solo puede subirla a laminaMin).
+    for (const rio of campo.rios) expect(rio.lamina[0] + tuning.alturas.rio.margenOrilla).toBeGreaterThan(tuning.alturas.tierraMin);
+  });
+
   it('es determinista: la misma semilla da el mismo campo', () => {
     const a = campoDe(99).campo;
     const b = campoDe(99).campo;
