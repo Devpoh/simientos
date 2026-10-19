@@ -1,52 +1,54 @@
 # SEDIMENTO — Brief (v0.1 «La aldea junto al río»)
 
-**Pitch (1 frase):** Gobierna una ciudad-estado sumeria viva en un mundo hexagonal en tiempo real: cada cosecha, cada ley y cada crecida tienen consecuencias que se propagan por toda la sociedad.
-**Referencia:** Civilization VI (mapa hexagonal 3D estilizado, «mapa vivo», barrios que se colocan en hexágonos) + Songs of Syx (población y logística física) + Frostpunk (presión constante y decisiones duras). De Songs of Syx tomamos el ~10 % de «los bienes se mueven a hombros y todo se puede inspeccionar». De Frostpunk, el «el entorno aprieta más cada año y crecer cuesta». De Civ 6, la belleza del tablero de hexágonos y la importancia de la ubicación.
-**Motor:** three.js (3D low-poly sobre hexágonos). Sin artista, la geometría low-poly generada por código y bien iluminada es lo más bonito que podemos conseguir. `InstancedMesh` permite miles de hexágonos y habitantes. La lógica pura en `src/logic/` es portable a Godot o Unity (ver GDD §12).
-**Nombre:** **SEDIMENTO** (elegido por el usuario; IMPERIUM era el provisional). El limo del río da vida a Sumer y también colmata sus canales; las civilizaciones son capas que se acumulan y se entierran.
+**Pitch (1 frase):** Gobierna una ciudad-estado sumeria viva en un paisaje continuo en tiempo real: construyes donde quieras, ves cómo se levanta cada edificio y cada cosecha, cada ley y cada crecida tienen consecuencias que se propagan por toda la sociedad.
+**Referencias** (principios, no copias):
+- **Tropico 6 y Anno:** construcción libre y progresiva, y la cámara.
+- **Songs of Syx:** población y logística física: los bienes viajan a hombros y todo se puede inspeccionar.
+- **Frostpunk:** presión constante y decisiones duras.
+- **Civilization VI:** solo la escala estratégica (civilizaciones, diplomacia). **No** su tablero de casillas: la construcción va sobre terreno continuo (R20 y R21).
+
+**Motor:** three.js + TypeScript estricto + Vite. La lógica pura en `src/logic/`, con tests, se puede portar a Godot o Unity (GDD §12). El **estilo visual está por decidir** en el Art Direction Lab (`gdd/arte.md`). Mientras tanto el juego usa un render provisional.
+**Nombre:** **SEDIMENTO**, elegido por el usuario; IMPERIUM es el nombre de trabajo de sus textos. El limo del río da vida a Sumer y también colmata sus canales; las civilizaciones son capas que se acumulan y se entierran.
+**Textos fuente del usuario:** `docs/prompts/` (literales; mandan sobre este brief).
 
 ## Fantasía del jugador
-Eres el *ensi* de una ciudad-estado junto al Éufrates. Repartes la cebada del templo, cavas canales y decides quién come cuando la crecida falla, sabiendo que el éxito de este año es el problema del siguiente.
+Eres el *ensi* de una ciudad-estado junto al Éufrates. Eliges dónde levantar cada casa sobre el terreno, trazas los caminos, repartes la cebada del templo, cavas canales y decides quién come cuando la crecida falla. Sabes que el éxito de este año es el problema del siguiente.
 
 ## Pilares (3 como máximo)
-1. **Todo es físico y trazable.** Ningún recurso aparece de la nada: cada grano se cultiva, se acarrea, se almacena y se reparte. Cualquier problema se puede rastrear hasta su causa con un clic.
-2. **Crecer aprieta.** Cada mejora trae su propio coste: más canales que mantener, más salinidad, más bocas y expectativas más altas. Nunca hay un estado estable y cómodo.
-3. **La ciudad cuenta su historia.** Los hogares recuerdan, la crónica registra causas y consecuencias, y cada partida es un relato distinto.
+1. **Todo es físico y trazable.** Ningún recurso aparece de la nada y ningún edificio aparece terminado. Cada grano y cada adobe se produce, se acarrea y se coloca, y cualquier problema se rastrea hasta su causa.
+2. **Crecer aprieta.** Cada mejora trae su coste: más canales que mantener, más salinidad, más bocas y expectativas más altas. Nunca hay un estado estable y cómodo.
+3. **La ciudad cuenta su historia.** Una ciudad orgánica que nace de su geografía; los hogares recuerdan y la crónica registra causas y consecuencias.
 
 ## Bucle central
-1. Observar: reservas en días, pronóstico de la crecida, hogares descontentos.
-2. Decidir: construir o mantener canales, asignar trabajo, repartir raciones.
-3. Esperar en tiempo real (pausable) a que la ciudad ejecute: los habitantes acarrean, construyen y cultivan.
-4. Leer las consecuencias (cosecha, salinidad, ánimo y crónica) y ajustar.
+1. **Observar:** el terreno (fertilidad, agua, riesgo de crecida), las reservas en días y los hogares descontentos.
+2. **Decidir:** dónde construir y por dónde va cada camino, qué mantener, a qué asignar el trabajo y cuánto repartir.
+3. **Esperar** en tiempo real (con pausa) mientras la ciudad ejecuta: los trabajadores llevan material a las obras y estas suben por etapas.
+4. **Leer las consecuencias** (cosecha, salinidad, ánimo y crónica) y ajustar.
 
 ## Objetivo y derrota
-- **Progresa** cuando la aldea alcanza hitos: aldea (≥ 60 hab.) → pueblo (≥ 150) → ciudad (≥ 300 y templo). La partida v0.1 se gana al sostener la **ciudad durante 3 años seguidos**. Además hay una puntuación de *legado*.
-- **Pierde** cuando la ciudad se abandona (menos de 15 habitantes por hambre, enfermedad o emigración).
+- **Progresa** por hitos: aldea (≥ 60 hab.) → pueblo (≥ 150) → ciudad (≥ 300 y templo). La v0.1 se gana sosteniendo la **ciudad 3 años seguidos**. Hay además una puntuación de *legado*.
+- **Pierde** cuando la ciudad se abandona: menos de 15 habitantes por hambre, enfermedad o emigración.
 
 ## MVP (7 puntos)
-1. Mapa procedural **distinto en cada partida** (semilla aleatoria, reutilizable): 1–2 ríos con crecida, lagos, marismas, mar, montañas, palmerales, bosques y cañaverales, con **biomas lógicos según el clima** (del desierto del valle a la nieve de las cumbres) y fertilidad y salinidad por hexágono, en 3D con relieve. Ver `gdd/mapa.md`.
-2. Construcción por etapas: cimientos → materiales acarreados → trabajo → terminado. Las obras se detienen si faltan materiales o brazos.
-3. Habitantes visibles agrupados en hogares, con trabajo y tareas (acarrear, cultivar, construir), y rutas por el terreno.
-4. Economía de templo sin dinero: cebada, dátiles y pescado → almacén → raciones. Adobe y cañas para construir. Hoces de arcilla que se gastan.
-5. Estaciones (siembra en otoño, cosecha en primavera) y crecida variable con pronóstico. Canales, diques, salinización y colmatación.
-6. Necesidades y bienestar por hogar con memoria y expectativas que suben. Hambre → enfermedad y emigración. Prosperidad → inmigración.
-7. Legibilidad: inspector «¿por qué?» de hexágono, edificio u hogar; reservas en días; y crónica de acontecimientos con causas.
+1. **Terreno continuo procedural, distinto en cada partida:** semilla visible y reutilizable; colinas, valles, 1–2 ríos con cauce y crecida, lagos, delta con marisma, playas, montañas y biomas lógicos por clima. Sin hexágonos visibles. Ver `gdd/mapa.md`.
+2. **Construcción libre y progresiva:** edificios con posición y giro libres sobre el terreno; obras que pasan por plano → preparación → cimientos → estructura → cubierta → terminado según trabajadores, materiales y tiempo; caminos trazados con curvas. Ver `gdd/construccion.md`.
+3. **Habitantes visibles** agrupados en hogares, con trabajo y tareas (acarrear, cultivar, construir) y rutas por el terreno y los caminos.
+4. **Economía de templo sin dinero:** cebada, dátiles y pescado → almacén → raciones. Adobe y cañas para construir. Hoces de arcilla que se gastan.
+5. **Estaciones y crecida** variable con pronóstico; canales, diques, salinización y colmatación.
+6. **Necesidades y bienestar** por hogar, con memoria y expectativas que suben. El hambre trae enfermedad y emigración; la prosperidad, inmigración.
+7. **Legibilidad:** inspector «¿por qué?» de cada punto del terreno, edificio, obra u hogar; reservas en días; crónica con causas. Cámara de estrategia cómoda (`gdd/camara.md`).
 
-## Fuera de alcance en v0.1 (llega en versiones posteriores)
-- Dinero, mercado y precios (v0.3) · clases sociales completas y facciones (v0.2–v0.3) · leyes (v0.3)
-- Ciudades rivales, diplomacia y comercio (v0.4) · guerra con batallas tácticas por turnos (v0.5) · árboles de progresión (v0.6)
-- Otras civilizaciones (v0.7) · mitología (v0.8) · migración de motor (decisión en v0.9)
-- Guardar y cargar partida (v0.2)
+## Fuera de alcance en v0.1
+- Dinero, mercado y precios (v0.3) · clases y facciones completas (v0.2–v0.3) · leyes (v0.3).
+- Rivales, diplomacia y comercio (v0.4) · guerra (v0.5) · progresión (v0.6) · otras civilizaciones (v0.7) · mitología (v0.8) · migración de motor (decisión en v0.9).
+- Guardar y cargar (v0.2).
 
-## Orden de construcción
-1. Núcleo de simulación headless (reloj, hogares, almacén, raciones), con tests.
-2. Mapa hexagonal 3D bonito desde el primer día (es un riesgo: si no enamora, se corrige pronto), cámara de estrategia y habitantes que caminan.
-3. Construcción por etapas y logística de acarreo.
-4. Agricultura, estaciones y crecida, que es la fuente principal de presión.
-5. Salinidad, colmatación, necesidades y demografía.
-6. Inspector, crónica, victoria y derrota.
-7. Cierre: bucle completo, game feel, audio, menús, onboarding y rendimiento.
+## Orden de trabajo (19-10, `estado.json`)
+1. **Dirección artística:** auditoría → catálogo de recursos → Art Direction Lab → escenas comparativas (fases A1–A4).
+2. **Prototipos de base:** terreno continuo (A5) y construcción libre y progresiva (A6), en paralelo con la **cámara** (C1–C6).
+3. **Elección del estilo** con evidencia, junto al usuario (A7), y su documentación (A8).
+4. Después: el juego v0.1 sobre esa base (habitantes y logística, agricultura y crecida, necesidades, inspector y crónica, cierre).
 
-## Dirección de arte y audio
-- **Arte:** diorama low-poly de sombreado plano sobre hexágonos con relieve. Adobe y tierra cálidos, verde intenso de regadío, agua turquesa animada, luz dorada de tarde con sombras suaves. Los campos cambian de color con las estaciones y la crecida sube visiblemente. Legible primero y bonito después, pero bonito siempre.
+## Arte y audio
+- **Arte:** se decide en el laboratorio comparando A (low-poly), B (3D con texturas), C (pixel art isométrico) y D (un híbrido, solo si está justificado). La hipótesis inicial del usuario es A con terreno continuo. En cualquier estilo, la paleta va de adobe y tierra cálidos, con el verde de regadío y la luz de tarde, y lo primero es que se lea bien.
 - **Audio:** ambiente de río, viento e insectos; herramientas en las obras; un laúd y percusión sobria que se tensa cuando bajan las reservas.

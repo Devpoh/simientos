@@ -1,4 +1,6 @@
-# Entregable A — Visión de IMPERIUM
+# Entregable A — Visión de SEDIMENTO (nombre de trabajo: IMPERIUM)
+
+> Actualizado el 2026-10-19 con los textos de `docs/prompts/`: terreno continuo, construcción libre y progresiva, y dirección artística por decidir en el laboratorio.
 
 ## Qué es, en una frase
 Un simulador de civilizaciones antiguas en tiempo real donde gobiernas una sociedad que tiene sus propios intereses. No ganas por acumular. Ganas, o caes, por cómo sostienes lo que has construido.
@@ -8,7 +10,7 @@ Los juegos de referencia separan tres placeres que IMPERIUM quiere unir en la mi
 
 | Placer | Referencia | Qué hace IMPERIUM |
 |---|---|---|
-| **Observar** una ciudad viva y bonita | Civilization VI, Songs of Syx | Un diorama 3D de hexágonos donde cada persona que ves hace algo real: lleva un saco de cebada concreto a un almacén concreto. |
+| **Observar** y **construir** una ciudad viva y bonita | Tropico, Anno, Songs of Syx | Un paisaje 3D continuo donde colocas cada edificio donde quieres y lo ves levantarse por etapas, y cada persona que ves hace algo real: lleva un saco de cebada concreto a un almacén concreto. |
 | **Administrar** un sistema que entiendes | Tropico, Victoria | Todo indicador tiene un botón «¿por qué?» que lleva a la causa física: el canal colmatado, la ración recortada en el mes 3. |
 | **Descubrir** una historia que no estaba escrita | Civilization, Frostpunk | La **crónica** registra causas y consecuencias. La caída de tu ciudad se puede leer como un libro de historia. |
 

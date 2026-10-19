@@ -1,7 +1,9 @@
 # Entregable B — Documento de diseño (GDD general)
 
 Marcas de procedencia: **[H]** dato histórico documentado · **[I]** interpretación o hipótesis académica debatida · **[D]** decisión de diseño (ficción).
-Versión que lo implementa: **v0.1**, **v0.2**… (ver `../versiones.md`). Las reglas con números concretos están en `simulacion.md` y, más adelante, en un GDD por sistema.
+> **Actualizado el 2026-10-19:** terreno continuo sin hexágonos ni casillas visibles (R20), construcción libre y progresiva (`construccion.md`), cámara (`camara.md`) y dirección artística por decidir en el laboratorio (`arte.md`). Los textos literales del usuario están en `../prompts/` y mandan sobre este documento.
+
+Versión que lo implementa: **v0.0**, **v0.1**… (ver `../versiones.md`). Las reglas con números concretos están en `simulacion.md` y, más adelante, en un GDD por sistema.
 
 ---
 
@@ -18,7 +20,7 @@ Versión que lo implementa: **v0.1**, **v0.2**… (ver `../versiones.md`). Las r
 | Día de juego | ~1 s real a velocidad ×1 (ajustable) | Unidad del tick económico. |
 | Mes | 30 días · **Año** | 12 meses = 360 días (~6 min a ×1) | El año administrativo de 360 días aparece en la contabilidad sumeria [H]. |
 | Velocidades | pausa · ×1 · ×2 · ×4 | Hay pausa activa: con el juego en pausa se puede inspeccionar y dar órdenes. |
-| Desplazamiento local | 1 hexágono ≈ 50 m. Un habitante cruza la ciudad en 1 a 3 días | **Compresión declarada:** el viaje local se hace lento a propósito para que la logística importe y se vea. |
+| Desplazamiento local | 1 unidad de mundo ≈ 30 m (una celda de datos ≈ 50 m). Un habitante cruza la ciudad en 1 a 3 días | **Compresión declarada:** el viaje local se hace lento a propósito para que la logística importe y se vea. |
 | Viaje regional (v0.4) | Caravana ~25 km/día, barco fluvial ~40 km/día | Velocidades plausibles. Un bien al otro lado del mapa tarda semanas. |
 | Obras | Casa de adobe: 10–20 días · canal: 5 días por tramo · templo: 1–2 años | Comparables con la siembra (1 estación) y con la población (crece en años). |
 | Progreso (v0.6) | Avances en 2–10 años | Una innovación tarda lo mismo que su infraestructura. |
@@ -51,8 +53,8 @@ Ese es el ritmo emocional que pides: calma constructiva en verano y tensión en 
 - **Siempre aleatorio:** cada partida usa una semilla nueva, que se muestra y se puede reutilizar. Varían el relieve, 1–2 ríos, 1–2 lagos, la costa, la vegetación y el clima.
 - **Biomas por clima (Whittaker):** temperatura por altitud y latitud, y lluvia. En Sumer: desierto en el valle → estepa → bosque → taiga → tundra → nieve en las cumbres. En el mapa mundial (v0.4) aparecen los 10 biomas en franjas lógicas, también los tropicales.
 
-- **v0.1:** mapa de **hexágonos** procedural de ~48×40 (≈ 2 000 hexágonos, unos 2,4 × 2 km), en **3D con relieve** (las montañas se elevan y el río va encajado) y con semilla reproducible. **Un hexágono = una parcela:** un campo, una casa, un taller o un tramo de canal, como los barrios de Civ 6, pero con gente dentro. Contiene un **río principal** con meandros, brazos y un **lago** o laguna; **marismas** con cañaverales y pesca; el **mar** (el golfo) en un borde; **estepa y desierto** lejos del agua; **colinas y montañas** en el borde contrario (no se cultivan; dan algo de piedra y madera de mala calidad); **palmerales** y bosque ribereño escaso.
-- **Atributos por hexágono:** tipo de terreno, elevación, fertilidad (0–1), salinidad (0–1), humedad o acceso al agua, y recursos (arcilla, caña, peces, madera, piedra).
+- **v0.1: terreno continuo** procedural de ≈ 80 × 60 unidades (unos 2,4 × 2 km) con relieve suave, sin hexágonos ni casillas visibles (R20). Por dentro, una **rejilla de celdas de datos** (hoy hexagonal, invisible) guarda bioma, fertilidad, salinidad, agua y recursos; la superficie se genera de forma continua a partir de ella (`logic/alturas.ts`). Contiene un **río principal** con meandros, cauce excavado y, a veces, un afluente; un **lago**; un **delta** con marisma y cañaverales; el **mar** (el golfo) con playas en pendiente; **estepa y desierto** lejos del agua; **colinas y montañas** en el borde contrario (no se cultivan; dan algo de piedra y madera de mala calidad), y **palmerales** y bosque ribereño escaso. **Los edificios no ocupan celdas:** tienen posición, giro y huella libres (`construccion.md`).
+- **Atributos por celda de datos** (se consultan en cualquier punto del terreno): tipo de terreno, elevación, fertilidad (0–1), salinidad (0–1), humedad o acceso al agua, y recursos (arcilla, caña, peces, madera, piedra).
 - **El mapa crea las decisiones:** la mejor tierra está junto al río, que también es el que se inunda. La arcilla está en las orillas. La piedra queda lejos, en las colinas. Las marismas dan comida, pero también enfermedad.
 - **Más adelante:** mapa regional con varias ciudades (v0.4) y mapas por escenario, con desiertos, pasos de montaña, rutas marítimas y estrechos (v0.7).
 
@@ -76,28 +78,15 @@ Ese es el ritmo emocional que pides: calma constructiva en verano y tensión en 
 
 ## 7. Construcción y urbanismo
 
-- **Por etapas, siempre:** se coloca la obra → se marcan los cimientos → los porteadores acarrean los materiales → los constructores trabajan (progreso = días-persona aportados) → queda terminada. Sin materiales o sin brazos, la obra **se detiene y lo dice**.
-- **Adyacencia al estilo Civ 6, pero física:** el hexágono vecino importa porque cambia distancias, agua y riesgos reales. El almacén pegado a los campos acorta los acarreos, la casa junto a un canal tiene agua, la adobería junto a la orilla tiene arcilla y el templo da servicio a las casas a ≤ 2 hexágonos. No hay bonus mágicos sin causa.
-- **El emplazamiento importa:** el campo rinde según la fertilidad, el agua y la salinidad; la casa junto a la marisma tiene más riesgo de enfermedad; el almacén lejano alarga los acarreos; la orilla baja se inunda.
-- **Edificios de la v0.1:** casa de adobe, campo de cebada, palmeral, puesto de pesca, adobería, alfar (hoces), almacén, **canal**, **dique** y templo (el hito para ser ciudad).
+> Reglas completas: **`construccion.md`** (R17, R21, R22). Resumen:
+
+- **Libre:** posición y giro libres sobre el terreno continuo, con vista previa válida o inválida que da el motivo (solape, pendiente, agua, acceso, distancias). La rejilla de ajuste es opcional e invisible.
+- **Progresiva:** colocar crea una **obra**, no un edificio: plano → preparación → cimientos → estructura → cubierta y acabados → terminado. Avanza con trabajadores, materiales acarreados y tiempo. Se detiene **y dice por qué**. Se puede cancelar, suspender y priorizar. El edificio solo funciona cuando está terminado.
+- **Caminos** trazados con curvas sobre el relieve, que son infraestructura real: aceleran los acarreos y dan acceso.
+- **El emplazamiento importa, de forma física:** el campo rinde según la fertilidad, el agua y la salinidad del suelo bajo él; la casa junto a la marisma tiene más riesgo de enfermedad; el almacén lejano alarga los acarreos; la orilla baja se inunda. No hay bonus mágicos de adyacencia.
+- **Edificios de la v0.1:** choza de caña, casa de adobe, campo de cebada (que se dibuja arrastrando), palmeral, puesto de pesca, adobería, alfar (hoces), almacén, **canal**, **dique** y templo (el hito para ser ciudad).
 - **Evolución visual (v0.2+):** las casas mejoran si el hogar prospera (choza de caña → casa de adobe → casa con patio) y empeoran si no.
 - **Mantenimiento:** los canales se **colmatan** de limo y hay que dragarlos cada año; el adobe se erosiona. *Crecer obliga a mantener más.*
-
-### 7.1 Construcción libre y carreteras (R17, 2026-10-18)
-
-**Dos capas.** Los **hexágonos** son el terreno (bioma, fertilidad, agua, altura) y el mapa estratégico (territorio, viajes largos y, en la v0.5, el combate). La **ciudad** se construye en coordenadas libres, como en Imperium, Pharaoh o Tropico: un edificio no ocupa «un hexágono», ocupa su huella real.
-
-- **Colocación libre:** posición continua y giro libre (pasos de 15°; con Mayús, sin pasos). Cada tipo tiene una **huella** (rectángulo ancho × fondo): choza 0,5 × 0,35, casa 0,6 × 0,55, almacén 1,0 × 0,8, templo 1,6 × 1,2… Los campos se **dibujan arrastrando** un rectángulo: el área determina el rendimiento y el trabajo.
-- **Validez:** la huella no puede solaparse con otras huellas ni con carreteras, todo el terreno bajo ella tiene que estar permitido y no puede cruzar un escalón de terraza. Los requisitos («junto al agua», «arcilla cerca») se miden en distancia real desde la huella. El fantasma se pinta verde o rojo y **dice por qué**.
-- **Carreteras:** el jugador las traza como una línea con varios puntos que se suaviza en curva.
-  - Tipos: senda (solo trabajo), camino de tierra apisonada y, en la v0.2+, calzada de ladrillo. Hay **puentes** de caña o madera sobre canales y ríos.
-  - Coste por tramo, que se construye como cualquier obra.
-  - Efecto físico: quien va por carretera camina ×1,5 (senda) o ×2 (camino) más rápido, lo que acorta los acarreos.
-- **Orden sin rejilla:** si colocas un edificio cerca de una carretera, se **alinea a ella** (giro paralelo y puerta hacia el camino), como en Tropico. Así la ciudad sale ordenada por calles sin imponer una cuadrícula.
-- **Movimiento:** las personas usan el grafo de carreteras cuando les compensa y, si no, van a campo traviesa con A* sobre los hexágonos (`rutas.ts`).
-- **Fundación:** el almacén junto al río, una senda inicial hacia el agua y las chozas alineadas a ambos lados. La aldea empieza ordenada.
-
-**Por qué:** con un edificio por hexágono la ciudad se veía desordenada y rígida (lo dijo el usuario). La colocación libre con calles da ciudades orgánicas y legibles, y deja los hexágonos para lo que hacen bien: el terreno y la estrategia.
 
 ## 8. Sociedad: capas de satisfacción (no hay una barra única)
 
@@ -131,9 +120,9 @@ Respuestas escalonadas cuando aprieta (v0.2): **quejas → petición formal → 
 ## 11. Guerra y navegación (v0.5)
 
 - **Milicia** sacada de los hogares (deja huecos en el trabajo) o tropas del templo y del palacio. El equipo es lanza, escudo y casco de cobre [H, Estela de los Buitres]. Más adelante, carros de onagros [H].
-- **Campaña en tiempo real, batallas por turnos [D, elegido por el usuario]:** los ejércitos se mueven, se abastecen y asedian en tiempo real. Cuando dos ejércitos hostiles entran en contacto, el mundo **se congela** y se abre una **batalla táctica por turnos** sobre los hexágonos reales del encuentro (río, colina, palmeral, canal).
+- **Campaña en tiempo real, batallas por turnos [D, elegido por el usuario]:** los ejércitos se mueven, se abastecen y asedian en tiempo real. Cuando dos ejércitos hostiles entran en contacto, el mundo **se congela** y se abre una **batalla táctica por turnos** sobre el terreno real del encuentro (río, colina, palmeral, canal). **Pendiente (R7 frente a R20):** la rejilla táctica (hexagonal o libre con alcances) **solo existe durante la batalla** y se superpone al terreno; nunca condiciona la construcción. Se decide al empezar la v0.5.
   - **Coherencia temporal:** una batalla antigua duraba horas y en nuestra escala un día dura ~1 s. Congelar el mundo durante la batalla no rompe nada. Máximo **12 turnos** (un día); después, ambos se retiran a sus posiciones.
-  - **Unidades = compañías** de 50–200 hombres, una por hexágono. Tienen movimiento, ataque, defensa, moral, fatiga y munición (honderos y arqueros). Hay zona de control, flanqueo (+ por cada aliado adyacente al enemigo), bonus de terreno (colina, ribera, palmeral) y ruptura por moral (huida antes que muerte).
+  - **Unidades = compañías** de 50–200 hombres, una por posición de la rejilla táctica. Tienen movimiento, ataque, defensa, moral, fatiga y munición (honderos y arqueros). Hay zona de control, flanqueo (+ por cada aliado adyacente al enemigo), bonus de terreno (colina, ribera, palmeral) y ruptura por moral (huida antes que muerte).
   - **Conectada a la economía:** los soldados salen de los hogares (sus puestos quedan vacíos), el equipo sale del almacén, la moral y la fatiga iniciales dependen del suministro y de la marcha, y los muertos y heridos vuelven como hechos a la crónica y a los agravios.
   - **Resolución automática** opcional con la fórmula de **fuerza efectiva** = número × equipo × moral × experiencia × terreno × suministro × sorpresa, la misma que usa la IA entre rivales.
 - **Suministro:** el ejército consume raciones que deben llegar por ruta. Si se aleja de la ruta, llegan las deserciones y la enfermedad. **Asedio:** las reservas de la ciudad frente a la paciencia y el suministro del sitiador.
@@ -143,7 +132,7 @@ Respuestas escalonadas cuando aprieta (v0.2): **quejas → petición formal → 
 
 - **Cuatro árboles distintos, no intercambiables:** *Conocimiento* (técnicas: arado sembrador [H], torno de alfarero [H], metalurgia del bronce), *Instituciones* (escritura administrativa, tribunales, provincias: se desbloquean por condiciones sociales, no por puntos), *Cultura y culto* (festivales, epopeyas, monumentos) y *Doctrinas religiosas* (relación templo-palacio).
 - **Coste de oportunidad real:** la investigación consume escribas y tiempo, que salen de otras tareas. Hay ramas excluyentes (por ejemplo, centralización frente a autonomía de las ciudades).
-- **Motor:** el prototipo se hace en **three.js** (3D low-poly sobre hexágonos).
+- **Motor:** el prototipo se hace en **three.js** sobre terreno continuo; el estilo visual se decide en el laboratorio (`arte.md`).
 - **Motor final:** el desarrollo sigue en web hasta que el diseño esté probado, porque la lógica en TS puro es portable. La comparación completa Godot / Unity / Unreal es el **Entregable F**. Mi inclinación provisional es **Godot 4 + C#** (gratuito, ligero, 2D y 3D sólidos, sin regalías). La alternativa es Unity si hiciera falta un ECS para decenas de miles de agentes. Unreal es excesivo para un equipo de uno. La decisión se toma en v0.9 con datos de rendimiento.
 
 ## 13. Desastres
@@ -186,10 +175,11 @@ Ninguno es puramente aleatorio: tienen **probabilidad × exposición × preparac
 ## 17. Interfaz y legibilidad
 
 - **El botón «¿por qué?» en todo.** Cada número abre su desglose causal: *«Reserva de cebada: 41 días. Consumo: 12/día (300 hab.). Entradas previstas: cosecha en 38 días, estimada en 380 ± 120 (la crecida puede dañar los campos del este)»*.
-- **Inspector** de hexágono, edificio, hogar y agente: qué hace, por qué y qué le falta.
+- **Inspector** de cualquier punto del terreno, edificio, obra, hogar y agente: qué hace, por qué y qué le falta.
 - **Capas del mapa:** fertilidad, salinidad, agua, riesgo de inundación, bienestar por barrio y rutas de acarreo.
 - **Crónica:** acontecimientos con fecha, causa y consecuencias enlazadas. Es la historia de la partida y la herramienta para entender la caída.
 - **Alertas sobrias:** pocas, con una acción sugerida. El estado del mundo se ve en la ciudad misma (colas en el almacén, campos amarillos, gente sentada en huelga).
+- **Cámara:** de estrategia, libre y suave, sobre terreno continuo: desplazar, girar, inclinar, zoom al cursor, enfocar y seguir. Especificación completa en **`camara.md`**.
 
 ## 18. Riesgos técnicos y soluciones
 

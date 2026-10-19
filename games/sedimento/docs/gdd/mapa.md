@@ -1,14 +1,15 @@
 # GDD — Mapa, clima y biomas
 
 > Requisitos del usuario que cubre: **R8** (todo lo que tiene un mapa real), **R9** (siempre aleatorio) y **R10** (todos los biomas, con un orden lógico). Ver `../requisitos-usuario.md`.
-> Código: `src/logic/mapa.ts`, `src/logic/clima.ts`, `src/logic/hex.ts`. Números: `src/data/tuning.json` → `mapa` y `clima`.
+> Requisito **R20** (19-10): el terreno que se ve es **continuo**, sin hexágonos ni casillas. Los hexágonos de este documento son **celdas de datos invisibles**: guardan bioma, fertilidad, agua y recursos, y a partir de ellas se genera la superficie continua (`src/logic/alturas.ts`: suavizado entre celdas, relieve fino, cauces excavados con curvas, lagos en cubeta y costa en pendiente). Nada se construye «en una celda» (`construccion.md`).
+> Código: `src/logic/mapa.ts` (celdas), `src/logic/alturas.ts` (superficie continua), `src/logic/clima.ts`, `src/logic/hex.ts`. Números: `src/data/tuning.json` → `mapa`, `clima` y `terreno`.
 
 ## Resumen
-Cada partida genera un valle nuevo de hexágonos: montañas, colinas, llanura aluvial, uno o dos ríos que bajan al mar, lagos, marismas, palmerales, bosques y cañaverales. El **bioma** de cada hexágono no se pinta a mano: sale de un **modelo climático** (temperatura y lluvia), así que las zonas siempre siguen un orden natural.
+Cada partida genera un valle nuevo (en una rejilla de celdas de datos que no se ve, convertida después en terreno continuo): montañas, colinas, llanura aluvial, uno o dos ríos que bajan al mar, lagos, marismas, palmerales, bosques y cañaverales. El **bioma** de cada hexágono no se pinta a mano: sale de un **modelo climático** (temperatura y lluvia), así que las zonas siempre siguen un orden natural.
 
 ## 1. Siempre aleatorio, pero reproducible (R9)
 - **Cada partida nueva usa una semilla aleatoria** (generada al pulsar «Nueva partida»). Dos partidas seguidas nunca comparten mapa.
-- La semilla se **muestra** en la partida y se puede **reutilizar** para repetir un mapa: compartirlo, reproducir un bug o comparar estrategias. El campo para escribirla llega en la fase de menús (F19).
+- La semilla se **muestra** en la partida y se puede **reutilizar** para repetir un mapa: compartirlo, reproducir un bug o comparar estrategias. El campo para escribirla llega con los menús de la v0.1.
 - Los tests y `shot` fijan la semilla con `?semilla=N` en la URL o con `tuning.mapa.semilla`. Así el azar no rompe la verificación.
 - **Qué cambia entre semillas** (además del relieve fino): la anchura de la banda de montañas y la de la costa (± `variacionBordes`), por dónde nace y serpentea el río, **1 o 2 ríos** (el segundo confluye con el primero, como el Tigris y el Éufrates, o llega solo al mar), **1–2 lagos** de radio 1–2, la extensión de las marismas, la vegetación, y un **clima** algo más cálido o fresco (± 1,5 °C) y más seco o húmedo (± 25 % de lluvia).
 - Test que lo vigila: `mapa.test.ts`. Hay 10 semillas con 10 huellas distintas, y el número de ríos o de lagos varía entre ellas.
@@ -19,9 +20,9 @@ Cada partida genera un valle nuevo de hexágonos: montañas, colinas, llanura al
 | Montaña / colina | Banda norte con ruido fuerte. Altura ≥ `umbralMontana` / ≥ `umbralColina`. |
 | Llanura | Centro del valle, casi plano (ruido suave), inclinado suavemente hacia el sur. |
 | Mar | Lo bajo conectado con el borde sur (el golfo). La costa es irregular. |
-| Río | Nace en las montañas (fila 1) y en cada paso elige el vecino más bajo, con azar y una tendencia lateral que cambia: así se forman **meandros**. Excava su cauce y acaba en el mar o en otro río. |
+| Río | Nace en las montañas (fila 1) y en cada paso elige el vecino más bajo, con azar y una tendencia lateral que cambia: así se forman **meandros**. Acaba en el mar o en otro río. En la superficie continua, el cauce se suaviza en curva y se excava con su lecho y su vega (`alturas.ts`). |
 | Lago | Junto a un tramo medio del río. Sus orillas pueden ser marisma. |
-| Marisma | Tierra baja a ≤ `anchoMarisma` del mar (delta) o junto a un lago. |
+| Marisma | Tierra baja a ≤ `anchoMarisma` del mar **y** a ≤ `radioDelta` de la desembocadura (el delta; el resto de la costa es playa), o junto a un lago. |
 
 Vegetación (encima del terreno): **palmeral** (llanura cálida, a ≤ 2 del agua dulce, con al menos 18 °C), **bosque** (solo en biomas boscosos: templado, taiga, mediterráneo, selva) y **cañaveral** (marisma). Recursos por hexágono: arcilla (orillas), caña (marisma), peces (agua), madera (palmeral o bosque) y piedra (colina o montaña).
 
