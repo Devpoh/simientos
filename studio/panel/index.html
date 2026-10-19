@@ -512,8 +512,12 @@ async function tick() {
     document.querySelectorAll('.game-tab').forEach((b) => b.onclick = () => { juego = b.dataset.slug; store.set('panel.juego', juego); ultimo = null; tick(); });
     if (vista === 'modelos') {
       // La pestaña se pinta una vez por juego: no se repinta en cada tick (perdería filtros y foco).
-      if (ultimo !== 'modelos:' + juego && window.panelModelos) { window.panelModelos.mostrar(juego, $('#app')); ultimo = 'modelos:' + juego; }
-      $('#updated').textContent = 'modelos'; return;
+      // El marco del laboratorio (módulo aparte) puede tardar un instante en estar listo: se reintenta enseguida.
+      if (ultimo !== 'modelos:' + juego) {
+        if (window.panelLab && window.panelModelos) { window.panelLab.mostrar(juego, $('#app')); ultimo = 'modelos:' + juego; }
+        else { $('#app').innerHTML = '<p class="empty">Cargando el laboratorio…</p>'; setTimeout(tick, 300); }
+      }
+      $('#updated').textContent = 'laboratorio'; return;
     }
     if (vista === 'guia') { if (ultimo !== 'guia:' + juego) { guia(juego); ultimo = 'guia:' + juego; } $('#updated').textContent = 'guía'; return; }
     const r = await fetch(`/api/estado/${encodeURIComponent(juego)}`);
@@ -565,8 +569,7 @@ estilo.textContent = `
 .mod-nombre { font-weight:650; font-size:13px; overflow-wrap:anywhere }
 .mod-tags { display:flex; flex-wrap:wrap; gap:4px }
 .tag { padding:1px 7px; border-radius:999px; background:var(--surface-2); color:var(--muted) }
-.tag.propio { background:var(--ok-soft); color:var(--ok) } .tag.descargado { background:var(--info-soft); color:var(--info) }
-.mod-cmp { display:flex; align-items:center; gap:6px; color:var(--muted); cursor:pointer }
+.tag.propio { background:var(--ok-soft); color:var(--ok) } .tag.descargado { background:var(--info-soft); color:var(--info) }.mod-cmp { display:flex; align-items:center; gap:6px; color:var(--muted); cursor:pointer }
 .visor { position:fixed; inset:0; background:rgba(10,10,12,.72); display:flex; align-items:center; justify-content:center; z-index:50; padding:16px }
 .visor-caja { background:var(--surface); border-radius:var(--radius); width:min(1100px, 100%); height:min(760px, 100%); display:flex; flex-direction:column; overflow:hidden }
 .visor-cab { display:flex; gap:8px; align-items:center; padding:10px 12px; border-bottom:1px solid var(--line); flex-wrap:wrap }
@@ -662,7 +665,7 @@ async function abrirVisor(lista) {
       ${lista.length > 1 ? `<label class="mod-cmp"><input type="checkbox" id="v-igualar" checked> Igualar altura</label>` : ''}
       <button class="btn" type="button" id="v-cerrar">Cerrar (Esc)</button></div>
     <div class="visor-lienzo" id="v-lienzo"></div>
-    <div class="visor-pie">${lista.map((m) => `<b>${escM(m.nombre)}</b> · ${escM(m.paquete)} · ${escM(m.licencia)} · ${(m.bytes / 1024).toFixed(0)} KB`).join('<br>')}<br>Arrastra para girar, rueda para acercar y botón derecho para desplazar.</div></div>`;
+    <div class="visor-pie">${lista.map((m) => `<b>${escM(m.nombre)}</b> · ${escM(m.paquete)} · ${escM(m.autor)} · ${escM(m.licencia)} · ${escM(m.formato)} · ${escM(m.estado)} · popularidad ${escM(m.popularidad)} · three.js: ${escM(m.compat)} · ${(m.bytes / 1024).toFixed(0)} KB`).join('<br>')}<br>Arrastra para girar, rueda para acercar y botón derecho para desplazar.</div></div>`;
   document.body.appendChild(fondo);
   const lienzo = $m('#v-lienzo', fondo);
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -741,7 +744,7 @@ function pintar() {
   <div class="mod-grid">${vis.map((m) => `<div class="mod-card ${seleccion.has(m.id) ? 'sel' : ''}" data-id="${escM(m.id)}">
       <button class="mod-mini" type="button" data-ver="${escM(m.id)}" title="Ver en 3D"><img alt="${escM(m.nombre)}"></button>
       <div class="mod-info"><div class="mod-nombre">${escM(m.nombre)}</div>
-        <div class="mod-tags"><span class="tag ${escM(m.origen)}">${escM(m.origen)}</span><span class="tag">${escM(m.paquete)}</span><span class="tag">${escM(m.categoria)}</span><span class="tag">${escM(m.licencia)}</span></div>
+        <div class="mod-tags"><span class="tag ${escM(m.estado)}">${escM(m.estado)}</span><span class="tag">${escM(m.paquete)}</span><span class="tag">${escM(m.categoria)}</span><span class="tag">${escM(m.licencia)}</span><span class="tag">${escM(m.formato)}</span></div>
         <label class="mod-cmp"><input type="checkbox" data-sel="${escM(m.id)}" ${seleccion.has(m.id) ? 'checked' : ''}> comparar</label></div></div>`).join('') || '<p class="empty">Ningún modelo con estos filtros.</p>'}</div>`;
 
   vis.forEach((m) => pedirMiniatura(m, $m(`.mod-card[data-id="${CSS.escape(m.id)}"] img`, app)));
@@ -767,8 +770,14 @@ async function mostrar(slug, contenedor) {
   if (!lista.length) { app.innerHTML = `<div class="card welcome"><p>Este juego aún no tiene modelos en <code>public/modelos</code>.</p></div>`; return; }
   pintar();
 }
-window.panelModelos = { mostrar };
+/** Ganchos para el marco del laboratorio (laboratorio.js): miniatura de un modelo suelto y filtro por paquete. */
+window.panelModelos = {
+  mostrar,
+  miniatura: (url, img) => pedirMiniatura({ url }, img),
+  filtrarPaquete: (paquete) => { Object.assign(filtros, { texto: '', paquetes: [paquete], categorias: [], origen: 'todos' }); guardar('panel.modelos.filtros', filtros); },
+};
 </script>
+<script type="module" src="/laboratorio.js"></script>
 
 </body>
 </html>
