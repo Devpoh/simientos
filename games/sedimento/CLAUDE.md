@@ -27,7 +27,7 @@ three.js (3D) · TypeScript · Vite · Vitest · Playwright — slug de bitácor
 - `src/logic/` reglas puras, **sin imports de three**, con tests en `tests/`
 - `src/main.ts` arranque y bucle. Al crecer, separa por sistemas (`src/systems/`, `src/world/`)
 - `src/data/tuning.json` todos los números de diseño
-- **Celdas de datos frente a mundo:** `logic/mapa.ts` genera celdas (hoy hexagonales, **invisibles**) con bioma, fertilidad, agua y recursos; `logic/alturas.ts` genera el **terreno continuo** (`alturaEn(x, z)`). Edificios, obras y caminos usan coordenadas libres (`x`, `z`, `giro` y huella), nunca «una celda».
+- **Celdas de datos frente a mundo:** `logic/mapa.ts` genera celdas (hoy hexagonales, **invisibles**) con bioma, fertilidad, agua y recursos; `logic/alturas.ts` genera el **terreno continuo** (`alturaEn(x, z)`, `aguaEn(x, z)`), que `render/terrenoContinuo.ts` convierte en una sola malla con color por vértice (A5). `render/terreno.ts` y `render/relieve.ts` (los prismas y anillos por hexágono) ya no existen. `render/disposicion.ts` sigue guardando las celdas de datos, pero **invisibles**; `render/seleccion.ts` ya no resalta un hexágono: marca el punto exacto bajo el ratón con un círculo. Edificios, obras y caminos usan coordenadas libres (`x`, `z`, `giro` y huella), nunca «una celda».
 - `src/entrada.ts` decide qué arranca: `?galeria` (galería de modelos), `?exportar` (exporta los modelos propios a GLB, `npm run modelos`) o la partida
 - El laboratorio de arte vive en el panel del estudio (`studio/panel`, http://localhost:4400) y lee `public/modelos` y, más adelante, `public/recursos`
 - `src/core/test-hooks.ts` `exponer()` y `marcarListo()` para `shot.mjs`
@@ -37,6 +37,7 @@ three.js (3D) · TypeScript · Vite · Vitest · Playwright — slug de bitácor
 
 ## Trampas de three.js (r186+)
 
+- **Nunca dibujar nada con forma de hexágono (R20): el terreno es continuo, las celdas son solo datos.**
 - Usa `THREE.Timer`, no `Clock` (está obsoleto). Acota el delta (`Math.min(dt, 0.1)`).
 - Lo que quites de la escena se libera con `geometry.dispose()` / `material.dispose()` / `texture.dispose()`, salvo que se comparta.
 - Comparte geometrías y materiales entre instancias. Si hay muchas copias, usa `InstancedMesh`.

@@ -80,3 +80,22 @@ Estado de partida: `npm run check` en verde (10 archivos, 117 tests), three 0.18
 ## 7. Siguiente paso
 
 A5 (terreno continuo en el prototipo), después A3 y A4 (laboratorio) y A6 (construcción libre). A7 decide el estilo con métricas reales.
+
+## Estado tras A5 (19-10)
+
+Lo que la sección 2 marcaba como 🔴 (choca con R20–R23) ya está sustituido:
+
+| Módulo 🔴 original | Sustituto (A5) | Estado |
+|---|---|---|
+| `terreno.ts` (prismas hexagonales) | `render/terrenoContinuo.ts`: una malla de la rejilla de `alturas.ts`, color por vértice | ✅ hecho |
+| `relieve.ts` (anillos por hexágono) | El relieve ya vive en el campo continuo (`alturas.ts`) | ✅ hecho (el archivo se eliminó) |
+| `agua.ts` (516 líneas, por hexágono) | `render/agua.ts` continuo: lagos y ríos sobre la rejilla de alturas, mar como plano a `nivelMar` | ✅ hecho |
+| `seleccion.ts` (resalta un hexágono) | Raycast contra el terreno continuo; marca un círculo en el punto exacto | ✅ hecho |
+| `disposicion.ts` (prisma por hexágono) | Sigue existiendo, pero solo como celdas de datos **invisibles** (bioma, fertilidad…), no como geometría | ✅ hecho |
+
+**Deuda técnica cerrada en A5-limpieza (reco R003):** números mágicos de `alturas.ts`, `terrenoContinuo.ts` y `seleccion.ts` pasados a `tuning.json`; `VECINDAD` exportado una sola vez desde `hex.ts`.
+
+**Sigue pendiente (no era parte de A5):**
+- `sim/obras.ts` + `tipos.ts`: las obras todavía se guardan por `hex` con 3 etapas. R21 pide `{x, z, giro}` + huella y R22 pide 6 etapas. Pasa a **A6a**, en curso con A.
+- `vegetacion.ts`, `decorado.ts`: la técnica (`InstancedMesh`) se conserva, pero el aspecto (R46: «los árboles, las flores y el decorado no van con la estética») queda para **A5b**.
+- Estilo artístico definitivo: sigue sin decidirse (R23), a la espera de A7.

@@ -1,4 +1,4 @@
-# Traspaso entre sesiones (última actualización: 2026-10-19, cierre de A, B y C)
+# Traspaso entre sesiones (última actualización: 2026-10-19, tras A5)
 
 > Lee esto **antes de nada** si eres una sesión nueva. Después: `node studio/bitacora.mjs estado`, `games/sedimento/CLAUDE.md` y `.claude/docs/sesiones.md`.
 > **Regla del usuario (R40): dejar siempre todo documentado.** Antes de cerrar una sesión, actualiza este archivo y deja una `nota` en la bitácora.
@@ -18,40 +18,39 @@ La sesión A, al arrancar, hace esto:
 2. Mira las imágenes de `games/sedimento/espertativas/` (R39).
 3. Reparte el trabajo.
 
+## Quién es quién ahora
+
+A = `proyectos-gc-bd` · B = `proyectos-gc-7b` · C = `proyectos-gc-9e` (coincide con `studio/sesiones.json`).
+
 ## Estado del juego
 
 - **Nombre provisional: CIMIENTOS** (R36). Carpeta y *slug* técnicos: `games/sedimento` (no renombrar hasta que el nombre sea definitivo).
-- **Fuentes de verdad:** `games/sedimento/docs/prompts/`, que guarda literales `maestro.md`, `direccion-artistica.md`, `camara.md` y `recursos-recomendados.md`, y `docs/requisitos-usuario.md` (R1–R40 con su estado).
+- **Fuentes de verdad:** `games/sedimento/docs/prompts/`, que guarda literales `maestro.md`, `direccion-artistica.md`, `camara.md` y `recursos-recomendados.md`, y `docs/requisitos-usuario.md` (R1–R47 con su estado).
 - **Decisiones del 19-10:**
-  - Terreno continuo sin casillas (R20).
-  - Construcción libre (R21) y progresiva en 6 etapas (R22).
-  - Estilo visual **por decidir en el Art Direction Lab** (R23), con el estilo B (3D detallado y cálido) como favorito según las imágenes de expectativas.
+  - Terreno continuo sin casillas (R20), **ya implementado en A5** (ver más abajo).
+  - Construcción libre (R21) y progresiva en 6 etapas (R22): pendiente, fase A6.
+  - Estilo visual **por decidir en el Art Direction Lab** (R23). El **3D es la vía principal** (R47): el pixel art quedó cerrado en `prototypes/pixel-cimientos/` con veredicto **CAMBIAR** — gustó el agua (espuma, olas, destellos), pero no las casas ni la gente («juego de 1990»); solo es plan B si no hay buenos modelos 3D, y entonces tendría que verse como un juego de 2026, no como ese prototipo.
   - Batallas tácticas **por turnos** dentro de una campaña en tiempo real (R35).
   - **three.js** hasta la v0.9 (R37).
   - Versiones en tramos **alfa → beta** (R38).
   - Se mantienen todas las ideas del juego (R34).
-- **Roadmap:** 121 fases de la v0.0 a la v1.0 (`docs/versiones.md` y el panel). Hechas: C1 y P1–P2.
+  - **Cero gasto (R43, innegociable):** solo recursos CC0/CC-BY o propios. Lo que cuesta dinero (p. ej. Beelim, Civilization Builder Mega Pack de 3dsultan) se registra como `reco` y queda descartado hasta que el usuario diga lo contrario.
+  - **R46 (pendiente, fase A5b):** el terreno continuo de A5 gusta más o menos, pero árboles, flores y decorado no van con la estética — hay que revisar `vegetacion.ts`/`decorado.ts` antes de A7.
+- **Roadmap:** 121 fases de la v0.0 a la v1.0 (`docs/versiones.md` y el panel). Hechas: **A1, A2, A2b, A3, A5, C1, C2**. En curso: **A6a** (obras por `{x,z,giro}` en vez de `hex`, con A) y **C3** (terreno y oclusión de cámara, con B); después **A5b**.
 - **Panel:** `npm run panel` → http://localhost:4400 (progreso con marcas de nuevo y leído, laboratorio de arte y comandos). Pruebas: `npm run panel:probar` (34 comprobaciones). **Si cambias `studio/panel/server.mjs`, reinicia el panel**: Node no recarga solo.
 - **Juego:** `cd games/sedimento && npm run dev` → http://localhost:5173. Galería: `?galeria`. Exportar modelos propios: `npm run modelos`.
 
+## A5: terreno continuo, ya hecho
+
+El terreno dejó de ser hexágonos: `logic/alturas.ts` genera el campo continuo (`alturaEn`, `aguaEn`) y `render/terrenoContinuo.ts`, `render/agua.ts` y `render/seleccion.ts` lo dibujan (malla con color por vértice, agua de lagos/ríos/mar, marca circular bajo el ratón). `render/terreno.ts` y `render/relieve.ts` (los de prismas y anillos por hexágono) ya no existen. Detalle completo en `games/sedimento/docs/auditoria.md`, sección «Estado tras A5». La deuda técnica que dejó esa fase (números mágicos, `VECINDAD` repetido) se cerró en A5-limpieza (reco R003).
+
 ## Pendiente por rol (orden recomendado)
 
-**A (Opus):**
-1. **A1 Auditoría**: crear `docs/auditoria.md` (qué funciona, qué es provisional y qué hay que rehacer frente a R20–R23).
-2. **A5 Terreno continuo:**
-   - `src/logic/alturas.ts` ya existe (campo de alturas, cauces, lagos), con commit pero **sin tests**.
-   - El agua continua a medias está en `docs/archivo/wip/agua-continua.ts.txt`: se retiró para no bloquear a B.
-   - Falta crear `render/terrenoContinuo.ts`, cablearlo en `mundo.ts` (pasando `campo` a `crearAgua`) y añadir la clave `render.agua.anchoCinta` en tuning.
-   - La cámara de B ya acepta `alturaEn(x, z)` (con `fijarAlturaEn`).
-3. **A3 y A4, el laboratorio:** ampliar la pestaña «Laboratorio de arte» del panel (portada, estilos, materiales, pixel art, construcción progresiva y comparador con favoritos). Usar el catálogo de C.
-4. Revisar con el usuario el hallazgo de C: Beelim «Ancient Buildings 5: Akkadian and Babylonian». Es de pago (1,35 USD) y no CC0: **decide el usuario**.
+**A (Opus):** A6a (obras en coordenadas libres y 6 etapas, R21–R22) y coordinar A5b (revisar vegetación/decorado, R46) y A7 (decidir estilo con métricas).
 
-**B (Sonnet 5.5):** la siguiente es **C2** (suavizado y velocidad adaptativa) y después **C3** (terreno y oclusión: necesita A5). La nota de traspaso de B, con lo que falta de la cámara, está en la bitácora.
+**B (Sonnet 5.5):** C3 (terreno y oclusión de cámara, ya puede apoyarse en A5), después sigue con A5b si A no la ha tomado.
 
-**C (Sonnet 5):**
-- A2 está entregada: `docs/recursos/catalogo.md` (17 paquetes).
-- Las texturas y HDRI CC0 están en `games/sedimento/recursos-sin-revisar/`, fuera de git.
-- Le queda: verificar la licencia de Craftpix, buscar un normal map de agua y el HDRI. Después, datos mecánicos para el laboratorio y tests de lógica bien especificados.
+**C (Sonnet 5):** sin tarea fija ahora mismo; última entregada fue DOC-1 (esta puesta al día). Catálogo de recursos en `docs/recursos/catalogo.md` (30 paquetes) y descargas en `recursos-sin-revisar/` (texturas, HDRI, pixel art), todo fuera de git.
 
 ## Lecciones de esta tanda (no repetir)
 

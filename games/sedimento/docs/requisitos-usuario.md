@@ -75,7 +75,7 @@ Los textos largos del usuario están literales en `docs/prompts/` y mandan sobre
 |---|---|---|---|---|
 | R32 | 19-10 | **Panel del estudio limpio y desde cero:** quitar las fases viejas y lo que ya no sirve. | ✅ | `estado.json` (lo viejo, en `docs/archivo/`) |
 | R33 | 19-10 | **Panel más intuitivo y mejor organizado:** iconos de leído, no leído y nuevo en todo lo que aparece, y **probado a fondo**. | ✅ | `studio/panel/`, fase P1 |
-| R41 | 19-10 | **El laboratorio debe enseñar también lo descargado sin revisar** (`recursos-sin-revisar/`): sección de Materiales con cada textura en 3D, tarjetas de los 17 paquetes del catálogo con imagen de muestra, licencia y precio marcadas «sin revisar», y descargar los paquetes gratuitos para verlos en 3D. | ⏳ | fase A3 |
+| R41 | 19-10 | **El laboratorio debe enseñar también lo descargado sin revisar** (`recursos-sin-revisar/`): sección de Materiales con cada textura en 3D, tarjetas de los 17 paquetes del catálogo con imagen de muestra, licencia y precio marcadas «sin revisar», y descargar los paquetes gratuitos para verlos en 3D. | ✅ | fase A3 |
 
 ## Decisiones del 19-10 sobre el documento maestro (`prompts/maestro.md`)
 
@@ -91,3 +91,5 @@ Los textos largos del usuario están literales en `docs/prompts/` y mandan sobre
 | R43 | 19-10 | **Cero gasto:** «no compro nada». Solo recursos gratuitos (CC0 o CC-BY) o propios. | ✅ innegociable | catálogo, A2 |
 | R44 | 19-10 | **Prototipo sencillo en pixel art** para ver qué calidad gráfica se consigue en ese estilo, y abrírselo al usuario para que lo vea. | ✅ | `prototypes/pixel-cimientos/` |
 | R45 | 19-10 | **Pixel art v2:** «nada mal», pero vista **más desde arriba**, **cámara que se pueda mover**, **terreno continuo** (en la v1 se notaban las casillas) y **pixel art más pulido, tipo 64×64**. | ✅ v2 hecha; cerrado a petición del usuario | `prototypes/pixel-cimientos/` v2 |
+| R46 | 19-10 | **Los gráficos actuales de CIMIENTOS (terreno continuo) gustan más o menos, pero los árboles, las flores y el decorado no van con la estética.** Seguir con el proyecto, no con el pixel art. | ⏳ | fase A5b |
+| R47 | 19-10 | **Valoración del pixel art:** gustó el **efecto del agua** (espuma, olas y destellos). No gustaron las casas, los humanos ni que las barcas pasaran por encima de la tierra; se ve «juego de 1990». **El 3D es la vía principal**; el pixel art solo es plan B si no hay modelos 3D buenos, y entonces debe verse como un juego de 2026. | ✅ registrado | `prototypes/pixel-cimientos/README.md`, A7 |
