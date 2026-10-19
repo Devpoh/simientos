@@ -9,7 +9,6 @@ import type { SueloEn } from './vegetacion';
 const KENNEY = 'kenney-nature/';
 const KAYKIT = 'kaykit-hex/';
 const ARBUSTOS = [`${KENNEY}plant_bush.glb`, `${KENNEY}plant_bushDetailed.glb`];
-const FLORES = [`${KENNEY}flower_redA.glb`, `${KENNEY}flower_yellowA.glb`, `${KENNEY}flower_purpleA.glb`];
 const TRONCOS = [`${KENNEY}log.glb`, `${KENNEY}stump_round.glb`];
 const ROCAS_AGUA = [`${KENNEY}rock_smallA.glb`, `${KENNEY}rock_smallB.glb`, `${KAYKIT}rock_single_C.gltf`];
 const NENUFARES = [`${KENNEY}lily_small.glb`, `${KAYKIT}waterlily_B.gltf`];
@@ -59,7 +58,7 @@ const suavizar = (t: number) => {
 };
 
 /**
- * Objetos de los paquetes CC0 (Kenney y KayKit): arbustos, flores, troncos, rocas de río, nenúfares,
+ * Objetos de los paquetes CC0 (Kenney y KayKit): arbustos, troncos, rocas de río, nenúfares,
  * plantas acuáticas y nubes. Se cargan en segundo plano: el mapa se ve ya y esto aparece al llegar.
  */
 export function crearDecorado(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, suelo: SueloEn, charcas: readonly Charca[] = [], aguaEn: (x: number, z: number) => number = () => NaN): Decorado {
@@ -99,14 +98,6 @@ export function crearDecorado(mapa: Mapa, disp: Disposicion, cfg: ConfigRender, 
         for (let k = enteroEntre(rng, 1, 2); k > 0; k--) {
           const [x, z] = puntoEn(i, ALCANCE);
           anadir(elegir(ARBUSTOS), x, enTierra(i, x, z), z, entre(rng, d.escalaArbusto));
-        }
-      }
-      if (fert >= 0.5 && rng() < d.probFlores) {
-        const [cx, cz] = puntoEn(i, ALCANCE * 0.7);
-        for (let k = enteroEntre(rng, 2, 4); k > 0; k--) {
-          const x = cx + (rng() - 0.5) * 0.3;
-          const z = cz + (rng() - 0.5) * 0.3;
-          anadir(elegir(FLORES), x, enTierra(i, x, z), z, entre(rng, d.escalaFlor));
         }
       }
       if (mapa.vegetacion[i] === 'bosque' && rng() < d.probTronco) {

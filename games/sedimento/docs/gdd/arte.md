@@ -45,3 +45,22 @@ Es el panel del estudio, ampliado. Se conserva lo que ya funciona (progreso, com
 ## 5. Rendimiento
 
 El estilo tiene que soportar cientos de edificios y habitantes. Se mide en cada escena del comparador: draw calls, triángulos, MB de texturas y fps. Se usan instancias, LOD o impostores lejanos, atlas de texturas y sombras solo donde aportan.
+
+## 6. Vegetación y decorado (A5b · R46)
+
+El usuario aceptó el estilo del terreno continuo, pero no los árboles, flores y decorado de colores chillones. Se sustituyeron por una paleta sobria, con las referencias de `espertativas/` como meta.
+
+| Elemento | Antes | Ahora |
+|---|---|---|
+| Palmera datilera | tronco corto y grueso, corona enorme, verdes saturados y dátiles naranja | tronco esbelto de 12 tramos con cicatrices de distinto tono, corona de 12–14 hojas más cortas en dos tonos oliva, dátiles pardos |
+| Árbol de bosque (`arbol`) | copa redonda de verde vivo | **tamarisco**: 2–3 troncos finos y torcidos, copa baja y rala de penachos gris verdosos en 2 tonos |
+| Arbusto (nuevo) | no existía | matas bajas de verde oliva en colinas, montaña y, rara vez, en la estepa |
+| Conifera, caña, matas, rocas | colores saturados | verdes oscuros apagados, paja, arenisca |
+| Flores | rojas, amarillas y moradas | eliminadas (`probFlores` y `escalaFlor` ya no existen) |
+| Colores de los modelos Kenney | verdes vivos y rojo/amarillo/morado | verdes oliva y tierras (`render.modelos.colores`) |
+
+**Densidad por bioma** (`render.vegetacion`): la vega con río tiene palmerales y cañaverales; la estepa queda casi desnuda (`probMataYerma` 0,12, `probArbustoEstepa` 0,05); las colinas llevan arbustos dispersos (`probArbustoMonte` 0,35); el decorado de arbustos baja a `probArbusto` 0,18.
+
+**Rendimiento:** sigue todo instanciado; draw calls 36–37 (límite 40; el arbusto añade dos).
+
+**Pendiente:** el verde del terreno de la vega (`render.colores`, `paleta.ts`) sigue muy vivo frente a la vegetación sobria; se propone apagarlo en una fase de arte del terreno.
