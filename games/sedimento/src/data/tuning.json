@@ -147,9 +147,9 @@
       "invertirGiro": false,
       "invertirInclinacion": false,
       "factorPellizco": 4,
-      "suavizado": 11,
+      "suavizado": 13,
       "suavizadoGiro": 14,
-      "suavizadoZoom": 9,
+      "suavizadoZoom": 13,
       "topeTeclaFrame": 0.5,
       "teclas": {
         "adelante": ["KeyW", "ArrowUp"],

@@ -17,7 +17,44 @@ export interface ConfigVelocidad {
   distanciaReferencia: number;
 }
 
+/** Ritmos de suavizado (1/s): cuanto mayor, más rápido alcanza el valor real al deseado. */
+export interface ConfigSuavizado {
+  suavizado: number;
+  suavizadoGiro: number;
+  suavizadoZoom: number;
+}
+
+/** Los cinco grados de libertad de la cámara que se suavizan. `incl` es la inclinación que suma el jugador. */
+export interface EstadoSuavizable {
+  x: number;
+  z: number;
+  dist: number;
+  guino: number;
+  incl: number;
+}
+
 export const acotar = (v: number, min: number, max: number): number => Math.min(max, Math.max(min, v));
+
+/** Fracción del camino que se recorre en `dt` segundos: 1 − e^(−k·dt). No depende de los FPS. */
+export const factorSuavizado = (k: number, dt: number): number => 1 - Math.exp(-Math.max(0, k) * Math.max(0, dt));
+
+/** Segundos que tarda en quedar solo la fracción `residuo` del recorrido (0,05 = ya ha hecho el 95 %). */
+export const tiempoAsentamiento = (k: number, residuo: number): number => (k > 0 ? -Math.log(acotar(residuo, 1e-9, 1)) / k : Infinity);
+
+/**
+ * Acerca el estado real (`act`) al deseado (`obj`) un paso `dt`. Posición, giro y zoom tienen cada uno su
+ * ritmo: el giro suele ir algo más rápido que la posición y el zoom más lento, que se nota menos.
+ */
+export function suavizarEstado(act: EstadoSuavizable, obj: EstadoSuavizable, cfg: ConfigSuavizado, dt: number): void {
+  const kPos = factorSuavizado(cfg.suavizado, dt);
+  const kGiro = factorSuavizado(cfg.suavizadoGiro, dt);
+  const kZoom = factorSuavizado(cfg.suavizadoZoom, dt);
+  act.x += (obj.x - act.x) * kPos;
+  act.z += (obj.z - act.z) * kPos;
+  act.dist += (obj.dist - act.dist) * kZoom;
+  act.guino += (obj.guino - act.guino) * kGiro;
+  act.incl += (obj.incl - act.incl) * kGiro;
+}
 
 export const suavizar = (t: number): number => {
   const c = acotar(t, 0, 1);

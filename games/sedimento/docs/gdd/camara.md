@@ -26,7 +26,42 @@ Durante la construcción, el botón izquierdo es de la herramienta y Z/X giran e
 
 - Suavizado independiente para posición, giro y zoom con `1 − e^(−k·dt)`. La entrada se nota en el primer fotograma y la frenada dura menos de 0,25 s.
 - Velocidad de desplazamiento ∝ distancia^0,9 (sin escalones), desactivable.
-- Todo en `tuning.render.camara`, con nombres descriptivos y un comentario por parámetro en este documento cuando se implemente.
+- Todo en `tuning.render.camara`, con nombres descriptivos. Cada parámetro está explicado abajo.
+
+### Parámetros de `tuning.render.camara`
+
+| Parámetro | Valor | Qué hace |
+|---|---|---|
+| `fov` | 34 | Campo de visión vertical (°). Bajo = vista más «de maqueta» |
+| `margen` | 1,04 | Holgura al encuadrar el mapa entero (zoom máximo) |
+| `cerca`, `cercaRelativa` | 0,1 · 0,02 | Plano cercano: el mayor entre `cerca` y `distancia × cercaRelativa` (evita parpadeos de profundidad) |
+| `lejos` | 700 | Plano lejano; el zoom máximo nunca pasa del 90 % |
+| `distanciaMin` | 6 | Zoom máximo hacia dentro (distancia al punto de mira) |
+| `cabeceoCercaGrados`, `cabeceoLejosGrados` | 45 · 65 | Inclinación automática con el zoom al mínimo / al máximo (curva suave) |
+| `cabeceoMinCercaGrados`, `cabeceoMinLejosGrados` | 20 · 20 | Inclinación mínima permitida (no atravesar el suelo ni perder el objetivo) |
+| `cabeceoMaxGrados` | 88 | Inclinación máxima (casi cenital) |
+| `umbralArrastrePx` | 5 | Píxeles que debe moverse el clic izquierdo para ser arrastre y no clic |
+| `alturaMinimaSobreSuelo` | 0,4 | Margen sobre el terreno (lo usa C3, colisión) |
+| `velocidadPan` | 0,8 | Velocidad base: fracción de `distanciaReferencia` por segundo |
+| `velocidadAdaptativa` | true | Si es false, la velocidad es constante e igual a la de la distancia de referencia |
+| `exponenteVelocidad` | 0,9 | Velocidad ∝ distancia^exponente (1 = proporcional) |
+| `distanciaReferencia` | 30 | Distancia a la que la velocidad vale exactamente `velocidadPan × distanciaReferencia` |
+| `velocidadRotacion`, `velocidadInclinacion` | 1,8 · 0,9 | Rad/s con Q/E y R/F |
+| `sensibilidadGiro`, `sensibilidadInclinacion` | 0,006 · 0,004 | Rad por píxel arrastrado |
+| `sensibilidadZoom` | 0,0016 | Cambio de distancia (exponencial) por píxel de rueda |
+| `zoomAlCursor` | true | El punto bajo el ratón se queda quieto al hacer zoom |
+| `invertirRueda`, `invertirGiro`, `invertirInclinacion` | false | Inversiones de ejes |
+| `factorPellizco` | 4 | Multiplicador de la rueda con Ctrl o pellizco de touchpad |
+| `suavizado` | 13 | Ritmo (1/s) de la posición y de la altura del punto de mira |
+| `suavizadoGiro` | 14 | Ritmo del giro y de la inclinación del jugador |
+| `suavizadoZoom` | 13 | Ritmo del zoom |
+| `topeTeclaFrame` | 0,5 | Segundos máximos de tecla que se cuentan en un fotograma (tras un tirón no se recupera todo de golpe) |
+| `teclas` | — | Asignación por defecto de las acciones |
+| `bordePantalla` | — | `activo`, `margen` (px) y `velocidad` del desplazamiento por borde |
+
+**Cómo se mide el suavizado.** Cada eje avanza `1 − e^(−k·dt)` del camino que le queda, así que el resultado no depende de los FPS. Un ritmo `k` deja un 5 % del recorrido pendiente tras `ln(20)/k` s: con `k ≥ 12` la frenada dura menos de 0,25 s (con los valores actuales: 0,23 s, 0,21 s y 0,23 s). En el primer fotograma a 60 fps la cámara ya recorre `1 − e^(−k/60)` ≈ 19 % del camino. Los tests (`tests/camara.test.ts`) fijan ambas condiciones y que el mismo recorrido a 30, 60, 144 y 240 fps acaba en la misma posición (±1 %).
+
+**Cómo se ajusta.** Un `k` más bajo da una cámara más «flotante» (frenada larga); más alto, más seca. Por debajo de ~8 el desplazamiento se siente con retardo. Por encima de ~25 deja de notarse el suavizado.
 
 ## 4. Terreno y obstáculos
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { acotar, cabeceoAutomatico, cabeceoMinimo, zoomRelativo } from '../../logic/camara';
+import { acotar, cabeceoAutomatico, cabeceoMinimo, factorSuavizado, suavizarEstado, zoomRelativo } from '../../logic/camara';
 import type { ConfigRender } from '../config';
 import type { PreferenciasCamara } from './preferencias';
 
@@ -234,17 +234,10 @@ export class RigCamara {
     if (Math.abs(a.guino - this.guinoDeMax) > UMBRAL_RECALCULO_GIRO) this.recalcularEncuadre(a.guino, false);
     this.limitar();
 
-    const k = 1 - Math.exp(-this.c.suavizado * dt);
-    const kGiro = 1 - Math.exp(-this.c.suavizadoGiro * dt);
-    const kZoom = 1 - Math.exp(-this.c.suavizadoZoom * dt);
-    a.x += (o.x - a.x) * k;
-    a.z += (o.z - a.z) * k;
-    a.dist += (o.dist - a.dist) * kZoom;
-    a.guino += (o.guino - a.guino) * kGiro;
-    a.incl += (o.incl - a.incl) * kGiro;
+    suavizarEstado(a, o, this.c, dt);
     // El punto de mira sigue el relieve (si lo hay) sin brincos: la altura también se suaviza.
     const objetivoY = this.alturaEn ? this.alturaEn(a.x, a.z) : 0;
-    a.y += (objetivoY - a.y) * k;
+    a.y += (objetivoY - a.y) * factorSuavizado(this.c.suavizado, dt);
     this.aplicar();
   }
 

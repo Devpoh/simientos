@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest';
+import tuning from '../src/data/tuning.json';
 import {
   arrastreAPlano,
   cabeceoAutomatico,
   cabeceoMinimo,
   empujeBorde,
+  factorSuavizado,
   factorZoomRueda,
   movimientoRelativo,
+  suavizarEstado,
+  tiempoAsentamiento,
   velocidadPorDistancia,
   zoomRelativo,
+  type EstadoSuavizable,
 } from '../src/logic/camara';
 
 const velocidad = { velocidadPan: 0.8, velocidadAdaptativa: true, exponenteVelocidad: 0.9, distanciaReferencia: 30 };
@@ -164,5 +169,80 @@ describe('factorZoomRueda', () => {
 
   it('un paso hacia delante y otro hacia atrás se compensan', () => {
     expect(factorZoomRueda(120, 1, 0.0016, 1, false) * factorZoomRueda(-120, 1, 0.0016, 1, false)).toBeCloseTo(1);
+  });
+});
+
+describe('suavizado exponencial (1 − e^(−k·dt))', () => {
+  const cfg = tuning.render.camara;
+  const nuevo = (): EstadoSuavizable => ({ x: 0, z: 0, dist: 50, guino: 0, incl: 0 });
+
+  it('factorSuavizado: 0 sin tiempo, tiende a 1 con mucho y dos medios pasos equivalen a uno entero', () => {
+    expect(factorSuavizado(10, 0)).toBe(0);
+    expect(factorSuavizado(10, 100)).toBeCloseTo(1);
+    const medio = factorSuavizado(10, 0.05);
+    expect(1 - (1 - medio) * (1 - medio)).toBeCloseTo(factorSuavizado(10, 0.1));
+  });
+
+  it('se nota en el primer fotograma: a 60 fps la cámara ya recorre más del 10 % del camino', () => {
+    for (const k of [cfg.suavizado, cfg.suavizadoGiro, cfg.suavizadoZoom]) {
+      expect(factorSuavizado(k, 1 / 60)).toBeGreaterThan(0.1);
+    }
+  });
+
+  it('la frenada dura menos de 0,25 s en posición, giro y zoom (95 % del recorrido)', () => {
+    for (const k of [cfg.suavizado, cfg.suavizadoGiro, cfg.suavizadoZoom]) {
+      expect(tiempoAsentamiento(k, 0.05)).toBeLessThan(0.25);
+    }
+    expect(tiempoAsentamiento(0, 0.05)).toBe(Infinity);
+  });
+
+  it('cada eje usa su propio ritmo: el giro más rápido que el zoom lento sale distinto', () => {
+    const act = nuevo();
+    const obj: EstadoSuavizable = { x: 10, z: 10, dist: 150, guino: 1, incl: 1 };
+    suavizarEstado(act, obj, { suavizado: 2, suavizadoGiro: 20, suavizadoZoom: 6 }, 0.1);
+    const avance = (v: number, ini: number, fin: number) => (v - ini) / (fin - ini);
+    expect(avance(act.guino, 0, 1)).toBeGreaterThan(avance(act.dist, 50, 150));
+    expect(avance(act.dist, 50, 150)).toBeGreaterThan(avance(act.x, 0, 10));
+    expect(act.incl).toBeCloseTo(act.guino);
+  });
+
+  /** Mantiene W pulsada `pulsado` s y espera hasta `total` s, a los FPS indicados, como hace `entrada.actualizar`. */
+  const recorrido = (fps: number, pulsado: number, total: number) => {
+    const dt = 1 / fps;
+    const act = nuevo();
+    const obj = nuevo();
+    const vel = velocidadPorDistancia(act.dist, tuning.render.camara);
+    const avance = movimientoRelativo(1, 0, 0);
+    const pasos = Math.round(total * fps);
+    for (let i = 0; i < pasos; i++) {
+      if (i < Math.round(pulsado * fps)) {
+        obj.x += avance.x * vel * dt;
+        obj.z += avance.z * vel * dt;
+      }
+      suavizarEstado(act, obj, cfg, dt);
+    }
+    return { act, obj };
+  };
+
+  it('el mismo recorrido a 30, 60 y 144 fps acaba en la misma posición (±1 %)', () => {
+    const referencia = recorrido(144, 2, 3);
+    expect(Math.abs(referencia.act.z)).toBeGreaterThan(10);
+    for (const fps of [30, 60, 240]) {
+      const otro = recorrido(fps, 2, 3);
+      expect(Math.abs(otro.act.z - referencia.act.z)).toBeLessThan(Math.abs(referencia.act.z) * 0.01);
+      expect(Math.abs(otro.act.x - referencia.act.x)).toBeLessThan(1e-9);
+    }
+  });
+
+  it('también coincide en pleno movimiento, con la tecla aún pulsada (±1 %)', () => {
+    const referencia = recorrido(144, 3, 2);
+    const lento = recorrido(30, 3, 2);
+    expect(Math.abs(lento.act.z - referencia.act.z)).toBeLessThan(Math.abs(referencia.act.z) * 0.01);
+  });
+
+  it('al soltar la tecla la cámara real alcanza a la deseada sin pasarse', () => {
+    const { act, obj } = recorrido(60, 1, 3);
+    expect(act.z).toBeCloseTo(obj.z, 3);
+    expect(act.z).toBeGreaterThanOrEqual(obj.z - 1e-9);
   });
 });
