@@ -11,6 +11,8 @@ const PASO_MINIMO = 0.01;
 export interface Seleccion {
   /** Índice del hexágono bajo el ratón, o -1 si el ratón no está sobre el mapa. */
   readonly hex: number;
+  /** Punto exacto del suelo (o del agua) bajo el ratón, o null. Se reutiliza: no lo guardes. */
+  readonly punto: { readonly x: number; readonly z: number } | null;
   readonly raiz: THREE.Group;
   /** Coloca el cursor (px relativos al elemento) y calcula el hexágono. Usa `null` si el ratón salió. */
   apuntar(px: number | null, py: number, camara: THREE.Camera, ancho: number, alto: number): void;
@@ -70,6 +72,9 @@ export function crearSeleccion(disp: Disposicion, cfg: ConfigRender, superficieE
   return {
     get hex() {
       return hex;
+    },
+    get punto() {
+      return hex === -1 ? null : punto;
     },
     raiz,
     apuntar(px, py, camara, ancho, alto) {

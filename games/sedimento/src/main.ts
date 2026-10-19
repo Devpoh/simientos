@@ -8,7 +8,12 @@ import { crearMundo } from './render/mundo';
 import { crearEdificios } from './render/edificios';
 import { Rejilla } from './logic/hex';
 import { configDesdeTuning } from './logic/sim/config';
-import { fundarAsentamiento } from './logic/sim/obras';
+import { colocarObra, fundarAsentamiento, motivoNoConstruible } from './logic/sim/obras';
+import { SIN_HERRAMIENTA, TEXTO_MOTIVO, transicion, type EventoHerramienta, type Herramienta } from './logic/herramienta';
+import type { TipoEdificio, Ubicacion } from './logic/sim/tipos';
+import { crearFantasma } from './render/fantasma';
+import { crearObras } from './render/obras';
+import { CONSTRUIBLES, crearMenuConstruccion } from './ui/menuConstruccion';
 import { alimentoDisponible, fijarRacion, personas, reservaDias } from './logic/sim/raciones';
 import { avanzarTicks, crearEstado } from './logic/sim/simulacion';
 import { crearPanelCiudad, type DatosCiudad } from './ui/panelCiudad';
@@ -84,6 +89,50 @@ edificios.sincronizar(sim.edificios);
 // Los edificios que tapan el objetivo se atenúan con transición (oclusión de la cámara).
 vista.control.fijarOclusores(edificios);
 
+// Construcción libre (A6b): la herramienta es lógica pura (logic/herramienta.ts); el menú, el teclado y
+// el ratón solo le envían eventos, y el fantasma muestra si cabe y por qué no.
+const pasoGiro = (tuning.render.construccion.pasoGiroGrados * Math.PI) / 180;
+let herramienta: Herramienta = SIN_HERRAMIENTA;
+const fantasma = crearFantasma(cfgSim, tuning.render, mundo.campo.alturaEn);
+vista.escena.add(fantasma.raiz);
+const obrasRender = crearObras(cfgSim, tuning.render, mundo.campo.alturaEn);
+vista.escena.add(obrasRender.raiz);
+const aplicar = (ev: EventoHerramienta) => {
+  herramienta = transicion(herramienta, ev, pasoGiro);
+  menu.marcar(herramienta.modo === 'colocar' ? herramienta.tipo : null);
+};
+const menu = crearMenuConstruccion(contenedor, cfgSim, { elegir: (tipo) => aplicar({ tipo: 'elegir', edificio: tipo }) });
+vista.control.fijarHerramienta(() => herramienta.modo !== 'ninguna');
+const pedida = params.get('herramienta');
+if (pedida && (CONSTRUIBLES as readonly string[]).includes(pedida)) aplicar({ tipo: 'elegir', edificio: pedida as TipoEdificio });
+let intento: { u: Ubicacion; motivo: string | null } | null = null;
+const alTecla = (e: KeyboardEvent) => {
+  if (herramienta.modo === 'ninguna') return;
+  if (e.code === 'KeyZ') aplicar({ tipo: 'girar', pasos: -1 });
+  else if (e.code === 'KeyX') aplicar({ tipo: 'girar', pasos: 1 });
+  else if (e.code === 'Escape') aplicar({ tipo: 'cancelar' });
+};
+addEventListener('keydown', alTecla);
+// Un clic (sin arrastrar) con la herramienta activa coloca la obra; se sigue colocando hasta Esc.
+let pulsado: { x: number; y: number } | null = null;
+const alPulsar = (e: PointerEvent) => {
+  if (e.button === 0) pulsado = { x: e.clientX, y: e.clientY };
+};
+const alSoltar = (e: PointerEvent) => {
+  if (e.button !== 0 || !pulsado) return;
+  const clic = Math.hypot(e.clientX - pulsado.x, e.clientY - pulsado.y) <= tuning.render.construccion.umbralClic;
+  pulsado = null;
+  if (!clic || herramienta.modo !== 'colocar') return;
+  const caja = lienzo.getBoundingClientRect();
+  seleccion.apuntar(e.clientX - caja.left, e.clientY - caja.top, vista.camara, caja.width, caja.height);
+  const p = seleccion.punto;
+  if (!p) return;
+  const r = colocarObra(sim, mundoFisico, herramienta.tipo, { x: p.x, z: p.z, giro: herramienta.giro }, cfgSim);
+  if ('id' in r) aplicar({ tipo: 'colocado', soltar: false });
+};
+lienzo.addEventListener('pointerdown', alPulsar);
+lienzo.addEventListener('pointerup', alSoltar);
+
 const datosCiudad = (): DatosCiudad => ({
   personas: personas(sim),
   hogaresConHambre: sim.hogares.filter((h) => h.diasHambre > 0).length,
@@ -124,6 +173,11 @@ exponer('seleccion', () => {
 });
 exponer('ciudad', () => ({ ...datosCiudad(), edificios: sim.edificios.length, obras: sim.obras.length, dia: sim.dia }));
 exponer('hud', () => ({ reservaDias: reservaDias(sim, cfgSim) }));
+exponer('construccion', () => ({
+  herramienta,
+  intento,
+  obras: sim.obras.map((o) => ({ id: o.id, tipo: o.tipo, etapa: o.etapa, x: +o.x.toFixed(2), z: +o.z.toFixed(2), giro: +o.giro.toFixed(3), bloqueo: o.bloqueo })),
+}));
 exponer('tiempo', () => ({ dia: fecha(reloj.tick, tuning.reloj).diaTotal, tick: reloj.tick, pausa: reloj.pausado, velocidad: reloj.velocidad }));
 
 const temporizador = new THREE.Timer();
@@ -141,6 +195,21 @@ vista.renderer.setAnimationLoop((ts: number) => {
   mundo.actualizar(dt);
   const caja = lienzo.getBoundingClientRect();
   seleccion.apuntar(cursor ? cursor.x : null, cursor ? cursor.y : 0, vista.camara, caja.width, caja.height);
+  const p = seleccion.punto;
+  if (herramienta.modo === 'colocar' && p) {
+    const u = { x: p.x, z: p.z, giro: herramienta.giro };
+    const motivo = motivoNoConstruible(sim, mundoFisico, herramienta.tipo, u, cfgSim);
+    fantasma.mostrar(herramienta.tipo, u, motivo === null);
+    menu.motivo(motivo ? TEXTO_MOTIVO[motivo] : null, cursor?.x ?? 0, cursor?.y ?? 0);
+    intento = { u, motivo };
+    // Mientras se coloca, el círculo de selección sobra: manda el fantasma.
+    seleccion.raiz.visible = false;
+  } else {
+    fantasma.ocultar();
+    menu.motivo(null, 0, 0);
+    intento = null;
+  }
+  obrasRender.sincronizar(sim.obras);
   hud.actualizar(fecha(reloj.tick, tuning.reloj), reloj.pausado, tuning.reloj.velocidades.indexOf(reloj.velocidad));
   vista.renderizar();
   if (primerFrame) {
@@ -157,6 +226,12 @@ if (import.meta.hot) {
     hud.liberar();
     panelCiudad.liberar();
     edificios.liberar();
+    removeEventListener('keydown', alTecla);
+    lienzo.removeEventListener('pointerdown', alPulsar);
+    lienzo.removeEventListener('pointerup', alSoltar);
+    fantasma.liberar();
+    obrasRender.liberar();
+    menu.liberar();
     lienzo.removeEventListener('pointermove', alMoverRaton);
     lienzo.removeEventListener('pointerleave', alSalirRaton);
     lienzo.removeEventListener('dblclick', alDobleClic);

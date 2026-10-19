@@ -31,6 +31,8 @@ export interface ControlCamara {
   fijarAlturaEn(fn: AlturaEn | null): void;
   /** Los edificios que se atenúan cuando tapan el objetivo (null para quitarlos). */
   fijarOclusores(fuente: FuenteOclusion | null): void;
+  /** Cambia la consulta «¿hay una herramienta activa?» (la herramienta de construcción se crea después de la cámara). */
+  fijarHerramienta(fn: () => boolean): void;
   liberar(): void;
 }
 
@@ -47,7 +49,8 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
   if (opciones.alturaEn) rig.fijarAlturaEn(opciones.alturaEn);
   const oclusion = crearOclusion(cfg);
   const objetivo = new THREE.Vector3();
-  const entrada = crearEntrada(dom, rig, cfg, preferencias, { hayHerramienta: opciones.hayHerramienta ?? (() => false) });
+  let hayHerramienta = opciones.hayHerramienta ?? (() => false);
+  const entrada = crearEntrada(dom, rig, cfg, preferencias, { hayHerramienta: () => hayHerramienta() });
 
   return {
     camara: rig.camara,
@@ -58,6 +61,9 @@ export function crearControlCamara(dom: HTMLElement, cfg: ConfigRender, caja: TH
     guardarPreferencias: () => guardarPreferencias(preferencias),
     fijarAlturaEn: (fn) => rig.fijarAlturaEn(fn),
     fijarOclusores: (fuente) => oclusion.fijarFuente(fuente),
+    fijarHerramienta: (fn) => {
+      hayHerramienta = fn;
+    },
     actualizar: (dt) => {
       entrada.actualizar(dt);
       objetivo.set(rig.act.x, rig.act.y, rig.act.z);
