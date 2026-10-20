@@ -1,11 +1,11 @@
 # IMPERIUM — El nacimiento y la caída de las civilizaciones · Prompt maestro + anexo creativo
 
-> Documento guía original del usuario: la visión completa del juego. Recibido de nuevo el 2026-10-19 y guardado **tal cual** (sin el índice de secciones).
+> Documento guía original del usuario (`espertativas/IMPERIUM_Prompt_Maestro_y_Vision_Creativa.docx`), guardado **tal cual** (sin el índice de secciones). **Es la guía de toda la parte jugable (R81):** consúltalo al diseñar o planificar cualquier mecánica, saltando lo que contradiga las decisiones posteriores.
 > **Cómo convive con los textos posteriores (decisiones del 19-10 con el usuario, R35–R38 en `requisitos-usuario.md`):**
 > - **Nombre:** provisional **CIMIENTOS** (ni IMPERIUM ni SEDIMENTO, hasta que el usuario lo decida).
 > - **Guerra:** campaña, economía y diplomacia en **tiempo real**, pero las **batallas tácticas son por turnos** (R7, confirmado). Esto sustituye solo lo que §11 y el anexo §28 dicen de las batallas.
 > - **Motor:** Phaser 4 en pixel art 2D (R49, 20-10), con la lógica portable; la decisión de motor final (§21) se hace en la v0.9.
-> - **Construcción y terreno:** mandan `direccion-artistica.md` (sin casillas, terreno continuo, construcción progresiva) y `camara.md`.
+> - **Construcción, terreno, arte y progresión:** mandan las decisiones posteriores del usuario (R20–R22, R49–R80 en `requisitos-usuario.md`, `gdd/progresion.md` y `.claude/docs/pivote-pixel-art.md`).
 > - El resto del documento está **vigente** (R34).
 
 ---

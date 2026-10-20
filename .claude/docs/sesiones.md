@@ -63,3 +63,9 @@ A puede delegar en un subagente con la herramienta `Agent`, usando `model: "sonn
 
 ## Tareas por tramos (R67, regla del usuario)
 Las tareas pueden ser largas, pero se ejecutan **por tramos de ≤ 20 min** (y lejos de ~60k tokens seguidos). Al cerrar cada tramo, la sesión entrega `HECHO <ID>-parcial` (qué está hecho y verificado, qué sigue) con el árbol compilando, y **se detiene** hasta que A responda «sigue». A divide cada TAREA en tramos al enviarla. Trabajar más de 30 min sin parar degrada la calidad.
+
+## Lecciones de coordinación (20–21-10)
+- **Lo que el usuario le diga a B, C o D** (peticiones o críticas) se lo pasan a A en el siguiente HECHO, y A lo anota en `requisitos-usuario.md` (R68).
+- **Avisos de inactividad:** pueden llegar con retraso. Antes de dar una sesión por parada, mira `ListAgents` (busy/idle) y `git log`.
+- **Límite de uso:** si todas paran a la vez sin entregar nada, es el límite de la cuenta. Espera al reinicio y reenvía a cada una su tarea pendiente.
+- **Relevo:** antes de cerrar, cada sesión deja una `nota` «Traspaso <rol> (fecha)» con lo hecho, lo que queda a medias, el siguiente paso exacto y las trampas aprendidas. D, además, actualiza «Estado y cola» en `tools/arte-pixel/README.md`.

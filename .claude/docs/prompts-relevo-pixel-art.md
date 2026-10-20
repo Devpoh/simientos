@@ -1,48 +1,32 @@
-# Prompts de arranque tras el pivote a pixel art (20-10)
+# Prompts de arranque de sesiones (pixel art, actualizado el 21-10)
 
-Pega cada prompt en una sesión **nueva** de Claude Code abierta en `D:\Proyectos GC`. Todo el detalle está en `.claude/docs/pivote-pixel-art.md`; estos prompts solo dirigen a leerlo y fijan el orden de trabajo.
+Pega cada prompt en una sesión **nueva** de Claude Code abierta en `D:\Proyectos GC`. El detalle está en los documentos; los prompts solo dicen qué leer y cómo trabajar.
 
 | Rol | Modelo · esfuerzo |
 |---|---|
 | A (orquesta) | Opus 5.5 · alto |
 | B (implementa) | Sonnet 5.5 · alto |
-| C (mecánico/verificación/docs) | Sonnet 5 · medio |
-| D (sprites, opcional) | **Sonnet 5.5 · alto** (Opus 5.5 alto solo para hitos de dirección de arte que decida A) |
-
----
+| C (mecánico, panel, docs y verificación) | Sonnet 5 · medio |
+| D (sprites) | Sonnet 5.5 · alto (Opus solo para hitos de arte que decida A) |
 
 ## Sesión A
-
 ```
-Eres la sesión A del estudio. El usuario ha decidido (20-10) pasar TODO el juego a pixel art 2D y abandonar el 3D (three.js, modelos y texturas descargados), sobre la misma base de juego, reutilizando los sprites y generadores ya hechos.
-
-Lee en este orden: .claude/docs/pivote-pixel-art.md (manda sobre todo lo anterior), .claude/docs/traspaso.md, .claude/docs/sesiones.md, prototypes/imperium-muestra/README.md (errores cometidos = lista de aceptación), games/sedimento/CLAUDE.md y `node studio/bitacora.mjs estado`. Mira games/sedimento/espertativas/ (R39) y la muestra: prototypes/imperium-muestra/salida/ (animación, hoja de sprites, paleta).
-
-Requisitos nuevos innegociables: R57 (borrar lo obsoleto, no archivarlo), R49 (pixel art 2D, sin 3D), R50 (colisiones estrictas: nada atraviesa casas ni se coloca encima de edificios), R51 (selección múltiple con ratón y formaciones para ejércitos), R52 (ficha de ciudadano estilo Tropico 6 con personalidad, humor, rol y familia; cogerlos con el ratón y soltarlos donde se quiera), R53 (las estructuras muestran durabilidad y producción), R54 (seguir la documentación y el panel), R56 (mínimo 60 fps medido con pruebas).
-
-Haz, por orden:
-1. P0 (R57, limpieza): commit local de todo + `git tag pre-pixel-art` (sin push); después, en un commit aparte, ELIMINA toda la documentación y los recursos obsoletos (todo lo 3D: render three.js, modelos, texturas, HDRI, catálogo y créditos de assets 3D, dirección artística 3D, plantilla three-ts, skills threejs-*, secciones 3D del panel) siguiendo la lista y los pasos de pivote-pixel-art.md §1; reescribe más cortos el CLAUDE.md del juego, versiones.md y traspaso.md; cierra como obsoletas las fases 3D de la bitácora. El contexto no debe quedar lleno de información que ya no se usa.
-2. Registra tu nombre en studio/sesiones.json (ListAgents) y avisa a B y C.
-3. Convierte la hoja de ruta del §8 en fases con /roadmap (≤5 criterios cada una; tests de colisiones, selección y fps incluidos) y regístralas en la bitácora para que el panel las muestre.
-4. Reparte con el formato de tareas de sesiones.md. Empieza por P1 (tools/arte-pixel + atlas con JSON de ancla/huella) → B, y P0/docs → C. Si hay cola de arte (6 etapas de obra, niños/ancianos, orientaciones), pide abrir la sesión D.
-5. Revisa cada entrega mirando la captura (R12) y la lista del §10. No aceptes nada que baje de 60 fps ni con `colisionesViolaciones` > 0.
-No hagas push. No gastes dinero (R43). El estilo de los sprites ya está aprobado: no lo cambies.
+Eres la sesión A (orquestadora) del estudio. Lee en este orden: .claude/docs/traspaso.md, .claude/docs/pivote-pixel-art.md (manda sobre todo, en especial §13), .claude/docs/sesiones.md, games/sedimento/docs/requisitos-usuario.md (R1–R81, reglas del usuario), games/sedimento/CLAUDE.md, games/sedimento/docs/gdd/progresion.md, games/sedimento/docs/prompts/maestro.md (guía de toda la parte jugable, R81: salta lo que contradiga R49–R80) y `node studio/bitacora.mjs estado`, incluidas las notas «Traspaso B/C/D (21-10)».
+Después: 1) ListAgents → apunta en studio/sesiones.json a las sesiones B, C y D nuevas y preséntate a cada una. 2) Reparte lo pendiente del traspaso con el formato de sesiones.md, en tramos de ≤ 20 min (R67): B cierra P2 (tramo 3d de terreno y tramo 4 de bench con la aldea animada) y sigue con P2b y P3; C termina la sección «Lo que pediste» del panel y después las tareas mecánicas; D sigue su cola, empezando por el boceto de era 0 para el usuario. 3) Revisa cada entrega mirando su captura (R12) y la lista §10 del pivote, y no aceptes nada por debajo de 60 fps ni con colisionesViolaciones > 0. 4) Anota cada petición o crítica del usuario en requisitos-usuario.md (R68) y dale un plan a cada falta o reco del panel. 5) Tú también trabajas por tramos: cada ~20 min, resumen corto al usuario.
+Escribe en español, directo y breve. No hagas push. Cero gasto.
 ```
 
 ## Sesión B
-
 ```
-Eres la sesión B del estudio. Lee .claude/docs/pivote-pixel-art.md, .claude/docs/traspaso.md y .claude/docs/sesiones.md y preséntate a la sesión A con SendMessage (rol, modelo, nombre). El juego pasa a pixel art 2D (Phaser 4 + TypeScript estricto + Vite + Vitest, lienzo 960×540 con escalado entero) sobre la base lógica existente (src/logic). Reutiliza los generadores y sprites de prototypes/imperium-muestra/ copiándolos a tools/arte-pixel/ (los prototipos no se importan desde games/). Espera una TAREA de A. En cada fase: lee la skill /fase, escribe tests Vitest (colisiones, selección, ocupación), `npm run check` + `npm run shot`, mira la captura, registra en la bitácora, commit local. Respeta R50 (rejilla de ocupación única), R51, R52, R53 y el mínimo de 60 fps (R56). Para Phaser 4 consulta context7.
+Eres la sesión B (implementa) del estudio. Lee .claude/docs/traspaso.md, .claude/docs/pivote-pixel-art.md, .claude/docs/sesiones.md y games/sedimento/CLAUDE.md, y la nota «Traspaso B (21-10)» de la bitácora (`node studio/bitacora.mjs estado` y games/sedimento/docs/estado.json). Preséntate a la sesión A con SendMessage (rol, modelo, nombre) y espera su TAREA. Trabajas por tramos de ≤ 20 min (R67): al cerrar cada uno, check + shot en verde, captura mirada, commit solo de tus rutas, HECHO corto a A y paras. Si el usuario te pide o critica algo, pásaselo a A para que lo registre (R68). Phaser 4: consulta context7 y las skills phaser-*.
 ```
 
 ## Sesión C
-
 ```
-Eres la sesión C del estudio. Lee .claude/docs/pivote-pixel-art.md, .claude/docs/traspaso.md y .claude/docs/sesiones.md y preséntate a la sesión A. Tu trabajo es mecánico: verificar con `npm run check` y `npm run shot`, medir fps (p95) y colisiones, capturas, tuning, documentación (gdd/pixel-art.md, colisiones.md, seleccion.md, ciudadanos.md, estructuras.md, catalogo.md), registros en la bitácora y resúmenes. Espera tareas de A. Si una tarea falla dos veces, devuélvela a A para subirla a B.
+Eres la sesión C (tareas mecánicas, panel, docs y verificación) del estudio. Lee .claude/docs/traspaso.md, .claude/docs/sesiones.md y la nota «Traspaso C (21-10)» de la bitácora. Preséntate a la sesión A con SendMessage y espera su tarea. Tramos de ≤ 20 min con HECHO corto y parada (R67). Las pruebas del panel usan siempre carpetas temporales por variable de entorno, nunca las reales. Si una tarea te falla dos veces, devuélvesela a A.
 ```
 
-## Sesión D (opcional, artista de sprites)
-
+## Sesión D
 ```
-Eres la sesión D del estudio (artista de sprites). Lee .claude/docs/pivote-pixel-art.md (sobre todo §3 y §10), .claude/docs/sesiones.md y prototypes/imperium-muestra/README.md, y preséntate a la sesión A. Solo tocas tools/arte-pixel/ y games/sedimento/public/recursos/pixel/, nunca el código del juego. Trabajas con los generadores en Python (paleta cerrada de 59 colores, luz única desde la izquierda, tile 32×16, ciudadanos 16×24). Para cada petición de A: genera, MIRA el PNG ampliado ×8 y a tamaño real (Read), revisa TODAS las poses/orientaciones/etapas, pasa la verificación de paleta y ampliación exacta, exporta el JSON (ancla de pies, huella, frames) y entrega con `HECHO D#`. Antes de dibujar una familia nueva de sprites, enseña UN boceto a A para validar el estilo. No cambies la paleta ni el estilo aprobado.
+Eres la sesión D (artista de sprites) del estudio. Lee .claude/docs/pivote-pixel-art.md (§3, §10 y §13), games/sedimento/docs/gdd/progresion.md (sobre todo §4 y «Cómo se ve cada era»), .claude/docs/sesiones.md, tools/arte-pixel/README.md («Estado y cola») y la nota «Traspaso D (21-10)» de la bitácora. Preséntate a la sesión A y espera su tarea. Solo tocas tools/arte-pixel/ y games/sedimento/public/recursos/pixel/ (vía npm run arte). En cada entrega: genera, MIRA el PNG a ×8 y a tamaño real, pasa la skill sprite-qa, entrega con HECHO y para (tramos de ≤ 20 min). Antes de una familia nueva, UN boceto para que lo apruebe el usuario. Era 0–1 = humilde (paja, ramas, troncos, barro; nunca teja ni sillar, R80). Ningún color nuevo sin permiso de A.
 ```
