@@ -113,6 +113,24 @@
       "tramo": "alfa"
     },
     {
+      "id": "P2c",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T15:06:19.282Z",
+      "titulo": "Montañas como piezas y cordilleras",
+      "objetivo": "Las montañas del mapa son piezas de sprite de D (picos, macizos, cordilleras encadenadas, crestas, colinas, acantilados) colocadas siguiendo las cumbres del relieve, en lugar del sombreado procedural (R84, D033)",
+      "criterios": [
+        "Colocación determinista en logic/ (con tests): cordillera = cadena de piezas sobre las líneas de cumbre, macizo en los máximos, colinas en alturas medias; sin solapes y nada en agua",
+        "El terreno horneado bajo las piezas solo pone tonos suaves (sin manchas de nieve ni de roca)",
+        "La huella de cada pieza queda como bloqueada para P3 y los yacimientos de montaña quedan al pie, accesibles",
+        "Captura a ×1 y ×2 mirada, comparada con el boceto M1 aprobado",
+        "bench-60fps en verde (D034)"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
       "id": "P3",
       "estado": "pendiente",
       "hecho": [],
@@ -125,6 +143,24 @@
         "hex.ts y las celdas hexagonales desaparecen de logic/",
         "F3 pinta huellas, celdas bloqueadas y puertas (captura mirada)",
         "exponer() publica colisionesViolaciones y check en verde"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P3b",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T15:06:19.564Z",
+      "titulo": "Caminos de tierra y de roca",
+      "objetivo": "Capa de caminos de dos materiales (tierra y roca) trazados libremente sobre la máscara de subceldas y dibujados con las piezas de D; la aldea de referencia se ordena alrededor de sus calles (R85, D035, R004)",
+      "criterios": [
+        "Máscara de caminos por subcelda en la rejilla de ocupación (celda «camino»), con tests: trazar, borrar y cruzar",
+        "Capa de suelo por trozos que estampa las piezas de marching squares de D y se redibuja solo en los trozos que cambian",
+        "La aldea de referencia usa calles principales de roca de ≥ 2 tiles y travesías de tierra, con ≥ 2 tiles entre manzanas (§10.9)",
+        "Captura mirada: la aldea se lee ordenada y los caminos tienen curvas y cruces sin rejilla visible",
+        "bench-60fps en verde (D034)"
       ],
       "sesion": "B",
       "version": "0.0",
@@ -2081,10 +2117,29 @@
       "id": "R003",
       "t": "2026-10-20T14:38:20.732Z",
       "prioridad": "alta",
-      "cerrado": false,
+      "cerrado": true,
       "area": "arte",
       "texto": "Las montañas siguen sin convencer tras el tramo 3d (manchas y bandas sin volumen legible). Probar otra vía: macizos y acantilados como piezas de sprite dibujadas por D (estilo de la muestra, luz desde la izquierda) colocadas sobre el heightfield, con el sombreado procedural solo para las laderas suaves. Antes, UN boceto comparativo (procedural actual frente a piezas de D) para que el usuario elija → Plan: A nueva lo encarga a D (boceto) y a B (prueba en el juego) antes del tramo 4 de P2",
-      "porque": "R78/R79: el usuario repite que las montañas son feas; tres pasadas de sombreado procedural no han llegado al nivel de la muestra, y en los juegos isométricos de pixel art las montañas suelen ser piezas dibujadas, no relieve sombreado"
+      "porque": "R78/R79: el usuario repite que las montañas son feas; tres pasadas de sombreado procedural no han llegado al nivel de la muestra, y en los juegos isométricos de pixel art las montañas suelen ser piezas dibujadas, no relieve sombreado",
+      "cerradoEn": "2026-10-20T15:04:39.906Z"
+    },
+    {
+      "id": "R004",
+      "t": "2026-10-20T14:59:42.477Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "aldea",
+      "texto": "La aldea de referencia (P2-t4a) va con manzanas muy pegadas, con calles de 1 tile y casas casi tocándose, y un solar de tierra enorme en el centro. Aplicar el §10.9 del pivote: calles principales ≥ 2 tiles, travesías ≥ 1,2 y ≥ 2 tiles entre manzanas → Plan: B, en el tramo 4c de P2 (junto a los arreglos de rendimiento si hace falta) o en P3 cuando la rejilla de ocupación mande",
+      "porque": "la muestra se vio «pegada» y fue un error ya anotado; además, la aldea es lo primero que ve el usuario al abrir el juego (D023)"
+    },
+    {
+      "id": "R005",
+      "t": "2026-10-20T15:05:11.143Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "rendimiento",
+      "texto": "Tirón de 781 ms en los primeros ~10 s del primer bench a ×2 (no se repitió): probablemente sea la subida de texturas o la compilación de shaders la primera vez que se ve algo. Precalentar en la carga (subir los trozos del terreno y el atlas a la GPU antes de marcarListo) → Plan: B, P10 (o antes si el tirón se ve al jugar)",
+      "porque": "un parón de casi un segundo al empezar a mover la cámara se nota y rompe R56 aunque el bench lo descuente"
     }
   ],
   "decisiones": [
@@ -2296,6 +2351,34 @@
       "fase": "F102",
       "texto": "El boceto anterior del almacén de era 1 (adobe enlucido, azotea de caña y barro con escalera, toldo, commit 149e768) no se borra: pasa a ser el almacén de era 2, el escalón entre el de barro con paja (era 1, aprobado) y el de ladrillo",
       "porque": "R82: el usuario lo considera un buen diseño y quiere reutilizar lo sustituido; el enlucido liso y la azotea son la señal visual de la era 2 según progresion.md, así que encaja sin cambiar el estilo"
+    },
+    {
+      "id": "D032",
+      "t": "2026-10-20T15:04:01.562Z",
+      "fase": "P2",
+      "texto": "Pantalla completa con píxel entero (R83): k = max(1, round(alto físico / 540)); el tamaño lógico del lienzo es ceil(ancho físico / k) × ceil(alto físico / k) y se recalcula al cambiar la ventana (scale.resize + zoom k/dpr); la cámara conserva su centro; lo que sobra (< k px físicos) se recorta. Sustituye el lienzo fijo de 960×540 con bandas negras",
+      "porque": "el usuario quiere que el juego ocupe todo el navegador; con el lienzo fijo, una ventana de 1920×969 daba ×1 y dejaba media pantalla vacía. Así llena siempre la ventana sin romper el píxel entero (R76) y el tamaño del píxel se parece al de la muestra (alto ≈ 540)"
+    },
+    {
+      "id": "D033",
+      "t": "2026-10-20T15:04:39.697Z",
+      "fase": "P2",
+      "texto": "Montañas = piezas de sprite (R84). D dibuja un juego de piezas: picos y macizos de varios tamaños, tramos de cordillera encadenables por las cumbres (inicio, tramo y fin, en dirección u y v), crestas sin nieve, colinas suaves, acantilados irregulares y pies de ladera. B las coloca de forma determinista siguiendo las líneas de cumbre del campo de alturas (cordillera = cadena de piezas, macizo en los máximos, colinas en las alturas medias); debajo, el terreno horneado solo pone tonos suaves (sin manchas de nieve ni roca). La huella de cada pieza bloquea la construcción y los yacimientos de montaña quedan al pie",
+      "porque": "el usuario eligió B y pidió cordilleras y variedad; seguir las cumbres del relieve mantiene el mapa procedural (R59) y la coherencia con ríos y yacimientos (R73)"
+    },
+    {
+      "id": "D034",
+      "t": "2026-10-20T15:05:10.893Z",
+      "fase": "P2",
+      "texto": "Criterio del bench de 60 fps (R56) con vsync: (1) con vsync, fps medio ≥ 59,5, fotogramas perdidos (intervalo > 25 ms) ≤ 0,5 % y máximo ≤ 33 ms descontando 3 s de calentamiento; (2) sin vsync, p95 ≤ 8,3 ms, que es el coste real del fotograma con la mitad de margen para un portátil medio. Sustituye «p95 del intervalo ≤ 16,6 ms», que con vsync a 60 Hz falla siempre por el temblor de ±1 ms",
+      "porque": "B midió 60,1 fps sostenidos con p95 de 17,6–17,8 ms: el intervalo con vsync ronda 16,7 ± 1 ms y no mide el rendimiento. Sin vsync, a ×1, el fotograma cuesta 3,6 ms (p95), lo que deja margen de sobra; el umbral de 8,3 ms protege el requisito en máquinas peores que la del usuario"
+    },
+    {
+      "id": "D035",
+      "t": "2026-10-20T15:05:53.896Z",
+      "fase": "P3",
+      "texto": "Caminos (R85): dos materiales, tierra y roca, en una máscara de subceldas (1 tile = 4×4) que es dato de la rejilla de ocupación (celda «camino»). Se dibujan estampando en una capa de suelo, por trozos y al cambiar, piezas del atlas de 16 casos de marching squares por material, con 2–4 variantes cada uno. Así salen curvas y cruces sin rejilla visible (R20, R21) y se pueden construir en tiempo real. D dibuja el juego de piezas y B la capa. La aldea de referencia se reordena alrededor de sus calles",
+      "porque": "el usuario ve desorden sin caminos; con una máscara de subceldas los caminos siguen el trazado libre que pide R21, y estampar piezas del atlas cumple que el juego no genere arte por fotograma"
     }
   ],
   "conceptos": [
@@ -2445,6 +2528,42 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T15:06:19.599Z",
+      "texto": "Fase P3b creada: Caminos de tierra y de roca"
+    },
+    {
+      "t": "2026-10-20T15:06:19.360Z",
+      "texto": "Fase P2c creada: Montañas como piezas y cordilleras"
+    },
+    {
+      "t": "2026-10-20T15:05:53.898Z",
+      "texto": "Decisión: Caminos (R85): dos materiales, tierra y roca, en una máscara de subceldas (1 tile = 4×4) que es dato de la rejilla de ocupación (celda «camino»). Se dibujan estampando en una capa de suelo, por trozos y al cambiar, piezas del atlas de 16 casos de marching squares por material, con 2–4 variantes cada uno. Así salen curvas y cruces sin rejilla visible (R20, R21) y se pueden construir en tiempo real. D dibuja el juego de piezas y B la capa. La aldea de referencia se reordena alrededor de sus calles"
+    },
+    {
+      "t": "2026-10-20T15:05:11.146Z",
+      "texto": "Recomendación (rendimiento): Tirón de 781 ms en los primeros ~10 s del primer bench a ×2 (no se repitió): probablemente sea la subida de texturas o la compilación de shaders la primera vez que se ve algo. Precalentar en la carga (subir los trozos del terreno y el atlas a la GPU antes de marcarListo) → Plan: B, P10 (o antes si el tirón se ve al jugar)"
+    },
+    {
+      "t": "2026-10-20T15:05:10.895Z",
+      "texto": "Decisión: Criterio del bench de 60 fps (R56) con vsync: (1) con vsync, fps medio ≥ 59,5, fotogramas perdidos (intervalo > 25 ms) ≤ 0,5 % y máximo ≤ 33 ms descontando 3 s de calentamiento; (2) sin vsync, p95 ≤ 8,3 ms, que es el coste real del fotograma con la mitad de margen para un portátil medio. Sustituye «p95 del intervalo ≤ 16,6 ms», que con vsync a 60 Hz falla siempre por el temblor de ±1 ms"
+    },
+    {
+      "t": "2026-10-20T15:04:39.908Z",
+      "texto": "Cerrado R003"
+    },
+    {
+      "t": "2026-10-20T15:04:39.698Z",
+      "texto": "Decisión: Montañas = piezas de sprite (R84). D dibuja un juego de piezas: picos y macizos de varios tamaños, tramos de cordillera encadenables por las cumbres (inicio, tramo y fin, en dirección u y v), crestas sin nieve, colinas suaves, acantilados irregulares y pies de ladera. B las coloca de forma determinista siguiendo las líneas de cumbre del campo de alturas (cordillera = cadena de piezas, macizo en los máximos, colinas en las alturas medias); debajo, el terreno horneado solo pone tonos suaves (sin manchas de nieve ni roca). La huella de cada pieza bloquea la construcción y los yacimientos de montaña quedan al pie"
+    },
+    {
+      "t": "2026-10-20T15:04:01.564Z",
+      "texto": "Decisión: Pantalla completa con píxel entero (R83): k = max(1, round(alto físico / 540)); el tamaño lógico del lienzo es ceil(ancho físico / k) × ceil(alto físico / k) y se recalcula al cambiar la ventana (scale.resize + zoom k/dpr); la cámara conserva su centro; lo que sobra (< k px físicos) se recorta. Sustituye el lienzo fijo de 960×540 con bandas negras"
+    },
+    {
+      "t": "2026-10-20T14:59:42.479Z",
+      "texto": "Recomendación (aldea): La aldea de referencia (P2-t4a) va con manzanas muy pegadas, con calles de 1 tile y casas casi tocándose, y un solar de tierra enorme en el centro. Aplicar el §10.9 del pivote: calles principales ≥ 2 tiles, travesías ≥ 1,2 y ≥ 2 tiles entre manzanas → Plan: B, en el tramo 4c de P2 (junto a los arreglos de rendimiento si hace falta) o en P3 cuando la rejilla de ocupación mande"
+    },
     {
       "t": "2026-10-20T14:53:15.761Z",
       "texto": "Decisión: El boceto anterior del almacén de era 1 (adobe enlucido, azotea de caña y barro con escalera, toldo, commit 149e768) no se borra: pasa a ser el almacén de era 2, el escalón entre el de barro con paja (era 1, aprobado) y el de ladrillo"
@@ -2854,5 +2973,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T14:53:15.761Z"
+  "actualizado": "2026-10-20T15:06:19.599Z"
 }
