@@ -83,6 +83,26 @@ describe('atlas de pixel art: validador', () => {
     expect(e.some((m) => m.includes('huella inválida'))).toBe(true);
     expect(e.some((m) => m.includes('un solo fotograma'))).toBe(true);
   });
+
+  it('la sección ui de marcos 9-slice es válida en el atlas exportado (R70)', () => {
+    expect(atlas.ui).toBeDefined();
+    const ui = atlas.ui!;
+    expect(Object.keys(ui).sort()).toEqual(['marco_madera', 'marco_piedra']);
+    for (const [nombre, m] of Object.entries(ui)) {
+      expect(m.estados.normal, nombre).toBeTruthy();
+      expect(m.corte.arriba + m.corte.abajo, nombre).toBeLessThanOrEqual(m.alto);
+      expect(m.corte.izquierda + m.corte.derecha, nombre).toBeLessThanOrEqual(m.ancho);
+    }
+  });
+
+  it('detecta un marco sin estados y un corte que no cabe en el sprite', () => {
+    const a = copia();
+    a.ui!.marco_madera.estados = {};
+    a.ui!.marco_piedra.corte = { arriba: 9, abajo: 9, izquierda: 6, derecha: 6 };
+    const e = validarAtlas(a);
+    expect(e.some((m) => m.includes('ui.marco_madera: sin estados'))).toBe(true);
+    expect(e.some((m) => m.includes('el corte no cabe'))).toBe(true);
+  });
 });
 
 describe('atlas de pixel art: contenido reutilizado de la muestra', () => {

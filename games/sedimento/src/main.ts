@@ -4,6 +4,9 @@ import { medidor } from './core/metricas';
 import { pantallaCompleta, type PantallaCompleta } from './logic/pantalla';
 import { BootScene } from './scenes/BootScene';
 import { MundoScene } from './scenes/MundoScene';
+// Tokens de la paleta (59 colores) y fuente pixel libre local, para la capa de interfaz (R70, P2b).
+import './ui/paleta.css';
+import './ui/fuente.css';
 
 // Pantalla completa con píxel entero (R83): el lienzo llena la ventana; cada píxel de arte son k píxeles físicos exactos.
 const medirVentana = (): PantallaCompleta =>

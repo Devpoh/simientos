@@ -110,11 +110,18 @@
     },
     {
       "id": "P2b",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Capa #ui escalada con el mismo factor entero del lienzo y sin robar el raton al juego salvo sobre los paneles (verificado con elementFromPoint)",
+        "Marcos 9-slice resueltos desde la seccion ui del atlas y validados (corte dentro del sprite, estados, repeticion)",
+        "Fuente pixel libre Silkscreen (OFL) servida en local con su OFL.txt",
+        "HUD con fecha, estacion, recursos y retrato del atlas; solo redibuja cuando el dato cambia",
+        "Reloj real sobre la simulacion: pausa (Espacio) y velocidades x1..x4 (teclas 1-4), con atajos y botones",
+        "307 tests verdes (20 archivos) y tsc limpio; shot ok en x1 y x2"
+      ],
       "creada": "2026-10-20T05:53:46.366Z",
       "titulo": "Capa de interfaz HTML/CSS",
-      "objetivo": "Base de la UI en HTML/CSS superpuesta al lienzo (R70), con el aspecto del pixel art, para las fichas, paneles y HUD de P5–P8",
+      "objetivo": "Base de la UI en HTML/CSS superpuesta al lienzo (R70), con el aspecto del pixel art, para las fichas, paneles y HUD de P5-P8",
       "criterios": [
         "Capa #ui sobre el lienzo que escala con el mismo factor entero y no roba el ratón al juego salvo en los paneles",
         "Tokens CSS generados desde paleta.txt (59 colores) y fuente pixel libre (OFL) servida en local, sin CDN",
@@ -124,7 +131,17 @@
       ],
       "sesion": "B",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "inicio": "2026-10-20T16:53:08.822Z",
+      "verificacion": {
+        "check": "307/307 tests, tsc limpio",
+        "shot": "ok: ui.existe=true, paneles=2, retrato=1, ratonEnCentro=canvas, ratonEnPanel=span, fuenteCargada=true",
+        "evidencia": [
+          "docs/evidencia/P2b-ui-x1.png",
+          "docs/evidencia/P2b-ui-x2.png"
+        ]
+      },
+      "fin": "2026-10-20T17:24:41.958Z"
     },
     {
       "id": "P2c",
@@ -2600,9 +2617,35 @@
       "t": "2026-10-20T06:26:58.793Z",
       "concepto": "Progresión con puertas (gating)",
       "explicacion": "Una puerta es una condición que bloquea el siguiente paso hasta que la cumples. En CIMIENTOS cada mejora tiene cuatro: material en el almacén, conocimiento (era), necesidad del hogar y trabajo (la obra). Si la interfaz dice siempre qué puerta falta, el jugador tiene un objetivo claro en vez de frustrarse; si las puertas no se ven, parece que el juego está roto."
+    },
+    {
+      "id": "C025",
+      "t": "2026-10-20T17:24:54.533Z",
+      "concepto": "Interfaz HTML sobre un juego de pixel art",
+      "explicacion": "La UI no se dibuja con el motor: vive en HTML/CSS encima del lienzo. Para que el texto y los marcos sigan siendo pixel art exacto, la capa #ui se escala con el MISMO factor entero que el lienzo (transform: scale(k)) y la fuente es una pixel font (Silkscreen). La raiz de la capa lleva pointer-events:none para que el raton siga llegando al juego; solo los paneles lo capturan. Los bordes son 9-slice: cuatro esquinas fijas y lados/centro estirados (border-image), generados desde tools/arte-pixel/ui.py."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T17:24:54.566Z",
+      "texto": "P2b: interfaz HTML/CSS lista. Siguiente P2c (montanas como piezas y cordilleras)."
+    },
+    {
+      "t": "2026-10-20T17:24:54.534Z",
+      "texto": "Concepto: Interfaz HTML sobre un juego de pixel art"
+    },
+    {
+      "t": "2026-10-20T17:24:41.966Z",
+      "texto": "Fase P2b → hecha: Capa de interfaz HTML/CSS"
+    },
+    {
+      "t": "2026-10-20T16:53:08.829Z",
+      "texto": "Fase P2b → en-curso: Capa de interfaz HTML/CSS"
+    },
+    {
+      "t": "2026-10-20T16:53:08.789Z",
+      "texto": "Autopiloto (modo nube) iniciado en rama claude/nube. Entorno Linux: node_modules reinstalado, Playwright chromium y Pillow/numpy/scipy instalados. Baseline check 287/287 verde, arte determinista. Objetivo: P2b→P10 y luego v0.1"
+    },
     {
       "t": "2026-10-20T15:12:31.218Z",
       "texto": "Fase P2 → hecha: Phaser 4: mundo isométrico y cámara"
@@ -3080,5 +3123,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T15:12:31.218Z"
+  "actualizado": "2026-10-20T17:24:54.566Z"
 }
