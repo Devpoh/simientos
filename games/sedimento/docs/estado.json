@@ -1896,7 +1896,7 @@
       "t": "2026-10-20T05:26:25.514Z",
       "prioridad": "media",
       "cerrado": false,
-      "texto": "Niños y ancianos: los ciudadanos del atlas son solo adultos (la ficha R52 pide 3 edades). Hacen falta 16x24 o menores en el mismo estilo, con idle y caminar en 4 orientaciones",
+      "texto": "Niños y ancianos: los ciudadanos del atlas son solo adultos (la ficha R52 pide 3 edades). Hacen falta 16x24 o menores en el mismo estilo, con idle y caminar en 4 orientaciones → Plan: D, cola D5 (antes de P6)",
       "area": "arte"
     },
     {
@@ -1904,7 +1904,7 @@
       "t": "2026-10-20T05:26:25.680Z",
       "prioridad": "media",
       "cerrado": false,
-      "texto": "Pose «colgando» (2 fotogramas, sombra aparte) para coger y soltar ciudadanos con el ratón (R52); no existe en la muestra",
+      "texto": "Pose «colgando» (2 fotogramas, sombra aparte) para coger y soltar ciudadanos con el ratón (R52); no existe en la muestra → Plan: D, cola D5 (antes de P6)",
       "area": "arte"
     },
     {
@@ -1912,15 +1912,15 @@
       "t": "2026-10-20T05:26:25.871Z",
       "prioridad": "media",
       "cerrado": false,
-      "texto": "LOD por zoom: versiones simples de los sprites (tile 16x8, ciudadanos como puntos de 2-3 px). El atlas solo trae el nivel cercano",
+      "texto": "LOD por zoom: versiones simples de los sprites (tile 16x8, ciudadanos como puntos de 2-3 px). El atlas solo trae el nivel cercano → Plan: D, cola D7 (antes de P10)",
       "area": "arte"
     },
     {
       "id": "L004",
       "t": "2026-10-20T05:26:26.041Z",
-      "prioridad": "baja",
+      "prioridad": "media",
       "cerrado": false,
-      "texto": "Variantes de piel, pelo y ropa de los 10 ciudadanos (hoy solo la variante por defecto) y vistas de espaldas (ne/nw) con torso propio: ahora reutilizan el torso frontal (hebilla, delantal, banda del sacerdote, caja cargada de frente)",
+      "texto": "Variantes de piel, pelo y ropa de los 10 ciudadanos (hoy solo la variante por defecto) y vistas de espaldas (ne/nw) con torso propio: ahora reutilizan el torso frontal (hebilla, delantal, banda del sacerdote, caja cargada de frente) → Plan: D, cola D4 (antes de P4: al caminar se ven de espaldas)",
       "area": "arte"
     }
   ],
@@ -1931,7 +1931,7 @@
       "prioridad": "media",
       "cerrado": false,
       "area": "mapa",
-      "texto": "Que mapa.ts genere la forma de isla o costa (cabos, bahías, golfo) como dato, en vez de recortar el rectángulo en alturas.ts",
+      "texto": "Que mapa.ts genere la forma de isla o costa (cabos, bahías, golfo) como dato, en vez de recortar el rectángulo en alturas.ts → Plan: aceptada, B la hace en P2 tramo 3 (terreno procedural)",
       "porque": "Al ensanchar el recorte del borde las montañas encogen; la silueta del territorio es un dato de diseño (afecta a la navegación y al comercio), no del render"
     }
   ],
@@ -2053,6 +2053,13 @@
       "fase": "P2b",
       "texto": "UI híbrida: lo que vive en el mundo (caja de selección, anillos, barras flotantes, vista previa de obra, objeto cogido) se dibuja en Phaser; fichas, paneles, HUD y menús van en HTML/CSS superpuesto (R70), con tokens de la paleta, fuente pixel OFL local y bordes 9-slice",
       "porque": "Sugerencia del usuario: la UI de fichas y paneles es mucho trabajo y en HTML/CSS es más rápida de hacer y mantener; lo que sigue a la cámara se queda en el lienzo para ser exacto al píxel"
+    },
+    {
+      "id": "D019",
+      "t": "2026-10-20T06:00:08.164Z",
+      "fase": "P2",
+      "texto": "Cola de arte de D: D3 obra en 6 etapas (tramo 1) → borde 9-slice de paneles (P2b) → D3 tramos 2–4 → D4 espaldas con torso propio y variantes de piel/pelo/ropa (antes de P4) → D5 niños, ancianos, pose colgando y retratos 48×48 (antes de P6) → D6 gaviotas y nubes (P9) → D7 LOD (P10). La reco de la costa como dato de mapa.ts entra en P2 tramo 3",
+      "porque": "Los faltantes y la reco del panel se ordenan según la fase que los necesita; las espaldas suben a prioridad media porque en P4 los ciudadanos ya caminan en 4 direcciones"
     }
   ],
   "conceptos": [
@@ -2172,6 +2179,10 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T06:00:08.168Z",
+      "texto": "Decisión: Cola de arte de D: D3 obra en 6 etapas (tramo 1) → borde 9-slice de paneles (P2b) → D3 tramos 2–4 → D4 espaldas con torso propio y variantes de piel/pelo/ropa (antes de P4) → D5 niños, ancianos, pose colgando y retratos 48×48 (antes de P6) → D6 gaviotas y nubes (P9) → D7 LOD (P10). La reco de la costa como dato de mapa.ts entra en P2 tramo 3"
+    },
     {
       "t": "2026-10-20T05:53:46.534Z",
       "texto": "Decisión: UI híbrida: lo que vive en el mundo (caja de selección, anillos, barras flotantes, vista previa de obra, objeto cogido) se dibuja en Phaser; fichas, paneles, HUD y menús van en HTML/CSS superpuesto (R70), con tokens de la paleta, fuente pixel OFL local y bordes 9-slice"
@@ -2429,5 +2440,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T05:53:46.534Z"
+  "actualizado": "2026-10-20T06:00:08.168Z"
 }
