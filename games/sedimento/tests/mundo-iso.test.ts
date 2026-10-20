@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { aPantalla, aRejilla, centroHuella, claveOrden, claveOrdenEstructura } from '../src/logic/iso';
-import { escalaEntera, escalaFisica, zoomCss } from '../src/logic/pantalla';
+import { escalaEntera, escalaFisica, pantallaCompleta, zoomCss } from '../src/logic/pantalla';
 import { MedidorFotogramas } from '../src/logic/rendimiento';
 
 describe('isometría 2:1 (tile 32×16)', () => {
@@ -108,5 +108,57 @@ describe('medidor de fotogramas', () => {
     m.registrar(50);
     m.reiniciar();
     expect([m.max(), m.maxTotal(), m.fotogramas]).toEqual([0, 0, 0]);
+  });
+});
+
+describe('pantalla completa con píxel entero (R83)', () => {
+  it('1920×969 → k 2 y lienzo de 960×485', () => {
+    expect(pantallaCompleta({ ancho: 1920, alto: 969 }, 1, 540)).toEqual({ k: 2, ancho: 960, alto: 485, zoom: 2 });
+  });
+
+  it('3840×2160 → k 4 y lienzo de 960×540', () => {
+    const p = pantallaCompleta({ ancho: 3840, alto: 2160 }, 1, 540);
+    expect([p.k, p.ancho, p.alto]).toEqual([4, 960, 540]);
+  });
+
+  it('1366×768 → k 1 y lienzo del tamaño de la ventana', () => {
+    const p = pantallaCompleta({ ancho: 1366, alto: 768 }, 1, 540);
+    expect([p.k, p.ancho, p.alto, p.zoom]).toEqual([1, 1366, 768, 1]);
+  });
+
+  it('con dpr 1,25 se calcula sobre píxeles físicos y el zoom CSS es k/dpr', () => {
+    // 1536×730 CSS = 1920×913 físicos (redondeado)
+    const p = pantallaCompleta({ ancho: 1536, alto: 730 }, 1.25, 540);
+    expect([p.k, p.ancho, p.alto]).toEqual([2, 960, 457]);
+    expect(p.zoom).toBeCloseTo(1.6, 9);
+    expect(escalaFisica(p.zoom, 1.25)).toBe(2);
+  });
+
+  it('el lienzo siempre cubre la ventana: sobra menos de k píxeles físicos', () => {
+    for (const [w, h, d] of [[1280, 720, 1], [1707, 960, 1.5], [2560, 1297, 1], [800, 600, 1], [3000, 1100, 2]]) {
+      const p = pantallaCompleta({ ancho: w, alto: h }, d, 540);
+      const fisicoAncho = Math.round(w * d);
+      const fisicoAlto = Math.round(h * d);
+      expect(p.ancho * p.k).toBeGreaterThanOrEqual(fisicoAncho);
+      expect(p.ancho * p.k - fisicoAncho).toBeLessThan(p.k);
+      expect(p.alto * p.k).toBeGreaterThanOrEqual(fisicoAlto);
+      expect(p.alto * p.k - fisicoAlto).toBeLessThan(p.k);
+    }
+  });
+});
+
+describe('medidor de fotogramas: criterio D034', () => {
+  it('cuenta los fotogramas perdidos (más lentos que el umbral) y da el fps medio', () => {
+    const m = new MedidorFotogramas(10, 25);
+    for (const ms of [16, 17, 16, 30, 16, 40, 16, 16, 16, 16]) m.registrar(ms);
+    expect(m.perdidos).toBe(2);
+    expect(m.fpsMedio()).toBeCloseTo((1000 * 10) / 199, 6);
+  });
+
+  it('reiniciar vuelve a cero los contadores', () => {
+    const m = new MedidorFotogramas(10, 25);
+    m.registrar(50);
+    m.reiniciar();
+    expect([m.perdidos, m.fpsMedio(), m.maxTotal()]).toEqual([0, 0, 0]);
   });
 });

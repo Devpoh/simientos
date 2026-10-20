@@ -25,3 +25,26 @@ export function zoomCss(ventanaCss: Tamano, dpr: number, base: Tamano): number {
 export function escalaFisica(zoom: number, dpr: number): number {
   return Math.round(zoom * (dpr > 0 ? dpr : 1));
 }
+
+export interface PantallaCompleta {
+  /** Factor entero de píxeles físicos por píxel de arte. */
+  k: number;
+  /** Tamaño lógico del lienzo (píxeles de arte): cubre la ventana entera, sin bandas. */
+  ancho: number;
+  alto: number;
+  /** Zoom CSS (k / dpr) que deja cada píxel de arte en k píxeles físicos exactos. */
+  zoom: number;
+}
+
+/**
+ * Pantalla completa con píxel entero (R83): el lienzo llena la ventana y cada píxel de arte mide k píxeles físicos.
+ * k = el entero más cercano a (alto físico / alto de referencia), mínimo 1; el lienzo lógico es ceil(físico / k), así que
+ * puede sobrar como mucho k − 1 píxeles físicos que el navegador recorta (overflow oculto) en vez de dejar bandas.
+ */
+export function pantallaCompleta(ventanaCss: Tamano, dpr: number, altoReferencia: number): PantallaCompleta {
+  const d = dpr > 0 ? dpr : 1;
+  const fisicoAncho = Math.max(1, Math.round(ventanaCss.ancho * d));
+  const fisicoAlto = Math.max(1, Math.round(ventanaCss.alto * d));
+  const k = Math.max(1, Math.round(fisicoAlto / altoReferencia));
+  return { k, ancho: Math.ceil(fisicoAncho / k), alto: Math.ceil(fisicoAlto / k), zoom: k / d };
+}

@@ -1,0 +1,206 @@
+{
+ "ok": true,
+ "zoom": 1,
+ "segundos": 10,
+ "sinVsync": true,
+ "lienzo": {
+  "ancho": 960,
+  "alto": 485,
+  "zoom": 2
+ },
+ "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x0000164C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+ "fps": 496.2,
+ "msFotoP95": 3.6,
+ "msFotoMax": 5.8,
+ "nSprites": 478,
+ "umbrales": {
+  "p95SinVsyncMs": 8.3
+ },
+ "muestras": [
+  {
+   "fps": 519.4,
+   "p95": 2.9,
+   "max": 4.2,
+   "sprites": 477,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 537,
+    "perdidos": 0,
+    "fpsMedio": 532.1,
+    "maxTotal": 4.2
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 422.8,
+   "p95": 3.6,
+   "max": 4.5,
+   "sprites": 475,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 978,
+    "perdidos": 0,
+    "fpsMedio": 481.4,
+    "maxTotal": 5.2
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 512,
+   "p95": 3,
+   "max": 3.9,
+   "sprites": 476,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 1487,
+    "perdidos": 0,
+    "fpsMedio": 488.1,
+    "maxTotal": 5.2
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 532.1,
+   "p95": 2.9,
+   "max": 3.9,
+   "sprites": 478,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 1995,
+    "perdidos": 0,
+    "fpsMedio": 491.4,
+    "maxTotal": 5.2
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 520.3,
+   "p95": 2.9,
+   "max": 4.1,
+   "sprites": 477,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 2531,
+    "perdidos": 0,
+    "fpsMedio": 498.9,
+    "maxTotal": 5.2
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 492.3,
+   "p95": 3,
+   "max": 3.7,
+   "sprites": 477,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 3028,
+    "perdidos": 0,
+    "fpsMedio": 497.4,
+    "maxTotal": 5.2
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 481.7,
+   "p95": 3.2,
+   "max": 4.6,
+   "sprites": 476,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 3555,
+    "perdidos": 0,
+    "fpsMedio": 501.1,
+    "maxTotal": 5.2
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 522.9,
+   "p95": 2.8,
+   "max": 4.1,
+   "sprites": 476,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 4050,
+    "perdidos": 0,
+    "fpsMedio": 499.3,
+    "maxTotal": 5.8
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 484,
+   "p95": 3.1,
+   "max": 3.9,
+   "sprites": 476,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 4545,
+    "perdidos": 0,
+    "fpsMedio": 498.2,
+    "maxTotal": 5.8
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  },
+  {
+   "fps": 466.7,
+   "p95": 3.2,
+   "max": 4.1,
+   "sprites": 474,
+   "zoom": 1,
+   "fotogramas": {
+    "n": 5028,
+    "perdidos": 0,
+    "fpsMedio": 496.2,
+    "maxTotal": 5.8
+   },
+   "lienzo": {
+    "ancho": 960,
+    "alto": 485,
+    "zoom": 2
+   }
+  }
+ ],
+ "errores": [],
+ "fotogramas": 5028,
+ "perdidos": 0,
+ "perdidosPct": 0,
+ "zoomReal": 1
+}

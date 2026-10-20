@@ -8,8 +8,11 @@ export class MedidorFotogramas {
   private cabeza = 0;
   private maxHistorico = 0;
   private total = 0;
+  private lentos = 0;
+  private sumaMs = 0;
 
-  constructor(capacidad: number) {
+  /** `umbralLentoMs`: un fotograma que tarda más cuenta como perdido (D034). */
+  constructor(capacidad: number, private readonly umbralLentoMs = Infinity) {
     this.anillo = new Float32Array(capacidad);
     this.orden = new Float32Array(capacidad);
   }
@@ -20,6 +23,18 @@ export class MedidorFotogramas {
     if (this.n < this.anillo.length) this.n++;
     if (ms > this.maxHistorico) this.maxHistorico = ms;
     this.total++;
+    this.sumaMs += ms;
+    if (ms > this.umbralLentoMs) this.lentos++;
+  }
+
+  /** Fotogramas perdidos (más lentos que el umbral) desde el arranque o el último `reiniciar`. */
+  get perdidos(): number {
+    return this.lentos;
+  }
+
+  /** Fps medio desde el arranque o el último `reiniciar` (no solo la ventana). */
+  fpsMedio(): number {
+    return this.sumaMs > 0 ? (1000 * this.total) / this.sumaMs : 0;
   }
 
   /** Fotogramas medidos en total desde el arranque. */
@@ -61,5 +76,7 @@ export class MedidorFotogramas {
     this.cabeza = 0;
     this.maxHistorico = 0;
     this.total = 0;
+    this.lentos = 0;
+    this.sumaMs = 0;
   }
 }

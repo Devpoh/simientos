@@ -1,28 +1,33 @@
 import Phaser from 'phaser';
 import tuning from './data/tuning.json';
 import { medidor } from './core/metricas';
-import { zoomCss } from './logic/pantalla';
+import { pantallaCompleta, type PantallaCompleta } from './logic/pantalla';
 import { BootScene } from './scenes/BootScene';
 import { MundoScene } from './scenes/MundoScene';
 
-const base = { ancho: tuning.pantalla.ancho, alto: tuning.pantalla.alto };
-// Entero en píxeles físicos (no CSS): con el zoom de Windows/Chrome el pixel art seguiría borroso.
-const zoomVentana = (): number => zoomCss({ ancho: window.innerWidth, alto: window.innerHeight }, window.devicePixelRatio, base);
+// Pantalla completa con píxel entero (R83): el lienzo llena la ventana; cada píxel de arte son k píxeles físicos exactos.
+const medirVentana = (): PantallaCompleta =>
+  pantallaCompleta({ ancho: window.innerWidth, alto: window.innerHeight }, window.devicePixelRatio, tuning.pantalla.alto);
+const inicial = medirVentana();
 
 const juego = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'juego',
-  width: base.ancho,
-  height: base.alto,
+  width: inicial.ancho,
+  height: inicial.alto,
   backgroundColor: tuning.mundo.colorFondo,
   pixelArt: true,
   roundPixels: true,
-  // Escalado solo por enteros: el zoom del ScaleManager se recalcula al cambiar la ventana.
-  scale: { mode: Phaser.Scale.NONE, zoom: zoomVentana(), autoCenter: Phaser.Scale.CENTER_BOTH },
+  scale: { mode: Phaser.Scale.NONE, zoom: inicial.zoom, autoCenter: Phaser.Scale.NO_CENTER },
   scene: [BootScene, MundoScene],
 });
 
-window.addEventListener('resize', () => juego.scale.setZoom(zoomVentana()));
+window.addEventListener('resize', () => {
+  const p = medirVentana();
+  // Primero el tamaño y después el zoom: con zoom 1 `resize` no restila el lienzo, `setZoom` sí.
+  juego.scale.resize(p.ancho, p.alto);
+  juego.scale.setZoom(p.zoom);
+});
 
 // Tiempo real entre fotogramas (lo que ve el jugador), medido tras cada render.
 let anterior = 0;

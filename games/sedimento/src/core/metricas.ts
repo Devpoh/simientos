@@ -2,4 +2,4 @@
 import tuning from '../data/tuning.json';
 import { MedidorFotogramas } from '../logic/rendimiento';
 
-export const medidor = new MedidorFotogramas(tuning.rendimiento.ventanaFotogramas);
+export const medidor = new MedidorFotogramas(tuning.rendimiento.ventanaFotogramas, tuning.rendimiento.fotogramaPerdidoMs);

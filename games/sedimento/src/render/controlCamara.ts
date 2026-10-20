@@ -49,6 +49,14 @@ export class ControlCamara {
     this.aplicar();
   }
 
+  /** La ventana cambió de tamaño: la vista se actualiza y el centro y los límites se conservan. */
+  redimensionar(ancho: number, alto: number): void {
+    this.vista.ancho = ancho;
+    this.vista.alto = alto;
+    this.estado = limitarCentro(this.estado, this.vista, this.lim);
+    this.aplicar();
+  }
+
   /** Estado actual (copia), para exponerlo a los tests de navegador. */
   leer(): EstadoCamara {
     return { ...this.estado };

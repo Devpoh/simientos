@@ -60,6 +60,10 @@ export class MundoScene extends Phaser.Scene {
       { tilesU: mundo.tilesU, tilesV: mundo.tilesV, alturaPx: -imagen.origenY },
     );
 
+    const alRedimensionar = (tam: Phaser.Structs.Size): void => this.camara?.redimensionar(tam.width, tam.height);
+    this.scale.on(Phaser.Scale.Events.RESIZE, alRedimensionar);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.scale.off(Phaser.Scale.Events.RESIZE, alRedimensionar));
+
     this.panel = new PanelRendimiento(() => ({ sprites: this.vista?.activos ?? 0, escala: escalaFisica(this.scale.zoom, window.devicePixelRatio) }));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.panel?.destruir());
 
@@ -68,6 +72,7 @@ export class MundoScene extends Phaser.Scene {
     exponer('fps', () => r1(medidor.fps()));
     exponer('msFotoP95', () => r1(medidor.p95()));
     exponer('msFotoMax', () => r1(medidor.max()));
+    exponer('fotogramas', () => ({ n: medidor.fotogramas, perdidos: medidor.perdidos, fpsMedio: Math.round(medidor.fpsMedio() * 10) / 10, maxTotal: Math.round(medidor.maxTotal() * 10) / 10 }));
     exponer('nSprites', () => this.vista?.activos ?? 0);
     exponer('nObjetos', () => this.children.length);
     exponer('nEdificios', () => aldea.edificios.length);
@@ -80,6 +85,7 @@ export class MundoScene extends Phaser.Scene {
       return c ? { x: Math.round(c.x), y: Math.round(c.y), zoom: c.zoom } : null;
     });
     exponer('terreno', () => ({ ...this.medidas, centroAldea: this.aldea?.centro }));
+    exponer('lienzo', () => ({ ancho: this.scale.gameSize.width, alto: this.scale.gameSize.height, zoom: this.scale.zoom }));
     exponer('escalaEntera', () => escalaFisica(this.scale.zoom, window.devicePixelRatio));
     this.events.once(Phaser.Scenes.Events.UPDATE, marcarListo);
   }

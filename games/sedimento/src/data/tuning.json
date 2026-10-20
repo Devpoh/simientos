@@ -446,7 +446,12 @@
     "ventanaFotogramas": 300,
     "refrescoPanelMs": 250,
     "presupuestoP95Ms": 16.6,
-    "limiteMaxMs": 33
+    "limiteMaxMs": 33,
+    "fotogramaPerdidoMs": 25,
+    "fpsMedioMin": 59.5,
+    "perdidosMaxPct": 0.5,
+    "calentamientoS": 3,
+    "p95SinVsyncMs": 8.3
   },
   "camara": {
     "zoomPasos": [

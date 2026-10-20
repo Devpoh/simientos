@@ -69,6 +69,8 @@ export class AldeaVista {
   private vistaX = NaN;
   private vistaY = NaN;
   private vistaZoom = NaN;
+  private vistaAncho = NaN;
+  private vistaAlto = NaN;
 
   constructor(private readonly scene: Phaser.Scene, private readonly atlas: AtlasPixel, aldea: Aldea, elevacion: Elevacion) {
     this.solapes = contarSolapes(aldea);
@@ -93,7 +95,9 @@ export class AldeaVista {
     const y0 = cy - my;
     const y1 = cy + my;
 
-    if (cx !== this.vistaX || cy !== this.vistaY || cam.zoom !== this.vistaZoom) {
+    if (cx !== this.vistaX || cy !== this.vistaY || cam.zoom !== this.vistaZoom || cam.width !== this.vistaAncho || cam.height !== this.vistaAlto) {
+      this.vistaAncho = cam.width;
+      this.vistaAlto = cam.height;
       this.vistaX = cx;
       this.vistaY = cy;
       this.vistaZoom = cam.zoom;
