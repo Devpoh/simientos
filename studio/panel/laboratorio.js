@@ -101,7 +101,7 @@ async function pintarGaleria(slug, c) {
         <span class="pa-marca" title="${ICONO[e][1]}">${ICONO[e][0]}</span>
         <button class="pa-mini" type="button" title="Ampliar"><img loading="lazy" src="${esc(d.url)}" alt="${esc(d.nombre)}"></button>
         <div class="pa-info"><div class="pa-nombre">${esc(d.nombre)}</div>
-          <div class="mod-tags"><span class="tag">${esc(d.origen)}</span><span class="tag">${fecha(d.fecha)}</span><span class="tag">${kb(d.bytes)}</span></div></div>
+          <div class="mod-tags"><span class="tag">${esc(d.origen)}</span><span class="tag">${fecha(d.fecha)}</span><span class="tag">${kb(d.bytes)}</span>${d.urlX1 ? `<a class="tag" href="${esc(d.urlX1)}" target="_blank" rel="noopener noreferrer">ver ×1</a>` : ''}</div></div>
       </article>`; }).join('')}</div>`;
   c.querySelectorAll('.pa-card').forEach((card) => {
     const item = datos.find((d) => d.url === card.dataset.url);

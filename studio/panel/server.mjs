@@ -81,11 +81,24 @@ const bocetosBase = () => process.env.PANEL_BOCETOS_DIR || join(ROOT, 'tools', '
 
 /** Galería de avances (R64): evidencia de fase + bocetos de arte, de más nueva a más vieja. Solo lectura. */
 function galeria(slug) {
+  // Un boceto con `_x1` y `_x4` (la misma imagen a dos escalas) se muestra en una sola tarjeta: la ×4,
+  // con un enlace a la ×1.
   const leerCarpeta = (dir, origen, urlBase) => {
     if (!existsSync(dir)) return [];
-    return readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f)).map((f) => {
-      const st = statSync(join(dir, f));
-      return { nombre: f, origen, fecha: st.mtime.toISOString(), bytes: st.size, url: `${urlBase}/${encodeURIComponent(f)}` };
+    const archivos = readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f));
+    const grupos = new Map();
+    for (const f of archivos) {
+      const clave = f.replace(/_x[14](?=\.[^.]+$)/i, '');
+      (grupos.get(clave) ?? grupos.set(clave, []).get(clave)).push(f);
+    }
+    return [...grupos.values()].map((fs) => {
+      const x4 = fs.find((f) => /_x4\./i.test(f));
+      const x1 = fs.find((f) => /_x1\./i.test(f));
+      const principal = x4 ?? fs[0];
+      const st = statSync(join(dir, principal));
+      return { nombre: principal, origen, fecha: st.mtime.toISOString(), bytes: st.size,
+        url: `${urlBase}/${encodeURIComponent(principal)}`,
+        urlX1: x4 && x1 ? `${urlBase}/${encodeURIComponent(x1)}` : null };
     });
   };
   const lista = [
