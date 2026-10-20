@@ -1,7 +1,7 @@
 # Entregable B — Documento de diseño (GDD general)
 
 Marcas de procedencia: **[H]** dato histórico documentado · **[I]** interpretación o hipótesis académica debatida · **[D]** decisión de diseño (ficción).
-> **Actualizado el 2026-10-20:** pixel art 2D isométrico (R49, `.claude/docs/pivote-pixel-art.md`), terreno continuo procedural (R20, R59), construcción libre y progresiva (`construccion.md`), cámara 2D sin giro (`camara.md`, R61) y estilo en `pixel-art.md`. Los textos literales del usuario están en `../prompts/` y mandan sobre este documento.
+> **Actualizado el 2026-10-20:** pixel art 2D isométrico (R49, `.claude/docs/pivote-pixel-art.md`), terreno continuo procedural (R20, R59), construcción libre y progresiva (`construccion.md`), cámara 2D sin giro (`camara.md`, R61) y estilo en `pixel-art.md`. Colisiones y ocupación en `colisiones.md` (R50), selección múltiple en `seleccion.md` (R51, R60), ficha de ciudadano en `ciudadanos.md` (R52) y estructuras en `estructuras.md` (R53). Los textos literales del usuario están en `../prompts/` y mandan sobre este documento.
 
 Versión que lo implementa: **v0.0**, **v0.1**… (ver `../versiones.md`). Las reglas con números concretos están en `simulacion.md` y, más adelante, en un GDD por sistema.
 
