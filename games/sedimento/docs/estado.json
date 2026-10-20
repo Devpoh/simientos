@@ -2115,6 +2115,14 @@
       "cerrado": false,
       "texto": "Más cultivos (R88, D036): trigo distinto de la cebada, lentejas y cebollas, lino, viñedo en espaldera, frutales (manzano, higuera y granado), palmeral de dátiles y olivar, con etapas y animación de viento → Plan: D, boceto CULT2 de la familia tras CULT1 (cebada animada); después, uno por uno en el atlas; las reglas las usa F107",
       "area": "arte"
+    },
+    {
+      "id": "L012",
+      "t": "2026-10-20T15:08:30.854Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "texto": "Escala de los animales (R89): el caballo es demasiado grande al lado de la vaca y del ciudadano de 16×24. Reescalar el caballo (cruz ≈ 0,9 de la altura de un adulto) y revisar vaca, oveja, gallina y criaturas con la misma regla de ≈ 7,5 cm por píxel, con una hoja de comparación junto a un ciudadano → Plan: D, tarea ESC1 tras CAM1; B no tiene que tocar nada (el atlas trae las anclas)",
+      "area": "arte"
     }
   ],
   "recomendaciones": [
@@ -2567,6 +2575,10 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T15:08:30.856Z",
+      "texto": "Falta: Escala de los animales (R89): el caballo es demasiado grande al lado de la vaca y del ciudadano de 16×24. Reescalar el caballo (cruz ≈ 0,9 de la altura de un adulto) y revisar vaca, oveja, gallina y criaturas con la misma regla de ≈ 7,5 cm por píxel, con una hoja de comparación junto a un ciudadano → Plan: D, tarea ESC1 tras CAM1; B no tiene que tocar nada (el atlas trae las anclas)"
+    },
     {
       "t": "2026-10-20T15:07:50.856Z",
       "texto": "Fase P2d creada: Agua viva y humo"
@@ -3028,5 +3040,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T15:07:50.856Z"
+  "actualizado": "2026-10-20T15:08:30.856Z"
 }
