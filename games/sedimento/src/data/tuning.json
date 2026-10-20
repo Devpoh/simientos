@@ -41,11 +41,36 @@
     "tierraMin": 0.12,
     "nivelMar": 0,
     "sigma": 0.55,
-    "detalle": { "llanura": 0.08, "colina": 0.35, "montana": 1.2, "frecuencia": 0.35 },
-    "mar": { "profundidadCosta": 0.35, "pendiente": 0.4, "profundidadMax": 3 },
-    "borde": { "ancho": 4, "ruido": 2.5, "frecuencia": 0.07, "profundidad": 1.5 },
-    "lago": { "margen": 0.08, "profundidad": 0.35 },
-    "rio": { "anchoNacimiento": 0.14, "anchoDesembocadura": 0.45, "profundidad": 0.3, "vega": 3, "margenOrilla": 0.06, "pasosCurva": 6, "laminaMin": 0.02 }
+    "detalle": {
+      "llanura": 0.08,
+      "colina": 0.35,
+      "montana": 1.2,
+      "frecuencia": 0.35
+    },
+    "mar": {
+      "profundidadCosta": 0.35,
+      "pendiente": 0.4,
+      "profundidadMax": 3
+    },
+    "borde": {
+      "ancho": 4,
+      "ruido": 2.5,
+      "frecuencia": 0.07,
+      "profundidad": 1.5
+    },
+    "lago": {
+      "margen": 0.08,
+      "profundidad": 0.35
+    },
+    "rio": {
+      "anchoNacimiento": 0.14,
+      "anchoDesembocadura": 0.45,
+      "profundidad": 0.3,
+      "vega": 3,
+      "margenOrilla": 0.06,
+      "pasosCurva": 6,
+      "laminaMin": 0.02
+    }
   },
   "render": {
     "tamanoHex": 1,
@@ -69,7 +94,16 @@
       "tinte": 0.18,
       "brillo": 1,
       "fuerzaNormal": 0.9,
-      "rugosidadCapas": [0.92, 0.95, 0.96, 0.7, 0.85, 0.95, 0.88, 0.6],
+      "rugosidadCapas": [
+        0.92,
+        0.95,
+        0.96,
+        0.7,
+        0.85,
+        0.95,
+        0.88,
+        0.6
+      ],
       "mezclaRuidoHierba": 0.45,
       "frecuenciaRuidoHierba": 0.09
     },
@@ -189,14 +223,34 @@
       "suavizadoZoom": 13,
       "topeTeclaFrame": 0.5,
       "teclas": {
-        "adelante": ["KeyW", "ArrowUp"],
-        "atras": ["KeyS", "ArrowDown"],
-        "izquierda": ["KeyA", "ArrowLeft"],
-        "derecha": ["KeyD", "ArrowRight"],
-        "girarIzquierda": ["KeyQ"],
-        "girarDerecha": ["KeyE"],
-        "subir": ["KeyR"],
-        "bajar": ["KeyF"]
+        "adelante": [
+          "KeyW",
+          "ArrowUp"
+        ],
+        "atras": [
+          "KeyS",
+          "ArrowDown"
+        ],
+        "izquierda": [
+          "KeyA",
+          "ArrowLeft"
+        ],
+        "derecha": [
+          "KeyD",
+          "ArrowRight"
+        ],
+        "girarIzquierda": [
+          "KeyQ"
+        ],
+        "girarDerecha": [
+          "KeyE"
+        ],
+        "subir": [
+          "KeyR"
+        ],
+        "bajar": [
+          "KeyF"
+        ]
       },
       "bordePantalla": {
         "activo": true,
@@ -218,7 +272,14 @@
         "suavizado": 10
       }
     },
-    "texturas": { "terreno": "recursos/texturas/terreno", "ladoDifusa": 1024, "ladoNormal": 512, "hdri": "recursos/hdri/atardecer_2k.hdr", "intensidadEntorno": 0.55, "hdriDeFondo": false },
+    "texturas": {
+      "terreno": "recursos/texturas/terreno",
+      "ladoDifusa": 1024,
+      "ladoNormal": 512,
+      "hdri": "recursos/hdri/atardecer_2k.hdr",
+      "intensidadEntorno": 0.55,
+      "hdriDeFondo": false
+    },
     "construccion": {
       "colorValido": "#7fe08a",
       "colorInvalido": "#ff6b5a",
@@ -307,10 +368,22 @@
       "probTronco": 0.1,
       "probRocasAgua": 0.45,
       "probNenufares": 0.5,
-      "escalaArbusto": [1, 1.8],
-      "escalaTronco": [1.1, 1.7],
-      "escalaRocaAgua": [0.9, 1.7],
-      "escalaNenufar": [1, 1.8],
+      "escalaArbusto": [
+        1,
+        1.8
+      ],
+      "escalaTronco": [
+        1.1,
+        1.7
+      ],
+      "escalaRocaAgua": [
+        0.9,
+        1.7
+      ],
+      "escalaNenufar": [
+        1,
+        1.8
+      ],
       "nubes": {
         "activas": false,
         "cantidad": 7,
@@ -349,7 +422,10 @@
       "variacionCara": 0.08
     },
     "edificios": {
-      "escala": { "choza": 0.78, "almacen": 0.95 },
+      "escala": {
+        "choza": 0.78,
+        "almacen": 0.95
+      },
       "variacion": 0.12,
       "colores": {
         "junco": "#d2b06c",
@@ -427,15 +503,30 @@
   "obras": {
     "maxConstructoresPorObra": 6,
     "radioFundacion": 3.2,
-    "fraccionTrabajo": { "plano": 0.05, "preparacion": 0.15, "cimientos": 0.2, "estructura": 0.4, "cubierta": 0.2 },
-    "fraccionMateriales": { "plano": 0, "preparacion": 0, "cimientos": 0.3, "estructura": 0.5, "cubierta": 0.2 },
+    "fraccionTrabajo": {
+      "plano": 0.05,
+      "preparacion": 0.15,
+      "cimientos": 0.2,
+      "estructura": 0.4,
+      "cubierta": 0.2
+    },
+    "fraccionMateriales": {
+      "plano": 0,
+      "preparacion": 0,
+      "cimientos": 0.3,
+      "estructura": 0.5,
+      "cubierta": 0.2
+    },
     "separacion": 0.08,
     "pasoMuestras": 0.2,
     "alcanceJunto": 0.6
   },
   "edificios": {
     "choza": {
-      "huella": { "ancho": 0.55, "fondo": 0.55 },
+      "huella": {
+        "ancho": 0.55,
+        "fondo": 0.55
+      },
       "pendienteMax": 0.45,
       "terrenos": [
         "llanura",
@@ -448,7 +539,10 @@
       "vivienda": 6
     },
     "casa": {
-      "huella": { "ancho": 0.8, "fondo": 0.7 },
+      "huella": {
+        "ancho": 0.8,
+        "fondo": 0.7
+      },
       "pendienteMax": 0.35,
       "terrenos": [
         "llanura",
@@ -462,7 +556,10 @@
       "vivienda": 8
     },
     "almacen": {
-      "huella": { "ancho": 1.3, "fondo": 0.9 },
+      "huella": {
+        "ancho": 1.3,
+        "fondo": 0.9
+      },
       "pendienteMax": 0.3,
       "terrenos": [
         "llanura",
@@ -476,7 +573,10 @@
       "puestos": 2
     },
     "campo": {
-      "huella": { "ancho": 1.6, "fondo": 1.1 },
+      "huella": {
+        "ancho": 1.6,
+        "fondo": 1.1
+      },
       "pendienteMax": 0.15,
       "terrenos": [
         "llanura"
@@ -487,7 +587,10 @@
       "fertilidadMin": 0.3
     },
     "palmeral": {
-      "huella": { "ancho": 1.3, "fondo": 1.3 },
+      "huella": {
+        "ancho": 1.3,
+        "fondo": 1.3
+      },
       "pendienteMax": 0.25,
       "terrenos": [
         "llanura"
@@ -498,7 +601,10 @@
       "distAguaMax": 2
     },
     "pesca": {
-      "huella": { "ancho": 0.7, "fondo": 0.55 },
+      "huella": {
+        "ancho": 0.7,
+        "fondo": 0.55
+      },
       "pendienteMax": 0.45,
       "terrenos": [
         "llanura",
@@ -512,7 +618,10 @@
       "junto": "agua"
     },
     "adoberia": {
-      "huella": { "ancho": 1, "fondo": 0.8 },
+      "huella": {
+        "ancho": 1,
+        "fondo": 0.8
+      },
       "pendienteMax": 0.3,
       "terrenos": [
         "llanura",
@@ -526,7 +635,10 @@
       "junto": "arcilla"
     },
     "alfar": {
-      "huella": { "ancho": 0.85, "fondo": 0.85 },
+      "huella": {
+        "ancho": 0.85,
+        "fondo": 0.85
+      },
       "pendienteMax": 0.35,
       "terrenos": [
         "llanura",
@@ -540,7 +652,10 @@
       "puestos": 2
     },
     "canal": {
-      "huella": { "ancho": 0.4, "fondo": 1.6 },
+      "huella": {
+        "ancho": 0.4,
+        "fondo": 1.6
+      },
       "pendienteMax": 0.25,
       "terrenos": [
         "llanura",
@@ -550,7 +665,10 @@
       "trabajo": 5
     },
     "dique": {
-      "huella": { "ancho": 0.5, "fondo": 1.6 },
+      "huella": {
+        "ancho": 0.5,
+        "fondo": 1.6
+      },
       "pendienteMax": 0.4,
       "terrenos": [
         "llanura",
@@ -562,7 +680,10 @@
       "trabajo": 8
     },
     "templo": {
-      "huella": { "ancho": 1.6, "fondo": 1.6 },
+      "huella": {
+        "ancho": 1.6,
+        "fondo": 1.6
+      },
       "pendienteMax": 0.2,
       "terrenos": [
         "llanura"
@@ -574,5 +695,22 @@
       "trabajo": 300,
       "puestos": 3
     }
+  },
+  "pantalla": {
+    "ancho": 960,
+    "alto": 540,
+    "tileAncho": 32,
+    "tileAlto": 16
+  },
+  "mundo": {
+    "tiles": 64,
+    "colorSuelo": "#4b8640",
+    "colorFondo": "#0a1736"
+  },
+  "rendimiento": {
+    "ventanaFotogramas": 300,
+    "refrescoPanelMs": 250,
+    "presupuestoP95Ms": 16.6,
+    "limiteMaxMs": 33
   }
 }

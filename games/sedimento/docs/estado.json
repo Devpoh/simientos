@@ -1627,7 +1627,7 @@
     },
     {
       "id": "P2",
-      "estado": "pendiente",
+      "estado": "en-curso",
       "hecho": [],
       "creada": "2026-10-20T05:01:34.270Z",
       "titulo": "Phaser 4: mundo isométrico y cámara",
@@ -1641,7 +1641,8 @@
       ],
       "sesion": "B",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "inicio": "2026-10-20T05:27:11.966Z"
     },
     {
       "id": "P3",
@@ -1860,6 +1861,15 @@
       "sintoma": "Las vallas con eje v salían con los postes recortados por la izquierda (ancla fuera del fotograma)",
       "causa": "valla() creaba el Spr con origen x=8 y el eje v avanza hacia la izquierda (x = u - v): los postes con x<0 se descartaban en silencio",
       "solucion": "Desplazar el origen largo px a la derecha cuando eje==v (tools/arte-pixel/props.py). El validador del atlas exige ancla dentro del fotograma y lo habría detectado"
+    },
+    {
+      "id": "E003",
+      "t": "2026-10-20T05:36:15.050Z",
+      "estado": "abierto",
+      "fase": "P0",
+      "sintoma": "Desaparece games/sedimento/public/recursos/pixel/ (atlas de P1) y el typecheck falla en tests/atlas.test.ts",
+      "causa": "Probablemente el paso «borrar → vuelve a vacío» de studio/panel/probar.mjs actuaba sobre la carpeta real del juego",
+      "solucion": "Atlas recreado con git show HEAD:<ruta>; C hace que el panel lea la carpeta de PANEL_PIXEL_DIR y que la prueba use una carpeta temporal propia"
     }
   ],
   "faltantes": [
@@ -1990,6 +2000,20 @@
       "fase": "P3",
       "texto": "Lo hexagonal de logic/ (hex.ts, celdas de mapa.ts, rutas.ts) se sustituye en P3 por la rejilla de ocupación; en P0 solo sale lo 3D",
       "porque": "La rejilla de ocupación es el reemplazo natural y así P0 no rompe la simulación"
+    },
+    {
+      "id": "D014",
+      "t": "2026-10-20T05:30:40.104Z",
+      "fase": "P8",
+      "texto": "Boceto D1 aprobado por el usuario: obra en 6 etapas (replanteo con estacas, preparación, cimientos de piedra, estructura con andamio, cubierta a medio tejar con cabios, terminada); D produce la familia (casa 2×2, casa 3×2, almacén, templo)",
+      "porque": "§10.11 del pivote: el usuario valida el estilo con un boceto antes de la familia («está súper»)"
+    },
+    {
+      "id": "D015",
+      "t": "2026-10-20T05:36:53.520Z",
+      "fase": "P2",
+      "texto": "Escalado entero con Scale.NONE + zoom del ScaleManager recalculado al cambiar la ventana (logic/pantalla.ts); el sprite se coloca con origen = ancla del fotograma y posición a píxel entero; los fotogramas del atlas se registran como frames con nombre en la textura atlas-N al arrancar",
+      "porque": "FIT puede dar escalas no enteras y píxeles de distinto tamaño; así input y render quedan alineados y el atlas se usa tal cual lo exporta tools/arte-pixel"
     }
   ],
   "conceptos": [
@@ -2094,9 +2118,49 @@
       "t": "2026-10-20T05:19:44.830Z",
       "concepto": "Hornear (bake) el terreno",
       "explicacion": "Hornear es calcular una vez algo caro y guardarlo como imagen para reutilizarlo cada fotograma. En CIMIENTOS el relieve, la luz y las sombras del terreno se calculan al cargar la partida (a partir de la semilla) y se guardan en trozos PNG; luego cada fotograma solo pega los trozos visibles. Así un terreno con relief mapping por píxel cuesta casi cero al dibujar y se mantienen los 60 fps."
+    },
+    {
+      "id": "C018",
+      "t": "2026-10-20T05:36:53.667Z",
+      "concepto": "Orden de dibujo isométrico (y-sort)",
+      "explicacion": "En isométrico lo que está más cerca de la cámara debe dibujarse después. Con tiles 2:1 basta la suma u+v del punto de apoyo (los pies de una persona, el vértice frontal de una casa). Phaser dibuja por profundidad (depth), así que cada sprite recibe depth = u+v y el motor ordena solo."
+    },
+    {
+      "id": "C019",
+      "t": "2026-10-20T05:36:53.827Z",
+      "concepto": "Escalado entero y roundPixels",
+      "explicacion": "El lienzo lógico mide 960×540 y se amplía solo ×1, ×2, ×3… (×2 = 1080p, ×4 = 4K) para que cada píxel del arte sea un cuadrado perfecto. roundPixels evita posiciones con decimales, que harían que un sprite se vea borroso o tiemble al mover la cámara."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T05:36:53.828Z",
+      "texto": "Concepto: Escalado entero y roundPixels"
+    },
+    {
+      "t": "2026-10-20T05:36:53.668Z",
+      "texto": "Concepto: Orden de dibujo isométrico (y-sort)"
+    },
+    {
+      "t": "2026-10-20T05:36:53.521Z",
+      "texto": "Decisión: Escalado entero con Scale.NONE + zoom del ScaleManager recalculado al cambiar la ventana (logic/pantalla.ts); el sprite se coloca con origen = ancla del fotograma y posición a píxel entero; los fotogramas del atlas se registran como frames con nombre en la textura atlas-N al arrancar"
+    },
+    {
+      "t": "2026-10-20T05:36:15.051Z",
+      "texto": "Error E003 (abierto): Desaparece games/sedimento/public/recursos/pixel/ (atlas de P1) y el typecheck falla en tests/atlas.test.ts"
+    },
+    {
+      "t": "2026-10-20T05:31:08.167Z",
+      "texto": "Autopiloto iniciado (20-10, noche): A reparte y revisa. B → P2 por tramos; C → cierre del panel (P0) y después documentos del pivote; D → D3 familia de obra en 6 etapas. D2 (campos con etapas de cultivo, R66) espera el visto bueno del usuario por la mañana."
+    },
+    {
+      "t": "2026-10-20T05:30:40.106Z",
+      "texto": "Decisión: Boceto D1 aprobado por el usuario: obra en 6 etapas (replanteo con estacas, preparación, cimientos de piedra, estructura con andamio, cubierta a medio tejar con cabios, terminada); D produce la familia (casa 2×2, casa 3×2, almacén, templo)"
+    },
+    {
+      "t": "2026-10-20T05:27:11.994Z",
+      "texto": "Fase P2 → en-curso: Phaser 4: mundo isométrico y cámara"
+    },
     {
       "t": "2026-10-20T05:26:26.302Z",
       "texto": "Fase P1 → hecha: Pipeline de arte pixel"
@@ -2314,5 +2378,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T05:26:26.302Z"
+  "actualizado": "2026-10-20T05:36:53.828Z"
 }
