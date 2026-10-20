@@ -109,6 +109,33 @@ function galeria(slug) {
   return lista;
 }
 
+// PANEL_REQUISITOS_FILE (solo pruebas, igual que PANEL_PIXEL_DIR): un .md temporal en vez del real.
+const requisitosPath = (slug) => process.env.PANEL_REQUISITOS_FILE || join(GAMES, slug, 'docs', 'requisitos-usuario.md');
+const AÑO_REQUISITOS = 2026; // el documento solo pone día-mes (18-10, 19-10…); todo es de este año.
+
+/** Parsea `requisitos-usuario.md` (R68, R64): no lo duplica, lee la tabla tal cual. Solo lectura. */
+function requisitos(slug) {
+  const p = requisitosPath(slug);
+  if (!existsSync(p)) return [];
+  const lineas = readFileSync(p, 'utf8').replace(/\r/g, '').split('\n');
+  let apartado = '';
+  const lista = [];
+  for (const l of lineas) {
+    const h = l.match(/^## (.+)/);
+    if (h) { apartado = h[1].trim(); continue; }
+    const m = l.match(/^\|\s*(R\d+\w*)\s*\|(.+)\|\s*$/);
+    if (!m) continue;
+    const celdas = m[2].split('|').map((s) => s.trim());
+    if (celdas.length < 4) continue;
+    const [fecha, texto, estadoTexto, donde] = celdas;
+    const [dd, mm] = fecha.split('-');
+    const estado = /^✅/.test(estadoTexto) ? 'vigente' : /^🔁/.test(estadoTexto) ? 'sustituido' : /^⏳/.test(estadoTexto) ? 'pendiente' : 'otro';
+    lista.push({ id: m[1], apartado, fecha, fechaISO: dd && mm ? `${AÑO_REQUISITOS}-${mm}-${dd}` : '', texto, estado, estadoTexto, donde });
+  }
+  lista.sort((a, b) => b.fechaISO.localeCompare(a.fechaISO) || (Number(b.id.slice(1)) - Number(a.id.slice(1))));
+  return lista;
+}
+
 createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
   const p = decodeURIComponent(url.pathname);
@@ -121,8 +148,8 @@ createServer((req, res) => {
     if (p === '/api/juegos') return json(res, juegos());
     const m = p.match(/^\/api\/estado\/([\w-]+)$/);
     if (m) { const e = leerEstado(m[1]); return e ? json(res, e) : json(res, { error: 'sin estado' }, 404); }
-    const am = p.match(/^\/api\/(pixel|expectativas|galeria)\/([\w-]+)$/);
-    if (am) return json(res, { pixel: pixelArt, expectativas, galeria }[am[1]](am[2]));
+    const am = p.match(/^\/api\/(pixel|expectativas|galeria|requisitos)\/([\w-]+)$/);
+    if (am) return json(res, { pixel: pixelArt, expectativas, galeria, requisitos }[am[1]](am[2]));
     const bz = p.match(/^\/bocetos\/(.+)$/);
     if (bz) return servir(res, bocetosBase(), bz[1]);
     // Rutas de solo lectura: cada una sirve una carpeta concreta del juego y nada fuera de ella.
