@@ -131,6 +131,23 @@
       "tramo": "alfa"
     },
     {
+      "id": "P2d",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T15:07:50.821Z",
+      "titulo": "Agua viva y humo",
+      "objetivo": "El agua y el humo se mueven: mar con olas y espuma de costa como pixel-cimientos y río como la muestra (R65), en bucle de 4 fotogramas, y humo de chimeneas y hogueras (R87, D037)",
+      "criterios": [
+        "Agua animada en bucle de 4 fotogramas (cambio de textura, no cálculo por píxel) en mar, río y lagos, con espuma en la costa del mar",
+        "Humo de chimeneas y hogueras en bucle, con pool (cero asignaciones por fotograma), solo en edificios visibles",
+        "Captura y vídeo corto (GIF o 4 capturas) mirados, comparados con pixel-cimientos (:5180) y la muestra",
+        "bench-60fps en verde (D034)"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
       "id": "P3",
       "estado": "pendiente",
       "hecho": [],
@@ -2090,6 +2107,14 @@
       "cerrado": false,
       "texto": "Campo de cebada en orientación girada (2×3, surcos en v) para encajar campos en cualquier sentido → Plan: D, cola baja (tras era 0–1)",
       "area": "arte"
+    },
+    {
+      "id": "L011",
+      "t": "2026-10-20T15:07:50.615Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "texto": "Más cultivos (R88, D036): trigo distinto de la cebada, lentejas y cebollas, lino, viñedo en espaldera, frutales (manzano, higuera y granado), palmeral de dátiles y olivar, con etapas y animación de viento → Plan: D, boceto CULT2 de la familia tras CULT1 (cebada animada); después, uno por uno en el atlas; las reglas las usa F107",
+      "area": "arte"
     }
   ],
   "recomendaciones": [
@@ -2379,6 +2404,20 @@
       "fase": "P3",
       "texto": "Caminos (R85): dos materiales, tierra y roca, en una máscara de subceldas (1 tile = 4×4) que es dato de la rejilla de ocupación (celda «camino»). Se dibujan estampando en una capa de suelo, por trozos y al cambiar, piezas del atlas de 16 casos de marching squares por material, con 2–4 variantes cada uno. Así salen curvas y cruces sin rejilla visible (R20, R21) y se pueden construir en tiempo real. D dibuja el juego de piezas y B la capa. La aldea de referencia se reordena alrededor de sus calles",
       "porque": "el usuario ve desorden sin caminos; con una máscara de subceldas los caminos siguen el trazado libre que pide R21, y estampar piezas del atlas cumple que el juego no genere arte por fotograma"
+    },
+    {
+      "id": "D036",
+      "t": "2026-10-20T15:07:50.201Z",
+      "fase": "F107",
+      "texto": "Catálogo de cultivos (R88) por era y clima: era 0, huerto de recolección (bayas y raíces); era 1, cebada, trigo, lentejas y cebollas en campo de 6 etapas, y lino; era 2, viñedo en espaldera, frutales (manzano, higuera y granado), palmeral de dátiles y olivar, que son perennes: plantación → años de crecimiento → floración → fruto → cosecha → reposo. Cada cultivo pide clima, agua y fertilidad (bioma, R10) y alimenta un mercado de comida (R71). Los perennes tardan en dar fruto, pero no se resiembran",
+      "porque": "el usuario quiere variedad de cultivos; atarlos a era y clima da decisiones de dónde poblar y comerciar (pilar 2) en vez de solo decorado, y mantiene la progresión desde cero (R77)"
+    },
+    {
+      "id": "D037",
+      "t": "2026-10-20T15:07:50.391Z",
+      "fase": "P2d",
+      "texto": "Se adelanta la parte de agua y humo de P9 a una fase P2d («Agua viva y humo», tras P2c): mar como pixel-cimientos y río como la muestra en bucle de 4 fotogramas sobre el terreno horneado, más el humo de chimeneas y hogueras con pool. P9 se queda con banderas, gaviotas, nubes, animales, barcos y luz del día",
+      "porque": "R87: el usuario lo echa en falta al mirar el juego cada día (R64), y el agua ya forma parte del terreno horneado (pivote §2); son 1–2 tramos baratos y no frenan las mecánicas"
     }
   ],
   "conceptos": [
@@ -2528,6 +2567,22 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T15:07:50.856Z",
+      "texto": "Fase P2d creada: Agua viva y humo"
+    },
+    {
+      "t": "2026-10-20T15:07:50.617Z",
+      "texto": "Falta: Más cultivos (R88, D036): trigo distinto de la cebada, lentejas y cebollas, lino, viñedo en espaldera, frutales (manzano, higuera y granado), palmeral de dátiles y olivar, con etapas y animación de viento → Plan: D, boceto CULT2 de la familia tras CULT1 (cebada animada); después, uno por uno en el atlas; las reglas las usa F107"
+    },
+    {
+      "t": "2026-10-20T15:07:50.393Z",
+      "texto": "Decisión: Se adelanta la parte de agua y humo de P9 a una fase P2d («Agua viva y humo», tras P2c): mar como pixel-cimientos y río como la muestra en bucle de 4 fotogramas sobre el terreno horneado, más el humo de chimeneas y hogueras con pool. P9 se queda con banderas, gaviotas, nubes, animales, barcos y luz del día"
+    },
+    {
+      "t": "2026-10-20T15:07:50.202Z",
+      "texto": "Decisión: Catálogo de cultivos (R88) por era y clima: era 0, huerto de recolección (bayas y raíces); era 1, cebada, trigo, lentejas y cebollas en campo de 6 etapas, y lino; era 2, viñedo en espaldera, frutales (manzano, higuera y granado), palmeral de dátiles y olivar, que son perennes: plantación → años de crecimiento → floración → fruto → cosecha → reposo. Cada cultivo pide clima, agua y fertilidad (bioma, R10) y alimenta un mercado de comida (R71). Los perennes tardan en dar fruto, pero no se resiembran"
+    },
     {
       "t": "2026-10-20T15:06:19.599Z",
       "texto": "Fase P3b creada: Caminos de tierra y de roca"
@@ -2973,5 +3028,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T15:06:19.599Z"
+  "actualizado": "2026-10-20T15:07:50.856Z"
 }
