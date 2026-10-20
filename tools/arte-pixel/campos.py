@@ -299,6 +299,13 @@ def componer(su, ob):
 
 
 NOMBRES = ["1 ARADO", "2 SIEMBRA", "3 BROTES", "4 CRECIMIENTO", "5 MADURO", "6 COSECHA"]
+HUELLA = (W // 16, D // 16)          # 3x2 tiles
+CENTRO = (W // 2, D // 2)            # centro de la huella en píxeles de suelo (ancla de las 6 etapas)
+
+
+def etapa_spr(n):
+    """Etapa n (1-6) del campo como Spr con el origen del lienzo común (el catálogo la recorta y calcula el ancla)."""
+    return componer(*etapa(n))
 
 
 def construir():

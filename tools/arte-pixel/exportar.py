@@ -223,6 +223,8 @@ def exportar(salida, tmp, vista):
             sj["etapas"] = e.etapas
         if e.huella_obra:
             sj["huellaObra"] = e.huella_obra
+        if e.cultivo:
+            sj["cultivo"] = True
         sprites_json[sid] = sj
     marcos = UI.marcos()
     os.makedirs(os.path.join(tmp, "ui"), exist_ok=True)

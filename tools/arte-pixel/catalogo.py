@@ -25,6 +25,7 @@ import arboles as AR
 import props as PR
 import barcos as BA
 import edificios as ED
+import campos as CA
 import edificios2 as E2
 import obra_casa as OB
 import templo as TP
@@ -53,6 +54,7 @@ class Entrada:
     puertas: list = field(default_factory=list)
     etapas: list = field(default_factory=list)  # nombres de estado en orden de obra
     huella_obra: dict = field(default_factory=dict)  # etapa -> {u0,v0,u1,v1} en subceldas: huella + lo que sobresale (andamio, material)
+    cultivo: bool = False               # campo de cultivo: se pisa por las lindes (1 subcelda del borde), no por dentro
     puntos: dict = field(default_factory=dict)  # nombre de punto -> función(Spr) -> (x, y)
 
 
@@ -254,6 +256,12 @@ def estructuras() -> list:
                        {f"etapa{e}": Estado(0, {"unica": [TP.templo(e).recortar()]}) for e in (1, 2, 3)},
                        bloquea=True, centro=(40, 40), recortar=True, etapas=["etapa1", "etapa2", "etapa3"],
                        puertas=[{"i": 2, "j": 5, "lado": "v+"}]))
+    # Campo de cebada 3x2 (D2): 1 arado, 2 siembra, 3 brotes, 4 crecimiento, 5 maduro, 6 cosecha. No es obra (sin huellaObra);
+    # el interior no se pisa y la linde (la cabecera de tierra pisada, 1 subcelda de borde) sí. Una sola orientación.
+    out.append(Entrada("campo_cebada", "estructura", CA.HUELLA,
+                       {f"etapa{n}": Estado(0, {"unica": [CA.etapa_spr(n)]}) for n in range(1, 7)},
+                       bloquea=True, centro=CA.CENTRO, recortar=True, etapas=[f"etapa{n}" for n in range(1, 7)],
+                       cultivo=True))
     # Puestos de mercado (huella 2x1, el mostrador mira a v+).
     puestos = {
         "fruta": dict(color=("teja", 3.4), color2=("piedra", 5.0), bienes="fruta", seed=1),

@@ -12,7 +12,7 @@ Los sprites se dibujan con código (Python + Pillow + numpy + scipy) y se export
 
 - `paleta.py`: paleta cerrada de 59 colores (máx. 64). Todo se dibuja con `c(rampa, tono)`. **No añadir colores sin permiso de A.**
 - `iso.py`, `util.py`, `tablas.py`: motor de sprites isométricos (caras con mapeo afín, contorno selectivo) y utilidades.
-- `ui.py`: marcos 9-slice de los paneles HTML (R70). `obra_casa.py`: las **etapas de obra de las casas** (R22): 1 replanteo, 2 preparación, 3 cimientos, 4 estructura, 5 cubierta (la 6 es `edificios.casa()`). Parametrizado por tamaño; la cubierta de la 5 usa las mismas tejas que la casa terminada. `campos.py`: campo de cebada en 6 etapas (boceto aprobado, aún fuera del catálogo).
+- `ui.py`: marcos 9-slice de los paneles HTML (R70). `obra_casa.py`: las **etapas de obra de las casas** (R22): 1 replanteo, 2 preparación, 3 cimientos, 4 estructura, 5 cubierta (la 6 es `edificios.casa()`). Parametrizado por tamaño; la cubierta de la 5 usa las mismas tejas que la casa terminada. `campos.py`: campo de cebada en 6 etapas (en el catálogo como `campo_cebada`).
 - Generadores: `edificios.py`, `edificios2.py`, `templo.py`, `personajes.py`, `personajes_extra.py`, `mitologicos.py`, `animales.py`, `caballo.py`, `arboles.py`, `barcos.py`, `props.py`, `fuente.py` (fuente 4×5).
 - `catalogo.py`: **qué se exporta y con qué metadatos** (huella, bloqueo, puertas, etapas, orientaciones, fps). Para añadir un sprite, se añade una `Entrada` aquí.
 - `exportar.py` (empaquetado y JSON), `verificar.py`, `vista.py`.
@@ -30,6 +30,10 @@ Los sprites se dibujan con código (Python + Pillow + numpy + scipy) y se export
 - `etapas` lista los estados de obra en orden; **la última es la estructura terminada**. **Todas las casas** (2×2 a-d y 3×2 a-b) tienen `etapa1…etapa6`. Los muros de la etapa 4 y el material apilado usan el de la pared de cada variante (sillar de piedra o ladrillo de adobe).
 - `huellaObra[etapa]` = `{u0, v0, u1, v1}` en **subceldas** (1 tile = 4 subceldas = 16 px de suelo), relativo a la esquina trasera de la huella: la huella + lo que sobresale (andamio, material). Para casas 2×2 la huella pura es `{0, 0, 8, 8}`. La **bloqueada** durante la obra es `huellaObra`; la huella pura sigue siendo la de la casa terminada. Los márgenes se calculan al dibujar (cada pieza que sobresale se registra) y el exportador falla si algo sobresale más de 1 subcelda.
 - La etapa 5 existe en orientación `u` y `v` (cumbrera); las etapas 1-4 son iguales en ambas (alias).
+
+## Campos de cultivo (`cultivo: true`)
+
+`campo_cebada`: 3×2 tiles, `etapa1…etapa6` (arado, siembra, brotes, crecimiento, maduro, cosecha), una sola orientación (`unica`), categoría `estructura`, `bloquea: true` y **`cultivo: true`**, sin `huellaObra` (no es obra). El interior no se pisa; la **linde** sí: es la cabecera de tierra pisada del borde, **1 subcelda** (4 px de suelo) por todo el perímetro de la huella. El ancla es el centro de la huella (comprobado: el rombo 3×2 sobre el ancla coincide con el borde del campo en las 6 etapas, `bocetos/campo_huella_x6.png`). Girarlo 90° (2×3, surcos en v) no está dibujado.
 
 ## Marcos de paneles HTML (9-slice, `ui.py`)
 
