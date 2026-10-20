@@ -199,6 +199,7 @@ section h3 .count { font-size: 12px; color: var(--muted); font-weight: 500; }
     <button class="view-tab" id="v-progreso" type="button">Progreso</button>
     <button class="view-tab" id="v-guia" type="button">Comandos</button>
     <button class="view-tab" id="v-modelos" type="button">Pixel art propio</button>
+    <button class="view-tab" id="v-requisitos" type="button">Lo que pediste</button>
     <div class="live"><span class="dot" id="dot"></span><span id="updated">—</span></div>
     <button class="theme-btn" id="theme" type="button" title="Cambiar tema">◐</button>
   </header>
@@ -426,13 +427,14 @@ function render(e) {
   }
 }
 
-let vista = ['guia', 'modelos'].includes(store.get('panel.vista')) ? store.get('panel.vista') : 'progreso';
+let vista = ['guia', 'modelos', 'requisitos'].includes(store.get('panel.vista')) ? store.get('panel.vista') : 'progreso';
 function marcarVista() {
   $('#v-progreso').setAttribute('aria-pressed', vista === 'progreso');
   $('#v-guia').setAttribute('aria-pressed', vista === 'guia');
   $('#v-modelos').setAttribute('aria-pressed', vista === 'modelos');
+  $('#v-requisitos').setAttribute('aria-pressed', vista === 'requisitos');
 }
-for (const v of ['progreso', 'guia', 'modelos']) $(`#v-${v}`).onclick = () => { vista = v; store.set('panel.vista', v); ultimo = null; marcarVista(); tick(); };
+for (const v of ['progreso', 'guia', 'modelos', 'requisitos']) $(`#v-${v}`).onclick = () => { vista = v; store.set('panel.vista', v); ultimo = null; marcarVista(); tick(); };
 marcarVista();
 
 const cmd = (c, what) => `<div class="cmd"><code>${esc(c)}</code><button class="copy" type="button" data-c="${esc(c)}">copiar</button><div class="what">${what}</div></div>`;
@@ -520,6 +522,13 @@ async function tick() {
       $('#updated').textContent = 'pixel art'; return;
     }
     if (vista === 'guia') { if (ultimo !== 'guia:' + juego) { guia(juego); ultimo = 'guia:' + juego; } $('#updated').textContent = 'guía'; return; }
+    if (vista === 'requisitos') {
+      if (ultimo !== 'requisitos:' + juego) {
+        if (window.panelLab) { window.panelLab.mostrarRequisitos(juego, $('#app')); ultimo = 'requisitos:' + juego; }
+        else { $('#app').innerHTML = '<p class="empty">Cargando…</p>'; setTimeout(tick, 300); }
+      }
+      $('#updated').textContent = 'lo que pediste'; return;
+    }
     const r = await fetch(`/api/estado/${encodeURIComponent(juego)}`);
     if (!r.ok) { $('#app').innerHTML = `<div class="card welcome"><p>Este juego aún no tiene bitácora.</p></div>`; return; }
     const e = await r.json();

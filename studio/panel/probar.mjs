@@ -4,7 +4,7 @@
 // Arranca su propio servidor en un puerto libre: no toca el panel que tengas abierto en :4400.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { mkdirSync, copyFileSync, rmSync, mkdtempSync, utimesSync } from 'node:fs';
+import { mkdirSync, copyFileSync, rmSync, mkdtempSync, utimesSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -34,7 +34,11 @@ const dirPixelTmp = mkdtempSync(join(tmpdir(), 'panel-pixel-'));
 // Lo mismo para la galería de avances (R64): nunca docs/evidencia ni tools/arte-pixel/bocetos reales.
 const dirEvidenciaTmp = mkdtempSync(join(tmpdir(), 'panel-evidencia-'));
 const dirBocetosTmp = mkdtempSync(join(tmpdir(), 'panel-bocetos-'));
-const { servidor: servidorPixel, base: basePixel } = await arrancar({ PANEL_PIXEL_DIR: dirPixelTmp, PANEL_EVIDENCIA_DIR: dirEvidenciaTmp, PANEL_BOCETOS_DIR: dirBocetosTmp });
+// Lo mismo para «Lo que pediste» (R68): un .md temporal, nunca docs/requisitos-usuario.md real. Empieza
+// sin el archivo (estado vacío); el tramo de pruebas lo escribe y lo borra.
+const dirReqTmp = mkdtempSync(join(tmpdir(), 'panel-requisitos-'));
+const archivoReqTmp = join(dirReqTmp, 'requisitos-usuario.md');
+const { servidor: servidorPixel, base: basePixel } = await arrancar({ PANEL_PIXEL_DIR: dirPixelTmp, PANEL_EVIDENCIA_DIR: dirEvidenciaTmp, PANEL_BOCETOS_DIR: dirBocetosTmp, PANEL_REQUISITOS_FILE: archivoReqTmp });
 
 const resultados = [];
 const errores = [];
@@ -110,6 +114,10 @@ try {
     pPixel.on('console', (m) => { if (m.type() === 'error') errores.push(`${nombreVista}/pixel: ${m.text().slice(0, 200)}`); });
     const sinScrollPixel = async (vista) => comprobar(`${nombreVista}/${vista}: sin scroll horizontal`, await pPixel.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
     const esperarCuerpo = () => pPixel.waitForFunction(() => { const t = document.querySelector('#app')?.textContent || ''; return t.length > 0 && !t.includes('Cargando'); }, null, { timeout: 15000 });
+    // Para cambiar de sección en la misma página (sin recargar) hay un instante en el que #app todavía
+    // tiene el contenido de la sección anterior: esperarCuerpo() lo daría por bueno. Esto espera a que
+    // el texto cambie de verdad y deje de decir «Cargando».
+    const esperarCambioDesde = (antes) => pPixel.waitForFunction((a) => { const t = document.querySelector('#app')?.textContent || ''; return t.length > 0 && t !== a && !t.includes('Cargando'); }, antes, { timeout: 15000 });
 
     await pPixel.goto(basePixel);
     await pPixel.click('#v-modelos');
@@ -187,6 +195,58 @@ try {
     await pPixel.waitForFunction(() => document.querySelector('#app')?.textContent.includes('Todavía no hay capturas'), null, { timeout: 15000 });
     comprobar(`${nombreVista}/avances: vuelve al estado vacío tras borrar los archivos de prueba`, true);
 
+    // Lo que pediste (R68): mismo servidor temporal (archivoReqTmp), nunca docs/requisitos-usuario.md real.
+    const antesDeRequisitos = await pPixel.textContent('#app');
+    await pPixel.click('#v-requisitos');
+    await esperarCambioDesde(antesDeRequisitos);
+    const txtVacioReq = await pPixel.textContent('#app');
+    comprobar(`${nombreVista}/requisitos: estado vacío cuando no hay archivo`, txtVacioReq.includes('Todavía no hay requisitos'), txtVacioReq.slice(0, 120));
+    await sinScrollPixel('requisitos-vacio');
+
+    // La fecha de "hoy" es siempre la más nueva de las tres (las otras dos están fijas en el pasado).
+    const hoyDDMM = new Intl.DateTimeFormat('es', { day: '2-digit', month: '2-digit', timeZone: 'UTC' }).format(new Date()).replace('/', '-');
+    const filaReq = (id, fecha, texto, estado, donde) => `| ${id} | ${fecha} | ${texto} | ${estado} | ${donde} |`;
+    writeFileSync(archivoReqTmp, [
+      '# Requisitos del usuario', '',
+      '## Primero', '',
+      '| # | Fecha | Requisito | Estado | Dónde se concreta |',
+      '|---|---|---|---|---|',
+      filaReq('R1', '01-01', 'Lo más viejo, **vigente**.', '✅', 'sitio.md'),
+      filaReq('R2', hoyDDMM, 'Lo de hoy, **pendiente**, con `codigo`.', '⏳', 'sitio2.md'),
+      '', '## Segundo', '',
+      '| # | Fecha | Requisito | Estado | Dónde se concreta |',
+      '|---|---|---|---|---|',
+      filaReq('R3', '15-06', 'Lo de en medio, sustituido.', '🔁 por R2', 'sitio3.md'),
+    ].join('\n'), 'utf8');
+
+    await pPixel.reload();
+    await pPixel.click('#v-requisitos');
+    await pPixel.waitForSelector('.req-item', { timeout: 15000 });
+    const idsReq = await pPixel.$$eval('.req-id', (e) => e.map((x) => x.textContent));
+    comprobar(`${nombreVista}/requisitos: tres filas`, idsReq.length === 3, idsReq.join(','));
+    comprobar(`${nombreVista}/requisitos: orden de más nueva a más vieja`, idsReq[0] === 'R2' && idsReq[1] === 'R3' && idsReq[2] === 'R1', idsReq.join(','));
+    comprobar(`${nombreVista}/requisitos: negrita y código del texto se renderizan`, await pPixel.$eval('.req-item[data-id="R2"] .req-texto', (el) => el.querySelector('b') && el.querySelector('code')));
+    comprobar(`${nombreVista}/requisitos: todo marcado 🆕 en la primera visita`, (await pPixel.$$eval('.req-marca', (e) => e.length)) === 3);
+    await sinScrollPixel('requisitos-con-datos');
+    await pPixel.screenshot({ path: join(carpeta, `${nombreVista}-requisitos.png`), fullPage: true });
+
+    await pPixel.click('[data-f="pendientes"]');
+    await pPixel.waitForTimeout(150);
+    comprobar(`${nombreVista}/requisitos: filtro «pendientes»`, (await pPixel.$$eval('.req-item', (e) => e.length)) === 1 && (await pPixel.$('.req-item[data-id="R2"]')) !== null);
+    await pPixel.click('[data-f="hoy"]');
+    await pPixel.waitForTimeout(150);
+    comprobar(`${nombreVista}/requisitos: filtro «de hoy»`, (await pPixel.$$eval('.req-item', (e) => e.length)) === 1 && (await pPixel.$('.req-item[data-id="R2"]')) !== null);
+    await pPixel.click('[data-f="todas"]');
+    await pPixel.waitForTimeout(150);
+    await pPixel.click('.req-item[data-id="R1"]');
+    comprobar(`${nombreVista}/requisitos: abrir una fila la marca leída`, await pPixel.$('.req-item[data-id="R1"] .req-marca:has-text("✓")'));
+
+    rmSync(archivoReqTmp, { force: true });
+    await pPixel.reload();
+    await pPixel.click('#v-requisitos');
+    await pPixel.waitForFunction(() => document.querySelector('#app')?.textContent.includes('Todavía no hay requisitos'), null, { timeout: 15000 });
+    comprobar(`${nombreVista}/requisitos: vuelve al estado vacío tras borrar el archivo de prueba`, true);
+
     await ctxPixel.close();
   }
 } catch (e) {
@@ -198,6 +258,7 @@ try {
   rmSync(dirPixelTmp, { recursive: true, force: true });
   rmSync(dirEvidenciaTmp, { recursive: true, force: true });
   rmSync(dirBocetosTmp, { recursive: true, force: true });
+  rmSync(dirReqTmp, { recursive: true, force: true });
 }
 
 const fallos = resultados.filter((r) => !r.ok);
