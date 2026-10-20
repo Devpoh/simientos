@@ -1596,8 +1596,13 @@
     },
     {
       "id": "P1",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "tools/arte-pixel con los generadores de la muestra, catalogo.py (84 sprites, 1192 fotogramas) y exportador determinista a atlas-0.png (2048x672) + atlas.json",
+        "JSON por sprite: ancla (pies o centro de huella), huella w×d, bloquea, altura, puertas, etapas, estados y orientaciones; tipos y validador en src/data/atlas.ts",
+        "npm run arte:verificar = validar.py: paleta, alfa limpio, ampliación x2/x4 exacta, píxeles sueltos, flotantes/hundidos, solapes y referencias; hoja de contacto x4",
+        "skill sprite-qa; revisión visual a x6-x8 de ciudadanos (4 orientaciones, caminar, trabajo, cargas, rezar), animales y criaturas sin defectos bloqueantes"
+      ],
       "creada": "2026-10-20T05:01:34.270Z",
       "titulo": "Pipeline de arte pixel",
       "objetivo": "tools/arte-pixel con los generadores de la muestra; npm run arte y arte:verificar escriben atlas PNG + JSON en public/recursos/pixel",
@@ -1611,7 +1616,14 @@
       "sesion": "B",
       "version": "0.0",
       "tramo": "alfa",
-      "inicio": "2026-10-20T05:02:12.975Z"
+      "inicio": "2026-10-20T05:02:12.975Z",
+      "verificacion": {
+        "tests": "atlas 16/16; check 157/157",
+        "resultado": "arte determinista (2 ejecuciones = mismos sha256); validar.py TODO CORRECTO; 0 colores fuera de los 59",
+        "captura": ""
+      },
+      "commit": "8ce54f7",
+      "fin": "2026-10-20T05:26:26.249Z"
     },
     {
       "id": "P2",
@@ -1850,7 +1862,40 @@
       "solucion": "Desplazar el origen largo px a la derecha cuando eje==v (tools/arte-pixel/props.py). El validador del atlas exige ancla dentro del fotograma y lo habría detectado"
     }
   ],
-  "faltantes": [],
+  "faltantes": [
+    {
+      "id": "L001",
+      "t": "2026-10-20T05:26:25.514Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "texto": "Niños y ancianos: los ciudadanos del atlas son solo adultos (la ficha R52 pide 3 edades). Hacen falta 16x24 o menores en el mismo estilo, con idle y caminar en 4 orientaciones",
+      "area": "arte"
+    },
+    {
+      "id": "L002",
+      "t": "2026-10-20T05:26:25.680Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "texto": "Pose «colgando» (2 fotogramas, sombra aparte) para coger y soltar ciudadanos con el ratón (R52); no existe en la muestra",
+      "area": "arte"
+    },
+    {
+      "id": "L003",
+      "t": "2026-10-20T05:26:25.871Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "texto": "LOD por zoom: versiones simples de los sprites (tile 16x8, ciudadanos como puntos de 2-3 px). El atlas solo trae el nivel cercano",
+      "area": "arte"
+    },
+    {
+      "id": "L004",
+      "t": "2026-10-20T05:26:26.041Z",
+      "prioridad": "baja",
+      "cerrado": false,
+      "texto": "Variantes de piel, pelo y ropa de los 10 ciudadanos (hoy solo la variante por defecto) y vistas de espaldas (ne/nw) con torso propio: ahora reutilizan el torso frontal (hebilla, delantal, banda del sacerdote, caja cargada de frente)",
+      "area": "arte"
+    }
+  ],
   "recomendaciones": [
     {
       "id": "R001",
@@ -2053,6 +2098,26 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-20T05:26:26.302Z",
+      "texto": "Fase P1 → hecha: Pipeline de arte pixel"
+    },
+    {
+      "t": "2026-10-20T05:26:26.043Z",
+      "texto": "Falta: Variantes de piel, pelo y ropa de los 10 ciudadanos (hoy solo la variante por defecto) y vistas de espaldas (ne/nw) con torso propio: ahora reutilizan el torso frontal (hebilla, delantal, banda del sacerdote, caja cargada de frente)"
+    },
+    {
+      "t": "2026-10-20T05:26:25.873Z",
+      "texto": "Falta: LOD por zoom: versiones simples de los sprites (tile 16x8, ciudadanos como puntos de 2-3 px). El atlas solo trae el nivel cercano"
+    },
+    {
+      "t": "2026-10-20T05:26:25.682Z",
+      "texto": "Falta: Pose «colgando» (2 fotogramas, sombra aparte) para coger y soltar ciudadanos con el ratón (R52); no existe en la muestra"
+    },
+    {
+      "t": "2026-10-20T05:26:25.516Z",
+      "texto": "Falta: Niños y ancianos: los ciudadanos del atlas son solo adultos (la ficha R52 pide 3 edades). Hacen falta 16x24 o menores en el mismo estilo, con idle y caminar en 4 orientaciones"
+    },
+    {
       "t": "2026-10-20T05:19:45.208Z",
       "texto": "Fase P0 → en-curso: Limpieza y pivote a pixel art"
     },
@@ -2249,5 +2314,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T05:19:45.208Z"
+  "actualizado": "2026-10-20T05:26:26.302Z"
 }
