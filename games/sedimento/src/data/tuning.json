@@ -712,5 +712,20 @@
     "refrescoPanelMs": 250,
     "presupuestoP95Ms": 16.6,
     "limiteMaxMs": 33
+  },
+  "camara": {
+    "zoomPasos": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "zoomInicial": 1,
+    "zoomEnfriamientoMs": 60,
+    "velocidadTeclado": 520,
+    "velocidadBorde": 420,
+    "margenBordePx": 6,
+    "margenLimitePx": 64,
+    "deltaMaxMs": 100
   }
 }

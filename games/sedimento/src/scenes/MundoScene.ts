@@ -4,6 +4,7 @@ import type { AtlasPixel } from '../data/atlas';
 import { exponer, marcarListo } from '../core/test-hooks';
 import { medidor } from '../core/metricas';
 import { aPantalla } from '../logic/iso';
+import { ControlCamara } from '../render/controlCamara';
 import { CLAVE_REGISTRO_ATLAS, colocar, type PedidoSprite } from '../render/sprites';
 import { PanelRendimiento } from '../ui/panelRendimiento';
 
@@ -28,6 +29,7 @@ const ALDEA: PedidoSprite[] = [
 
 export class MundoScene extends Phaser.Scene {
   private panel?: PanelRendimiento;
+  private camara?: ControlCamara;
 
   constructor() {
     super('Mundo');
@@ -50,8 +52,7 @@ export class MundoScene extends Phaser.Scene {
 
     for (const p of ALDEA) colocar(this, atlas, p);
 
-    const centro = aPantalla(n / 2, n / 2);
-    cam.centerOn(centro.x, centro.y);
+    this.camara = new ControlCamara(this, aPantalla(n / 2, n / 2));
 
     this.panel = new PanelRendimiento(() => ({ sprites: this.children.length, escala: this.scale.zoom }));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.panel?.destruir());
@@ -61,7 +62,15 @@ export class MundoScene extends Phaser.Scene {
     exponer('msFotoP95', () => r1(medidor.p95()));
     exponer('msFotoMax', () => r1(medidor.max()));
     exponer('nSprites', () => this.children.length);
+    exponer('camara', () => {
+      const c = this.camara?.leer();
+      return c ? { x: Math.round(c.x), y: Math.round(c.y), zoom: c.zoom } : null;
+    });
     exponer('escalaEntera', () => this.scale.zoom);
     this.events.once(Phaser.Scenes.Events.UPDATE, marcarListo);
+  }
+
+  update(_tiempo: number, delta: number): void {
+    this.camara?.update(delta);
   }
 }

@@ -126,11 +126,12 @@
       "hecho": [],
       "creada": "2026-10-19T06:08:08.989Z",
       "titulo": "Cadenas de producción",
-      "objetivo": "Arcilla → adobe (adobería), arcilla → hoces (alfar), caña, palmeral y pesca, con herramientas que se gastan",
+      "objetivo": "Arcilla → adobe (adobería), arcilla → hoces (alfar), caña, palmeral y pesca, más mina (piedra y cobre), leñador y molino (grano → harina), con herramientas que se gastan (R71)",
       "criterios": [
         "test: si falla un eslabón, se detiene la cadena y se propaga",
         "Las hoces se gastan y bajan el rendimiento de los campos",
-        "Inspector: de dónde viene y adónde va cada bien"
+        "Inspector: de dónde viene y adónde va cada bien",
+        "Mina, leñador y molino con su sprite y sus 6 etapas de obra (D, R71); trabajadores visibles trabajando"
       ],
       "version": "0.1",
       "tramo": "alfa"
@@ -365,12 +366,14 @@
       "estado": "pendiente",
       "hecho": [],
       "creada": "2026-10-19T06:08:08.989Z",
-      "titulo": "Reparto y almacenes de barrio",
-      "objetivo": "Varios almacenes y puntos de reparto: la comida tiene que llegar a cada barrio",
+      "titulo": "Mercados por tipo y reparto por barrios",
+      "objetivo": "Mercados especializados (comida, minerales y metales, telas, cerámica) y almacenes de barrio: los ciudadanos se abastecen en el mercado de cada cosa y así se mueve la economía (R71)",
       "criterios": [
         "test: hay hambre en un barrio aunque el almacén central esté lleno",
-        "Rutas de reparto visibles",
-        "Capacidad por almacén"
+        "test: cada mercado solo ofrece su categoría y cubre la necesidad que le toca",
+        "Ciudadanos que van al mercado y vuelven con la compra (visibles)",
+        "Rutas de reparto visibles y capacidad por almacén",
+        "Sprites de cada mercado con su mercancía (D, R71)"
       ],
       "version": "0.2",
       "tramo": "alfa"
@@ -1922,6 +1925,14 @@
       "cerrado": false,
       "texto": "Variantes de piel, pelo y ropa de los 10 ciudadanos (hoy solo la variante por defecto) y vistas de espaldas (ne/nw) con torso propio: ahora reutilizan el torso frontal (hebilla, delantal, banda del sacerdote, caja cargada de frente) → Plan: D, cola D4 (antes de P4: al caminar se ven de espaldas)",
       "area": "arte"
+    },
+    {
+      "id": "L005",
+      "t": "2026-10-20T06:02:45.471Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Edificios de producción (mina, leñador, molino, cantera) y mercados por tipo (comida, minerales y metales, telas, cerámica) con sus 6 etapas de obra (R71) → Plan: D, cola D8 (antes de F109 y F203); boceto antes de la familia"
     }
   ],
   "recomendaciones": [
@@ -2060,6 +2071,13 @@
       "fase": "P2",
       "texto": "Cola de arte de D: D3 obra en 6 etapas (tramo 1) → borde 9-slice de paneles (P2b) → D3 tramos 2–4 → D4 espaldas con torso propio y variantes de piel/pelo/ropa (antes de P4) → D5 niños, ancianos, pose colgando y retratos 48×48 (antes de P6) → D6 gaviotas y nubes (P9) → D7 LOD (P10). La reco de la costa como dato de mapa.ts entra en P2 tramo 3",
       "porque": "Los faltantes y la reco del panel se ordenan según la fase que los necesita; las espaldas suben a prioridad media porque en P4 los ciudadanos ya caminan en 4 direcciones"
+    },
+    {
+      "id": "D020",
+      "t": "2026-10-20T06:05:34.286Z",
+      "fase": "P2",
+      "texto": "Cámara: lógica pura en logic/camara.ts (arrastre, desplazamiento a velocidad constante en pantalla, bordes, zoom entero hacia cursor, límites del rombo + 64 px); control Phaser en render/controlCamara.ts. Zoom pasos [1,2,3,4], sin zoom-out por debajo de ×1 (la vista lejana será el LOD, P10)",
+      "porque": "zoom fraccionario rompería el pixel art; los números van en tuning.json (camara)"
     }
   ],
   "conceptos": [
@@ -2176,9 +2194,23 @@
       "t": "2026-10-20T05:36:53.827Z",
       "concepto": "Escalado entero y roundPixels",
       "explicacion": "El lienzo lógico mide 960×540 y se amplía solo ×1, ×2, ×3… (×2 = 1080p, ×4 = 4K) para que cada píxel del arte sea un cuadrado perfecto. roundPixels evita posiciones con decimales, que harían que un sprite se vea borroso o tiemble al mover la cámara."
+    },
+    {
+      "id": "C020",
+      "t": "2026-10-20T06:05:34.131Z",
+      "concepto": "Zoom hacia el cursor",
+      "explicacion": "Al acercar con la rueda, el punto del mapa que está bajo el ratón debe quedarse bajo el ratón: se calcula ese punto en coordenadas de mundo antes y se recoloca el centro de la cámara después del cambio de zoom. Así el jugador acerca donde mira. Los pasos son enteros (×1…×4) para que cada píxel del arte siga siendo un cuadrado perfecto."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T06:05:34.288Z",
+      "texto": "Decisión: Cámara: lógica pura en logic/camara.ts (arrastre, desplazamiento a velocidad constante en pantalla, bordes, zoom entero hacia cursor, límites del rombo + 64 px); control Phaser en render/controlCamara.ts. Zoom pasos [1,2,3,4], sin zoom-out por debajo de ×1 (la vista lejana será el LOD, P10)"
+    },
+    {
+      "t": "2026-10-20T06:05:34.132Z",
+      "texto": "Concepto: Zoom hacia el cursor"
+    },
     {
       "t": "2026-10-20T06:00:08.168Z",
       "texto": "Decisión: Cola de arte de D: D3 obra en 6 etapas (tramo 1) → borde 9-slice de paneles (P2b) → D3 tramos 2–4 → D4 espaldas con torso propio y variantes de piel/pelo/ropa (antes de P4) → D5 niños, ancianos, pose colgando y retratos 48×48 (antes de P6) → D6 gaviotas y nubes (P9) → D7 LOD (P10). La reco de la costa como dato de mapa.ts entra en P2 tramo 3"
@@ -2440,5 +2472,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T06:00:08.168Z"
+  "actualizado": "2026-10-20T06:05:34.288Z"
 }
