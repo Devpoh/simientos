@@ -4,6 +4,7 @@ import tuning from '../data/tuning.json';
 import { crearCampoAlturas, type CampoAlturas } from './alturas';
 import { hornear, type ConfigHorneado, type ImagenIndices, type Superficie } from './horneado';
 import { generarMapa, type Mapa } from './mapa';
+import { conRelieve } from './relieve';
 
 export interface Mundo {
   semilla: number;
@@ -39,9 +40,11 @@ export function crearMundo(semilla: number = tuning.mapa.semilla): Mundo {
     alturaMax: alturaMax + 0.05,
     nivelMar: campo.nivelMar,
     semilla,
-    ...tuning.horneado,
+    ...(({ relieve: _r, ...resto }) => resto)(tuning.horneado),
   };
-  return { semilla, mapa, campo, superficie: superficieDeCampo(campo, tile), cfg, tilesU, tilesV };
+  const { relieve, ...cfgHorneado } = tuning.horneado;
+  const superficie = conRelieve(superficieDeCampo(campo, tile), tilesU, tilesV, campo.nivelMar, semilla, relieve);
+  return { semilla, mapa, campo, superficie, cfg: { ...cfg, ...cfgHorneado, alturaMax: cfg.alturaMax + relieve.amplitud * 0.6 }, tilesU, tilesV };
 }
 
 export function hornearMundo(m: Mundo): ImagenIndices {

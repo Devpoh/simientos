@@ -48,6 +48,13 @@ export interface ConfigMapa {
   /** Exponente altura → metros: >1 deja la llanura cerca del nivel del mar y eleva las cumbres. */
   curvaAltitud: number;
   costa: ConfigCosta;
+  yacimientos: Record<TipoYacimiento, ConfigYacimiento>;
+}
+
+/** Cuántos grupos de un yacimiento hay en el mapa y de cuántas celdas cada uno. */
+export interface ConfigYacimiento {
+  grupos: number[];
+  tamano: number[];
 }
 
 /** Cómo se diseña la silueta de la costa: cuántos accidentes y de qué tamaño (fracciones del ancho y del alto del mapa). */
@@ -64,6 +71,20 @@ export interface ConfigCosta {
   perfilMin: number;
   perfilMax: number;
 }
+
+/**
+ * Yacimientos como datos (R73): metales en la montaña, piedra y mármol en las colinas y carbón en las cuencas
+ * (llanura baja al pie de las sierras). Una celda tiene como mucho un yacimiento; `riqueza` va de 1 a 3.
+ */
+export type TipoYacimiento = 'cobre' | 'estano' | 'hierro' | 'plata' | 'oro' | 'piedra' | 'marmol' | 'carbon';
+
+export interface Yacimiento {
+  tipo: TipoYacimiento;
+  celda: number;
+  riqueza: 1 | 2 | 3;
+}
+
+export const TIPOS_YACIMIENTO: readonly TipoYacimiento[] = ['cobre', 'estano', 'hierro', 'plata', 'oro', 'piedra', 'marmol', 'carbon'];
 
 export type TipoRasgoCosta = 'cabo' | 'bahia' | 'golfo';
 
@@ -110,6 +131,7 @@ export interface Mapa {
   /** Cauces de los ríos (el principal primero), del nacimiento a la desembocadura o la confluencia. */
   rios: number[][];
   costa: Costa;
+  yacimientos: Yacimiento[];
 }
 
 export const esAgua = (t: Terreno) => t === 'mar' || t === 'rio' || t === 'lago';
@@ -212,6 +234,7 @@ export function generarMapa(base: ConfigMapa, climaBase: ConfigClima): Mapa {
     recursos[i] = recursosDe(t, vegetacion[i], distAgua[i]);
     nivel[i] = t === 'mar' ? 0 : cuantizar(cfg, altura[i]);
   }
+  const yacimientos = colocarYacimientos(cfg, rejilla, terreno, altura);
   // El río y el lago van encajados: nunca más altos que la orilla más baja que los rodea.
   for (const i of dulce) {
     let minimo = nivel[i];
@@ -237,6 +260,7 @@ export function generarMapa(base: ConfigMapa, climaBase: ConfigClima): Mapa {
     recursos,
     rios,
     costa,
+    yacimientos,
   };
 }
 
@@ -255,6 +279,65 @@ function variarConfig(cfg: ConfigMapa): ConfigMapa {
   const rng = crearRng(derivarSemilla(cfg.semilla, 'variacion'));
   const desvio = () => (rng() * 2 - 1) * cfg.variacionBordes;
   return { ...cfg, bordeMontanas: cfg.bordeMontanas + desvio(), bordeMar: Math.max(0.08, cfg.bordeMar + desvio()) };
+}
+
+/**
+ * Reparte los yacimientos (R73) con su propio generador de azar: cada tipo tiene de 1 a N grupos de celdas contiguas.
+ * Oro y plata solo en la mitad más alta de la sierra; el carbón, en cuencas (llanura baja a 1–3 saltos de una colina o sierra).
+ */
+function colocarYacimientos(cfg: ConfigMapa, rejilla: Rejilla, terreno: Terreno[], altura: number[]): Yacimiento[] {
+  const rng = crearRng(derivarSemilla(cfg.semilla, 'yacimientos'));
+  const n = rejilla.total;
+  const ocupada = new Set<number>();
+  const montanas = [...Array(n).keys()].filter((i) => terreno[i] === 'montana');
+  const colinas = [...Array(n).keys()].filter((i) => terreno[i] === 'colina');
+  const altas = [...montanas].sort((a, b) => altura[b] - altura[a]).slice(0, Math.max(1, Math.ceil(montanas.length / 2)));
+  const altasSet = new Set(altas);
+  const relieve = [...Array(n).keys()].filter((i) => terreno[i] === 'montana' || terreno[i] === 'colina');
+  const alPie = rejilla.distanciasDesde(relieve);
+  const cuencas = [...Array(n).keys()].filter((i) => {
+    if (terreno[i] !== 'llanura' || alPie[i] < 1 || alPie[i] > 3) return false;
+    const vecinas = rejilla.vecinos(i).filter((v) => terreno[v] !== 'mar');
+    const media = vecinas.reduce((acum, v) => acum + altura[v], 0) / Math.max(1, vecinas.length);
+    return altura[i] <= media + 0.005;
+  });
+  const cuencasSet = new Set(cuencas);
+  const elegibles: Record<TipoYacimiento, (i: number) => boolean> = {
+    cobre: (i) => terreno[i] === 'montana',
+    estano: (i) => terreno[i] === 'montana',
+    hierro: (i) => terreno[i] === 'montana',
+    plata: (i) => altasSet.has(i),
+    oro: (i) => altasSet.has(i),
+    piedra: (i) => terreno[i] === 'colina',
+    marmol: (i) => terreno[i] === 'colina',
+    carbon: (i) => cuencasSet.has(i),
+  };
+  const lista: Yacimiento[] = [];
+  for (const tipo of TIPOS_YACIMIENTO) {
+    const c = cfg.yacimientos[tipo];
+    const grupos = enteroEntre(rng, c.grupos[0], c.grupos[1]);
+    const candidatas = (tipo === 'carbon' ? cuencas : tipo === 'oro' || tipo === 'plata' ? altas : tipo === 'piedra' || tipo === 'marmol' ? colinas : montanas);
+    for (let g = 0; g < grupos; g++) {
+      const libres = candidatas.filter((i) => !ocupada.has(i));
+      if (libres.length === 0) break;
+      const semilla = libres[Math.floor(rng() * libres.length)];
+      const tam = enteroEntre(rng, c.tamano[0], c.tamano[1]);
+      const grupo = [semilla];
+      ocupada.add(semilla);
+      for (let k = 0; k < grupo.length && grupo.length < tam; k++) {
+        for (const v of rejilla.vecinos(grupo[k])) {
+          if (grupo.length >= tam) break;
+          if (!ocupada.has(v) && elegibles[tipo](v)) {
+            ocupada.add(v);
+            grupo.push(v);
+          }
+        }
+      }
+      // La riqueza baja del centro del grupo hacia los bordes.
+      grupo.forEach((celda, k) => lista.push({ tipo, celda, riqueza: (k === 0 ? 3 : k < 3 ? 2 : 1) as 1 | 2 | 3 }));
+    }
+  }
+  return lista;
 }
 
 /** Perfil de la costa en una columna (con posición fraccionaria: las filas impares van medio hexágono desplazadas). */

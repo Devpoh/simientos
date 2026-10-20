@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import tuning from '../src/data/tuning.json';
 import { Rejilla } from '../src/logic/hex';
-import { contarBiomas, contarTerrenos, generarMapa, hashMapa, type ConfigMapa } from '../src/logic/mapa';
+import { contarBiomas, contarTerrenos, generarMapa, hashMapa, TIPOS_YACIMIENTO, type ConfigMapa } from '../src/logic/mapa';
 
 const base: ConfigMapa = tuning.mapa;
 const conSemilla = (semilla: number) => generarMapa({ ...base, semilla }, tuning.clima);
@@ -122,6 +122,49 @@ describe('costa como dato de diseño (R001)', () => {
     const bahia = m.costa.rasgos.find((r) => r.tipo !== 'cabo');
     expect(m.costa.perfil[cabo!.columna]).toBeGreaterThan(baseY - base.ondulacionBordes - 0.02);
     expect(m.costa.perfil[bahia!.columna]).toBeLessThan(baseY + base.ondulacionBordes + 0.02);
+  });
+});
+
+describe('yacimientos como datos (R73)', () => {
+  const conteo = (m: ReturnType<typeof conSemilla>, tipo: string): number => m.yacimientos.filter((y) => y.tipo === tipo).length;
+
+  it.each(SEMILLAS)('semilla %i: hay de cada tipo y cada uno está donde le corresponde', (s) => {
+    const m = conSemilla(s);
+    const rej = new Rejilla(m.columnas, m.filas);
+    for (const tipo of TIPOS_YACIMIENTO) expect(conteo(m, tipo), `${tipo}`).toBeGreaterThan(0);
+    for (const y of m.yacimientos) {
+      const t = m.terreno[y.celda];
+      if (['cobre', 'estano', 'hierro', 'plata', 'oro'].includes(y.tipo)) expect(t, y.tipo).toBe('montana');
+      if (y.tipo === 'piedra' || y.tipo === 'marmol') expect(t, y.tipo).toBe('colina');
+      if (y.tipo === 'carbon') {
+        expect(t, y.tipo).toBe('llanura');
+        // cuenca: a 1–3 saltos de una colina o sierra
+        const cerca = [...Array(m.terreno.length).keys()].some((i) => (m.terreno[i] === 'colina' || m.terreno[i] === 'montana') && rej.distancia(i, y.celda) <= 3);
+        expect(cerca).toBe(true);
+      }
+      expect([1, 2, 3]).toContain(y.riqueza);
+    }
+  });
+
+  it.each(SEMILLAS)('semilla %i: ninguna celda tiene dos yacimientos y el reparto respeta la rareza', (s) => {
+    const m = conSemilla(s);
+    const celdas = m.yacimientos.map((y) => y.celda);
+    expect(new Set(celdas).size).toBe(celdas.length);
+    // el oro y la plata son más raros que el cobre y el hierro
+    expect(conteo(m, 'oro')).toBeLessThanOrEqual(base.yacimientos.oro.grupos[1] * base.yacimientos.oro.tamano[1]);
+    expect(conteo(m, 'oro') + conteo(m, 'plata')).toBeLessThan(conteo(m, 'cobre') + conteo(m, 'hierro'));
+  });
+
+  it.each(SEMILLAS)('semilla %i: el oro y la plata están en la mitad más alta de la sierra', (s) => {
+    const m = conSemilla(s);
+    const alturas = m.terreno.map((t, i) => (t === 'montana' ? m.altura[i] : -1)).filter((h) => h >= 0).sort((a, b) => a - b);
+    const mediana = alturas[Math.floor(alturas.length / 2) - 1];
+    for (const y of m.yacimientos.filter((q) => q.tipo === 'oro' || q.tipo === 'plata')) expect(m.altura[y.celda]).toBeGreaterThanOrEqual(mediana);
+  });
+
+  it('es determinista por semilla', () => {
+    expect(conSemilla(42).yacimientos).toEqual(conSemilla(42).yacimientos);
+    expect(conSemilla(42).yacimientos).not.toEqual(conSemilla(43).yacimientos);
   });
 });
 

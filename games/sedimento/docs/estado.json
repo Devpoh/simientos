@@ -2073,8 +2073,9 @@
       "prioridad": "media",
       "cerrado": false,
       "area": "arte",
-      "texto": "El llano se ve como un verde casi uniforme y las bases de la montaña dejan manchas grises sueltas: dar al suelo la variación de la muestra (matas, tierra pisada, tonos por humedad) y limpiar los islotes de roca al pie del acantilado → Plan: B en P9 (ambiente) o en una pasada de arte del terreno tras P2",
-      "porque": "En P2-t3a-vista.png el 70 % de la pantalla es hierba plana; la muestra aprobada tenía más textura y el usuario lee la calidad mirando el suelo"
+      "texto": "El llano se ve como un verde casi uniforme y las bases de la montaña dejan manchas grises sueltas: dar al suelo la variación de la muestra (matas, tierra pisada, tonos por humedad) y limpiar los islotes de roca al pie del acantilado → Plan: B en P2 tramo 3d (R78)",
+      "porque": "En P2-t3a-vista.png el 70 % de la pantalla es hierba plana; la muestra aprobada tenía más textura y el usuario lee la calidad mirando el suelo",
+      "cerradoEn": "2026-10-20T06:29:28.607Z"
     }
   ],
   "decisiones": [
@@ -2258,6 +2259,20 @@
       "fase": "P2",
       "texto": "La costa es un dato de diseño en mapa.ts: generarCosta() produce un perfil por columna con 2-4 rasgos (cabo, bahía, golfo; siempre al menos un cabo y una bahía) acotado entre perfilMin y perfilMax; calcularAlturas lo lee en vez de recortar el rectángulo. tuning.json pierde la sección render (3D); tamanoHex pasa a alturas",
       "porque": "R001: la silueta afecta a navegación y comercio y al ensanchar el recorte las montañas encogían; render solo se leía para tamanoHex"
+    },
+    {
+      "id": "D028",
+      "t": "2026-10-20T06:29:28.758Z",
+      "fase": "P2",
+      "texto": "Se añade a P2 un tramo 3d de calidad del terreno (relieve iluminado como en terreno.py/render.py de la muestra: luz desde la izquierda por normal cuantizada en las rampas, caras de acantilado solo con pendiente alta, roca y nieve por altitud y pendiente, sin islotes sueltos, llano con variación) antes del bench de 60 fps",
+      "porque": "R78: al usuario no le convencen las montañas (rayas negras y luego planas) y el llano es un verde plano; la referencia aprobada es la muestra, y el bench debe medir el terreno definitivo"
+    },
+    {
+      "id": "D029",
+      "t": "2026-10-20T06:31:20.490Z",
+      "fase": "P2",
+      "texto": "Yacimientos (R73) como datos en mapa.yacimientos: lista {tipo, celda, riqueza 1-3} con generador propio por semilla, grupos de celdas contiguas; metales en montaña (oro y plata en la mitad más alta), piedra y mármol en colinas, carbón en cuencas (llanura baja a 1-3 saltos del relieve); una celda, un yacimiento",
+      "porque": "son datos de diseño para la economía (minería, comercio) y se testean con 10 semillas; el render los usará después como iconos o sprites"
     }
   ],
   "conceptos": [
@@ -2407,6 +2422,18 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T06:31:20.492Z",
+      "texto": "Decisión: Yacimientos (R73) como datos en mapa.yacimientos: lista {tipo, celda, riqueza 1-3} con generador propio por semilla, grupos de celdas contiguas; metales en montaña (oro y plata en la mitad más alta), piedra y mármol en colinas, carbón en cuencas (llanura baja a 1-3 saltos del relieve); una celda, un yacimiento"
+    },
+    {
+      "t": "2026-10-20T06:29:28.759Z",
+      "texto": "Decisión: Se añade a P2 un tramo 3d de calidad del terreno (relieve iluminado como en terreno.py/render.py de la muestra: luz desde la izquierda por normal cuantizada en las rampas, caras de acantilado solo con pendiente alta, roca y nieve por altitud y pendiente, sin islotes sueltos, llano con variación) antes del bench de 60 fps"
+    },
+    {
+      "t": "2026-10-20T06:29:28.608Z",
+      "texto": "Cerrado R002"
+    },
     {
       "t": "2026-10-20T06:28:55.816Z",
       "texto": "Error E008 (resuelto): Las montañas nuevas se veían con muchas rayas negras"
@@ -2772,5 +2799,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T06:28:55.816Z"
+  "actualizado": "2026-10-20T06:31:20.492Z"
 }

@@ -30,6 +30,7 @@ function mapaPrueba(columnas: number, filas: number, terrenoPorIndice: Record<nu
     recursos: new Array(total).fill(0),
     rios: [],
     costa: { perfil: [], rasgos: [] },
+    yacimientos: [],
   };
 }
 
