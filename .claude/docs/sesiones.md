@@ -62,7 +62,7 @@ A reparte las fases según la tabla de roles, envía cada tarea con `notify_when
 A puede delegar en un subagente con la herramienta `Agent`, usando `model: "sonnet"` y `effort: "high"` para el rol B o `"medium"` para el rol C. El subagente arranca sin contexto: dale la tarea con el mismo formato.
 
 ## Tareas por tramos (R67, regla del usuario)
-Las tareas pueden ser largas, pero se ejecutan **por tramos de ≤ 20 min** (y lejos de ~60k tokens seguidos). Al cerrar cada tramo, la sesión entrega `HECHO <ID>-parcial` (qué está hecho y verificado, qué sigue) con el árbol compilando, y **se detiene** hasta que A responda «sigue». A divide cada TAREA en tramos al enviarla. Trabajar más de 30 min sin parar degrada la calidad.
+Las tareas pueden ser largas, pero se ejecutan **por tramos de ≤ 20 min** (y lejos de ~60k tokens seguidos). Al cerrar cada tramo, la sesión entrega `HECHO <ID>-parcial` (qué está hecho y verificado, qué sigue) con el árbol compilando, y **se detiene** hasta que A responda «sigue». A divide cada TAREA en tramos que quepan en 20 min (como mucho 2–3 criterios de código por tramo) y pone la hora de corte en la tarea. Trabajar más de 30 min sin parar degrada la calidad.
 
 ## Lecciones de coordinación (20–21-10)
 - **Lo que el usuario le diga a B, C o D** (peticiones o críticas) se lo pasan a A en el siguiente HECHO, y A lo anota en `requisitos-usuario.md` (R68).
