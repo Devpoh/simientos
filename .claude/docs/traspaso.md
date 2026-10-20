@@ -8,10 +8,10 @@ Sesiones del 21-10: A `proyectos-gc-1b`, B `-c3`, C `-a7`, D `-81` (`studio/sesi
 
 ## Estado del juego (CIMIENTOS, slug `sedimento`)
 - **Pixel art 2D isométrico con Phaser 4**. Tag de seguridad `pre-pixel-art`. Todo lo 3D está fuera del proyecto, en `D:\Recursos GC\3d\` (R58).
-- **Hecho:** panel con «Pixel art propio → Avances» (galería) y «Lo que pediste» (R1–R89) · P0 (limpieza y docs), P1 (pipeline de arte `tools/arte-pixel`), P2 tramos 1–4b (Phaser 960×540 escalado entero; cámara 2D; terreno horneado con costa y yacimientos; aldea de referencia animada, D033; bench de 60 fps con el criterio D034).
+- **Hecho:** panel con «Pixel art propio → Avances» (galería) y «Lo que pediste» (R1–R89) · P0 (limpieza y docs), P1 (pipeline de arte `tools/arte-pixel`), P2 tramos 1–4b (Phaser 960×540 escalado entero; cámara 2D; terreno horneado con costa y yacimientos; aldea de referencia animada, D023; bench de 60 fps con el criterio D034).
 - **En curso:** P2 tramo 4c, pantalla completa con píxel entero (R83, D032).
 - **Roadmap:** P2b (UI HTML/CSS, R70) → P2c (montañas como piezas, R84) → P2d (agua y humo, R87) → P3 (rejilla de ocupación) → P3b (caminos, R85) → P4 … P10 → v0.1 (F102 «Fundación desde cero»).
-- **Cola de D:** CAM1 → ESC1 (R89) → CULT1 (R86) → CULT2 (R88) → M2 → almacén de era 2 (R82) → pulir las chozas de E0. Estado y cola en `tools/arte-pixel/README.md`.
+- **Cola de D:** CAM1 → ESC1 (boceto de escala de seres frente a edificios, R89–R90, D038; antes de D4) → CULT1 (R86) → CULT2 (R88) → M2 → almacén de era 2 (R82) → pulir las chozas de E0. Estado y cola en `tools/arte-pixel/README.md`.
 
 ## Reglas del usuario que siempre se cumplen (detalle y fecha en `requisitos-usuario.md`)
 1. **Tramos de ≤ 20 min (R67), también A:** al cerrar cada tramo, HECHO corto y parar hasta el «sigue».
