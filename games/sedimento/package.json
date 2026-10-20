@@ -11,13 +11,10 @@
     "test": "vitest run --reporter=dot",
     "check": "tsc --noEmit && vitest run --reporter=dot",
     "shot": "node scripts/shot.mjs",
-    "modelos": "node scripts/exportar-modelos.mjs"
-  },
-  "dependencies": {
-    "three": "^0.186.1"
+    "arte": "python ../../tools/arte-pixel/exportar.py",
+    "arte:verificar": "python ../../tools/arte-pixel/validar.py"
   },
   "devDependencies": {
-    "@types/three": "^0.186.0",
     "playwright": "^1.64.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",

@@ -2,45 +2,35 @@
 
 > Gobierna una ciudad-estado sumeria viva en un paisaje continuo en tiempo real: construyes donde quieras, ves levantarse cada edificio, y cada cosecha, ley y crecida tiene consecuencias que se propagan por toda la sociedad.
 
-three.js (3D) · TypeScript · Vite · Vitest · Playwright — slug de bitácora: `sedimento`
+**Pixel art 2D isométrico** · Phaser 4 · TypeScript estricto · Vite · Vitest · Playwright. Slug de bitácora: `sedimento`.
+Desde el 20-10 manda **`.claude/docs/pivote-pixel-art.md`** (stack, colisiones, selección, fichas, 60 fps, hoja de ruta P0–P10).
 
 ## Comandos (desde `games/sedimento`)
 
 | Qué | Comando |
 |---|---|
-| Jugar (tú) | `npm run dev` → http://localhost:5173 |
+| Jugar | `npm run dev` → http://localhost:5173 |
 | Typecheck + tests | `npm run check` |
-| Verificar en navegador | `npm run shot -- --acciones "KeyW:500,Space" --nombre F03-algo` |
-| Solo estado, sin imagen | añade `--sin-captura` |
-| Build | `npm run build` |
+| Verificar en navegador | `npm run shot -- --acciones "KeyW:500,Space" --nombre P03-algo` (añade `--sin-captura` para solo estado) |
+| Arte (desde P1) | `npm run arte` (genera atlas + JSON en `public/recursos/pixel/`) · `npm run arte:verificar` · skill `sprite-qa` |
 
-## Lo que manda (leer antes de tocar nada)
+## Lo que manda
 
-- **`docs/prompts/`**: textos literales del usuario: `maestro.md` (la visión completa del juego), `direccion-artistica.md`, `camara.md` y `recursos-recomendados.md`. Mandan sobre todo lo demás.
-- **`espertativas/`** (imágenes de la meta visual que sube el usuario) y **`docs/expectativas.md`** (qué se aprende de cada una): míralas al empezar y antes de decidir nada de arte (R39).
-- **`docs/requisitos-usuario.md`**: R1–R40 con su estado (R35: batallas por turnos; R36: nombre CIMIENTOS; R37: three.js hasta la 0.9; R38: versiones alfa → beta; R40: documentarlo todo siempre). Innegociables: **terreno continuo sin hexágonos ni casillas visibles (R20)**, **construcción libre (R21)** y **progresiva por etapas (R22)**, y **no fijar un sistema gráfico antes de comparar estilos en el laboratorio (R23)**.
-- **Prioridades (R27):** diversión y mecánicas > construcción y simulación coherentes > estilo atractivo y consistente > rendimiento > efectos.
-- GDD: `docs/gdd/README.md` (general), `construccion.md`, `camara.md`, `arte.md`, `mapa.md` y `simulacion.md`. Recursos y licencias: `docs/recursos/catalogo.md` y `docs/creditos.md`.
+- `docs/requisitos-usuario.md`: todo lo que pidió el usuario (R1–R66). Léelo antes de cambiar algo visible. Vigentes clave: R49 (pixel art), R50 (colisiones), R51 (selección), R52 (ficha de ciudadano), R53 (ficha de estructuras), R56 (≥ 60 fps), R59 (terreno procedural), R60 (ratón RTS), R61 (cámara sin giro), R65 (agua), R66 (cultivos por etapas).
+- `docs/prompts/maestro.md` (visión del juego) y `camara.md`; `espertativas/` (meta de ambiente y composición, R39); GDD en `docs/gdd/`.
+- Arte: la muestra aprobada (`prototypes/imperium-muestra/`) y sus errores (README) son la lista de aceptación. El mar de referencia está en `prototypes/pixel-cimientos/` (R65).
+- Prioridades (R27): diversión > construcción y simulación coherentes > estilo > rendimiento > efectos.
 
 ## Arquitectura
 
-- `src/logic/` reglas puras, **sin imports de three**, con tests en `tests/`
-- `src/main.ts` arranque y bucle. Al crecer, separa por sistemas (`src/systems/`, `src/world/`)
-- `src/data/tuning.json` todos los números de diseño
-- **Celdas de datos frente a mundo:** `logic/mapa.ts` genera celdas (hoy hexagonales, **invisibles**) con bioma, fertilidad, agua y recursos; `logic/alturas.ts` genera el **terreno continuo** (`alturaEn(x, z)`, `aguaEn(x, z)`), que `render/terrenoContinuo.ts` convierte en una sola malla con color por vértice (A5). `render/terreno.ts` y `render/relieve.ts` (los prismas y anillos por hexágono) ya no existen. `render/disposicion.ts` sigue guardando las celdas de datos, pero **invisibles**; `render/seleccion.ts` ya no resalta un hexágono: marca el punto exacto bajo el ratón con un círculo. Edificios, obras y caminos usan coordenadas libres (`x`, `z`, `giro` y huella), nunca «una celda».
-- `src/entrada.ts` decide qué arranca: `?galeria` (galería de modelos), `?exportar` (exporta los modelos propios a GLB, `npm run modelos`) o la partida
-- El laboratorio de arte vive en el panel del estudio (`studio/panel`, http://localhost:4400) y lee `public/modelos` y, más adelante, `public/recursos`
-- `src/core/test-hooks.ts` `exponer()` y `marcarListo()` para `shot.mjs`
-- **`docs/requisitos-usuario.md`: lo que el usuario pidió explícitamente. Léelo antes de diseñar o cambiar algo visible.**
-- **Regla permanente (R12): sigue las skills al pie de la letra y revisa todo.** Cada cambio visible → `npm run shot` → **mira la captura** → corrige → repite. En cada fase los gráficos mejoran algo; nunca se dan por terminados.
-- `docs/` brief, GDDs, `estado.json` (bitácora) y `evidencia/` (capturas)
+- `src/logic/` reglas puras sin motor, con tests en `tests/`. `src/data/tuning.json` todos los números de diseño.
+- `src/main.ts` arranque (provisional hasta P2). `src/core/test-hooks.ts` `exponer()` y `marcarListo()` para `shot.mjs`.
+- Una **rejilla de ocupación** única (P3) manda en colocación, navegación y orden de dibujo. Hasta P3, `logic/mapa.ts` sigue con celdas hexagonales de datos.
+- `tools/arte-pixel/` (raíz del repo) genera el arte en Python; el juego **solo carga atlas**, no genera sprites en ejecución.
 
-## Trampas de three.js (r186+)
+## Trampas
 
-- **Nunca dibujar nada con forma de hexágono (R20): el terreno es continuo, las celdas son solo datos.**
-- Usa `THREE.Timer`, no `Clock` (está obsoleto). Acota el delta (`Math.min(dt, 0.1)`).
-- Lo que quites de la escena se libera con `geometry.dispose()` / `material.dispose()` / `texture.dispose()`, salvo que se comparta.
-- Comparte geometrías y materiales entre instancias. Si hay muchas copias, usa `InstancedMesh`.
-- No crees `Vector3` dentro del bucle: reutiliza temporales.
-- Para suavizar, usa `lerp(objetivo, 1 - Math.exp(-k * dt))`, que no depende de los FPS.
-- Si tienes dudas sobre una API, consulta context7 o las skills `threejs-*`. three cambia APIs entre versiones.
+- Escalado solo por enteros, `pixelArt: true`, `roundPixels`. Nada de zoom fraccionario.
+- Ningún color fuera de la paleta de 59. Un sprite nuevo pasa `sprite-qa` y se mira ampliado y a tamaño real (R12).
+- Todo lo que dependa del tiempo usa delta acotado; lógica a paso fijo con interpolación al dibujar. Cero asignaciones en el bucle.
+- Si dudas de una API de Phaser 4, consulta context7 o las skills `phaser-*`.

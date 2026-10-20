@@ -5,8 +5,8 @@ El usuario sabe programar pero **es nuevo en gamedev**: enséñale conceptos a t
 
 ## Stack
 
-- **2D:** Phaser 4 · **3D:** three.js · TypeScript estricto · Vite · Vitest · Playwright (en `shot.mjs`)
-- Plantillas verificadas en `templates/phaser-ts` y `templates/three-ts`. Juegos en `games/<slug>/`, prototipos desechables en `prototypes/<nombre>/`.
+- **Phaser 4 (2D, pixel art)** · TypeScript estricto · Vite · Vitest · Playwright (en `shot.mjs`)
+- Plantilla verificada en `templates/phaser-ts` (la de three.js y sus skills están apartadas en `D:/Recursos GC/3d/`). Juegos en `games/<slug>/`, prototipos desechables en `prototypes/<nombre>/`.
 - Cada juego tiene su propio `CLAUDE.md` con comandos, arquitectura y trampas del motor. Léelo antes de tocar su código.
 
 ## Modo de trabajo: autónomo y por fases pequeñas
@@ -64,5 +64,5 @@ Algunos comandos tienen la invocación automática desactivada para ahorrar cont
 - Separa la lógica pura (`src/logic/`, testeada y sin motor) de la presentación (escenas y render). Así se puede portar a Godot.
 - Los números de diseño van en `src/data/tuning.json`. Todo lo que dependa del tiempo usa delta.
 - Expón el estado clave con `exponer()` para que `shot.mjs` pueda verificarlo.
-- TypeScript estricto, sin `any`. Si la API de Phaser o three cambió, comprueba con context7 en vez de suponer.
+- TypeScript estricto, sin `any`. Si la API de Phaser cambió, comprueba con context7 en vez de suponer.
 - Los identificadores propios van en español, como en las plantillas. Las APIs del motor mantienen su nombre. Docs y bitácora en español.

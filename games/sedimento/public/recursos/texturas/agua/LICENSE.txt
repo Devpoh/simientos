@@ -1,7 +1,0 @@
-Normal map de agua (normal.png)
-Nombre original: Stylized Water Waves of Pools (Others 0020)
-Autor/fuente: TextureCan — https://www.texturecan.com/details/282/
-Licencia: CC0 1.0 Universal (https://www.texturecan.com/terms/) — uso comercial libre, sin
-atribucion obligatoria, verificada 2026-10-19 (docs/recursos/catalogo.md, #18).
-Integrado: 2026-10-19 (preparado para la fase G2).
-Original: normal_opengl, 1024x1024. Reescalado a 512x512 con ffmpeg (filtro lanczos).

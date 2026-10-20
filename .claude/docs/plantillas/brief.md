@@ -2,7 +2,7 @@
 
 **Pitch (1 frase):**
 **Referencia:** juego publicado más parecido + el ~10 % que tomamos de él
-**Motor:** Phaser 4 (2D) | three.js (3D) — por qué
+**Motor:** Phaser 4 (2D, pixel art) — por qué
 
 ## Fantasía del jugador
 Qué siente y qué es el jugador, en 1–2 frases.

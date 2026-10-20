@@ -7,7 +7,7 @@
 - **Frostpunk:** presión constante y decisiones duras.
 - **Civilization VI:** solo la escala estratégica (civilizaciones, diplomacia). **No** su tablero de casillas: la construcción va sobre terreno continuo (R20 y R21).
 
-**Motor:** three.js + TypeScript estricto + Vite. La lógica pura en `src/logic/`, con tests, se puede portar a Godot o Unity (GDD §12). El **estilo visual está por decidir** en el Art Direction Lab (`gdd/arte.md`). Mientras tanto el juego usa un render provisional.
+**Motor:** Phaser 4 + TypeScript estricto + Vite, en **pixel art 2D isométrico** (R49, `.claude/docs/pivote-pixel-art.md`). La lógica pura en `src/logic/`, con tests, se puede portar a Godot o Unity (GDD §12). Estilo: el de la muestra aprobada (`gdd/pixel-art.md`).
 **Nombre:** **SEDIMENTO**, elegido por el usuario; IMPERIUM es el nombre de trabajo de sus textos. El limo del río da vida a Sumer y también colmata sus canales; las civilizaciones son capas que se acumulan y se entierran.
 **Textos fuente del usuario:** `docs/prompts/` (literales; mandan sobre este brief).
 

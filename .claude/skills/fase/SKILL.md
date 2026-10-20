@@ -23,7 +23,7 @@ Si la fase toca más de unos 6 archivos o más de unas 300 líneas, o mezcla dos
 1. Primero la **lógica pura** en `src/logic/` con sus tests (Vitest). Así el comportamiento queda definido antes de dibujarlo.
 2. Luego la **presentación** (escena o render), leyendo los valores de `tuning.json`.
 3. Usa `exponer()` para todo lo que haga falta comprobar en los criterios (posición, vida, estado de la máquina, contadores).
-4. Si dudas sobre una API de Phaser o three: skill `phaser-*` / `threejs-*` o context7. No supongas.
+4. Si dudas sobre una API de Phaser: skill `phaser-*` o context7. No supongas.
 5. Si el código introduce un **concepto de gamedev** que el usuario probablemente no conoce (delta time, coyote time, pooling, máquina de estados…), regístralo: `B aprende '{"concepto":"…","explicacion":"2-3 frases, ligadas a este juego"}'`.
 
 ## 4. Verificar (obligatorio, desde `games/<slug>`)
@@ -35,7 +35,7 @@ Si la fase toca más de unos 6 archivos o más de unas 300 líneas, o mezcla dos
 ## 5. Errores durante la fase
 - Antes de reintentar, piensa en la causa raíz. Prueba 3 enfoques distintos como máximo.
 - Si el error no fue trivial (más allá de un typo), regístralo aunque ya esté resuelto: `B error '{"fase":"F03","sintoma":"…","causa":"…","solucion":"…"}'`.
-- Si el error enseña algo reutilizable, añade 1 línea a `studio/aprendizajes.md`: `- [phaser|three|ts|vite|general] síntoma → causa → solución`.
+- Si el error enseña algo reutilizable, añade 1 línea a `studio/aprendizajes.md`: `- [phaser|ts|vite|arte|general] síntoma → causa → solución`.
 - Si después de 3 enfoques sigues atascado: `B fase '{"id":"F03","estado":"bloqueada","motivo":"…qué se probó y qué haría falta"}'` y termina la fase sin commit de código roto (con `git stash` o deshaciendo los cambios de esa fase).
 
 ## 6. Cerrar

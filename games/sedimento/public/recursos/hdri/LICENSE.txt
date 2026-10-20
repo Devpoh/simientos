@@ -1,6 +1,0 @@
-HDRI de cielo (atardecer_2k.hdr)
-Nombre original: Mpumalanga Veld (Pure Sky)
-Autor/fuente: Poly Haven — https://polyhaven.com/a/mpumalanga_veld_puresky
-Licencia: CC0 1.0 Universal (https://polyhaven.com/license) — uso comercial libre, sin
-atribucion obligatoria, verificada 2026-10-19 (docs/recursos/catalogo.md, #19).
-Integrado: 2026-10-19 (fase G1). Resolucion 2K (.hdr), sin modificar.

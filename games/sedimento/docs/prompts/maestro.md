@@ -4,7 +4,7 @@
 > **Cómo convive con los textos posteriores (decisiones del 19-10 con el usuario, R35–R38 en `requisitos-usuario.md`):**
 > - **Nombre:** provisional **CIMIENTOS** (ni IMPERIUM ni SEDIMENTO, hasta que el usuario lo decida).
 > - **Guerra:** campaña, economía y diplomacia en **tiempo real**, pero las **batallas tácticas son por turnos** (R7, confirmado). Esto sustituye solo lo que §11 y el anexo §28 dicen de las batallas.
-> - **Motor:** se sigue con **three.js** (web), con la lógica portable; la comparación de motores de §21 se hace en la v0.9.
+> - **Motor:** Phaser 4 en pixel art 2D (R49, 20-10), con la lógica portable; la decisión de motor final (§21) se hace en la v0.9.
 > - **Construcción y terreno:** mandan `direccion-artistica.md` (sin casillas, terreno continuo, construcción progresiva) y `camara.md`.
 > - El resto del documento está **vigente** (R34).
 

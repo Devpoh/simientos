@@ -5,7 +5,7 @@ El estudio trabaja con **tres sesiones de Claude Code abiertas a la vez** en `D:
 | Rol | Modelo · esfuerzo | Para qué |
 |---|---|---|
 | **A, orquestador** | Opus 5.5 · alto | Habla con el usuario. Diseño, arquitectura, decisiones de concepto, roadmap, sistemas núcleo difíciles, bloqueos y revisión final. **Reparte el trabajo.** |
-| **B, implementador** | Sonnet 5.5 · alto | Fases con criterios claros (la mayoría), render three.js, sistemas con tests, bugs medios, playtests. |
+| **B, implementador** | Sonnet 5.5 · alto | Fases con criterios claros (la mayoría), render Phaser, sistemas con tests, bugs medios, playtests. |
 | **C, ayudante** | Sonnet 5 · medio | Trabajo mecánico: verificar con `check` y `shot`, capturas, tuning, docs, registrar en la bitácora, refactors pequeños, búsquedas y resúmenes. |
 
 **Regla de reparto:** usa el modelo más barato que lo haga bien a la primera. **Delega solo lo que estés seguro de que ese rol resuelve con su modelo y su esfuerzo.** Si dudas, se lo das al rol superior o lo hace A: ahorrar tokens no compensa un trabajo mal hecho que luego hay que rehacer. Si una tarea de C falla dos veces, sube a B. Si una de B se bloquea, sube a A.
@@ -60,3 +60,6 @@ A reparte las fases según la tabla de roles, envía cada tarea con `notify_when
 
 ## Si B o C no están disponibles
 A puede delegar en un subagente con la herramienta `Agent`, usando `model: "sonnet"` y `effort: "high"` para el rol B o `"medium"` para el rol C. El subagente arranca sin contexto: dale la tarea con el mismo formato.
+
+## Tareas por tramos (R67, regla del usuario)
+Las tareas pueden ser largas, pero se ejecutan **por tramos de ≤ 20 min** (y lejos de ~60k tokens seguidos). Al cerrar cada tramo, la sesión entrega `HECHO <ID>-parcial` (qué está hecho y verificado, qué sigue) con el árbol compilando, y **se detiene** hasta que A responda «sigue». A divide cada TAREA en tramos al enviarla. Trabajar más de 30 min sin parar degrada la calidad.

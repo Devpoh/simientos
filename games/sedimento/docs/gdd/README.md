@@ -1,7 +1,7 @@
 # Entregable B — Documento de diseño (GDD general)
 
 Marcas de procedencia: **[H]** dato histórico documentado · **[I]** interpretación o hipótesis académica debatida · **[D]** decisión de diseño (ficción).
-> **Actualizado el 2026-10-19:** terreno continuo sin hexágonos ni casillas visibles (R20), construcción libre y progresiva (`construccion.md`), cámara (`camara.md`) y dirección artística por decidir en el laboratorio (`arte.md`). Los textos literales del usuario están en `../prompts/` y mandan sobre este documento.
+> **Actualizado el 2026-10-20:** pixel art 2D isométrico (R49, `.claude/docs/pivote-pixel-art.md`), terreno continuo procedural (R20, R59), construcción libre y progresiva (`construccion.md`), cámara 2D sin giro (`camara.md`, R61) y estilo en `pixel-art.md`. Los textos literales del usuario están en `../prompts/` y mandan sobre este documento.
 
 Versión que lo implementa: **v0.0**, **v0.1**… (ver `../versiones.md`). Las reglas con números concretos están en `simulacion.md` y, más adelante, en un GDD por sistema.
 
@@ -132,7 +132,7 @@ Respuestas escalonadas cuando aprieta (v0.2): **quejas → petición formal → 
 
 - **Cuatro árboles distintos, no intercambiables:** *Conocimiento* (técnicas: arado sembrador [H], torno de alfarero [H], metalurgia del bronce), *Instituciones* (escritura administrativa, tribunales, provincias: se desbloquean por condiciones sociales, no por puntos), *Cultura y culto* (festivales, epopeyas, monumentos) y *Doctrinas religiosas* (relación templo-palacio).
 - **Coste de oportunidad real:** la investigación consume escribas y tiempo, que salen de otras tareas. Hay ramas excluyentes (por ejemplo, centralización frente a autonomía de las ciudades).
-- **Motor:** el prototipo se hace en **three.js** sobre terreno continuo; el estilo visual se decide en el laboratorio (`arte.md`).
+- **Motor:** Phaser 4 en pixel art 2D isométrico sobre terreno continuo (R49); estilo en `pixel-art.md`.
 - **Motor final:** el desarrollo sigue en web hasta que el diseño esté probado, porque la lógica en TS puro es portable. La comparación completa Godot / Unity / Unreal es el **Entregable F**. Mi inclinación provisional es **Godot 4 + C#** (gratuito, ligero, 2D y 3D sólidos, sin regalías). La alternativa es Unity si hiciera falta un ECS para decenas de miles de agentes. Unreal es excesivo para un equipo de uno. La decisión se toma en v0.9 con datos de rendimiento.
 
 ## 13. Desastres
