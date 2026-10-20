@@ -1,6 +1,6 @@
 # Traspaso entre sesiones (actualizado: 2026-10-21, relevo de A, B, C y D)
 
-> Sesión nueva: lee en este orden `.claude/docs/pivote-pixel-art.md` (manda sobre todo, sobre todo §13), este archivo, `.claude/docs/sesiones.md`, `games/sedimento/CLAUDE.md` y `node studio/bitacora.mjs estado`. Las reglas del usuario están en `games/sedimento/docs/requisitos-usuario.md` (R1–R81): **léelas antes de diseñar o dibujar nada**.
+> Sesión nueva: lee en este orden `.claude/docs/pivote-pixel-art.md` (manda sobre todo, sobre todo §13), este archivo, `.claude/docs/sesiones.md`, `games/sedimento/CLAUDE.md` y `node studio/bitacora.mjs estado`. Las reglas del usuario están en `games/sedimento/docs/requisitos-usuario.md` (R1–R89): **léelas antes de diseñar o dibujar nada**.
 > R40: déjalo todo documentado. Antes de cerrar una sesión, actualiza este archivo y deja una `nota` en la bitácora.
 
 ## Quién es quién
@@ -8,13 +8,10 @@ Sesiones del 21-10: A `proyectos-gc-1b`, B `-c3`, C `-a7`, D `-81` (`studio/sesi
 
 ## Estado del juego (CIMIENTOS, slug `sedimento`)
 - **Pixel art 2D isométrico con Phaser 4**. Tag de seguridad `pre-pixel-art`. Todo lo 3D está fuera del proyecto, en `D:\Recursos GC\3d\` (R58).
-- **Hecho:** panel con «Pixel art propio → Avances» (galería) y «Lo que pediste» (R1–R81) · P0 (limpieza y docs), P1 (pipeline de arte `tools/arte-pixel`: atlas + JSON, `npm run arte`, `arte:verificar`, skill `sprite-qa`), P2 tramos 1–3c (Phaser 960×540 con escalado entero, F2 con fps; cámara 2D con central/WASD/bordes/zoom 1–4; terreno procedural horneado al cargar; costa como dato; yacimientos de 8 tipos).
-- **A medias (mira las notas «Traspaso B/C/D (21-10)» en la bitácora para el punto exacto):**
-  - P2 tramo 3d (⛔ parcial, commit «P2 tramo 3d»): sombras, luz por bandas, curvatura, fertilidad y limpieza hechas, pero **las montañas siguen sin convencer al usuario** (R78/R79). Reco de prioridad alta en el panel: probar montañas como piezas de sprite de D frente al sombreado procedural, con un boceto comparativo para que elija el usuario, antes del tramo 4. El horneado tarda ~3,5 s en CPU (candidato a Web Worker).
-  - P2 tramo 4: bench de 60 fps (skill `bench-60fps`, Chrome con GPU real, p95 ≤ 16,6 ms) sobre una **aldea de referencia animada** que se ve por defecto (D023).
-  - D: boceto del almacén de era 1 humilde (R80) hecho (`tools/arte-pixel/bocetos/almacen_era1_x4.png`), **pendiente del visto bueno del usuario**; después, 3 retoques (puerta de esteras poco legible, rayas en el muro derecho, pila de sacos) y las etapas 1–5 con barro y cantos. Estado y cola de D en `tools/arte-pixel/README.md`.
-- **Siguiente:** cerrar P2 → P2b (UI HTML/CSS, R70; los marcos 9-slice ya están en `public/recursos/pixel/ui/`) → P3 (rejilla de ocupación; apuntado: declarar `huellaObra` y la categoría `cultivo` en `src/data/atlas.ts`) → P4 … P10 → v0.1 (F102 «Fundación desde cero»).
-- **Cola de arte de D:** boceto de era 0 (choza redonda de ramas y paja, choza de troncos y barro con techo de paja) para que lo apruebe el usuario → D4 espaldas con torso propio + variantes (antes de P4) → familia de era 0 → familia de era 1 → niños, ancianos, pose colgando y retratos (antes de P6) → gaviotas y nubes (P9) → LOD (P10) → producción y mercados (R71) → soldados por era (R72) → yacimientos visibles (R73) → templo en 6 etapas (al final). Faltantes L001–L010 en el panel, cada uno con su plan.
+- **Hecho:** panel con «Pixel art propio → Avances» (galería) y «Lo que pediste» (R1–R89) · P0 (limpieza y docs), P1 (pipeline de arte `tools/arte-pixel`), P2 tramos 1–4b (Phaser 960×540 escalado entero; cámara 2D; terreno horneado con costa y yacimientos; aldea de referencia animada, D033; bench de 60 fps con el criterio D034).
+- **En curso:** P2 tramo 4c, pantalla completa con píxel entero (R83, D032).
+- **Roadmap:** P2b (UI HTML/CSS, R70) → P2c (montañas como piezas, R84) → P2d (agua y humo, R87) → P3 (rejilla de ocupación) → P3b (caminos, R85) → P4 … P10 → v0.1 (F102 «Fundación desde cero»).
+- **Cola de D:** CAM1 → ESC1 (R89) → CULT1 (R86) → CULT2 (R88) → M2 → almacén de era 2 (R82) → pulir las chozas de E0. Estado y cola en `tools/arte-pixel/README.md`.
 
 ## Reglas del usuario que siempre se cumplen (detalle y fecha en `requisitos-usuario.md`)
 1. **Tramos de ≤ 20 min (R67), también A:** al cerrar cada tramo, HECHO corto y parar hasta el «sigue».
@@ -26,7 +23,7 @@ Sesiones del 21-10: A `proyectos-gc-1b`, B `-c3`, C `-a7`, D `-81` (`studio/sesi
 7. **Vigilar el panel:** cada `falta` o `reco` nueva recibe «→ Plan: sesión, fase» en el mismo tramo.
 8. Mínimo **60 fps medidos** (R56) · **cero gasto** (R43) · **nada 3D** (R49, R57) · **sin push** · commit solo de tus rutas.
 9. **Documento maestro = guía de la parte jugable (R81):** `games/sedimento/docs/prompts/maestro.md` (copia literal de `espertativas/IMPERIUM_Prompt_Maestro_y_Vision_Creativa.docx`). Consúltalo al diseñar o planificar cualquier mecánica y salta lo que contradiga R49–R80.
-10. Decisiones del 20-10 que no se reabren: terreno procedural (R59), ratón RTS (R60), cámara sin giro (R61), mar de `pixel-cimientos` y río de la muestra (R65), campos en 6 etapas (R66), UI híbrida HTML/CSS (R70), catálogo de estructuras (R74, `gdd/estructuras.md`).
+10. Decisiones que no se reabren: terreno procedural (R59), ratón RTS (R60), cámara sin giro (R61), mar de `pixel-cimientos` y río de la muestra (R65), campos en 6 etapas (R66), UI híbrida HTML/CSS (R70), catálogo de estructuras (R74), pantalla completa con píxel entero (R83), montañas como piezas de sprite (R84), bench de 60 fps con el criterio D034 (con vsync ≥ 59,5 fps y ≤ 0,5 % perdidos; sin vsync p95 ≤ 8,3 ms).
 11. **Lo que se sustituye no se borra (R82):** se guarda y se le busca otro uso (el almacén anterior pasa a la era 2).
 
 ## Lecciones (no repetir)
