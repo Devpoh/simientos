@@ -128,8 +128,8 @@ function colorEn(sup: Superficie, cfg: ConfigHorneado, u: number, v: number): Mu
     return { altura: h, rampa: 'piedra', tono: 4.2 + banda(sombra) * 0.8, duro: true };
   }
   if (pendiente > cfg.pendienteRoca || cota > cfg.alturaCumbre * 0.8) {
-    const estrato = Math.floor(h * 16) % 4 === 0 ? -1 : 0;   // vetas horizontales según la altura
-    return { altura: h, rampa: 'roca', tono: 1.8 + banda(sombra) * 0.6 + estrato, duro: true };
+    // Roca en los tres tonos medios de la rampa: el más oscuro es casi tinta y dibuja «rayas negras».
+    return { altura: h, rampa: 'roca', tono: 2.1 + banda(sombra) * 0.5, duro: true };
   }
   const orilla = tipoDeOrilla(sup, cfg, u, v);
   if (orilla === 'arena') return { altura: h, rampa: 'tierra', tono: 4.1 + sombra * 4 + ruido * 0.9 };

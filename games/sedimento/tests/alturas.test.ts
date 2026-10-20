@@ -7,7 +7,7 @@ const SEMILLAS = [20260418, 7, 1234];
 
 function campoDe(semilla: number) {
   const mapa = generarMapa({ ...tuning.mapa, semilla }, tuning.clima);
-  return { mapa, campo: crearCampoAlturas(mapa, { ...tuning.alturas, tamanoHex: tuning.render.tamanoHex }) };
+  return { mapa, campo: crearCampoAlturas(mapa, tuning.alturas) };
 }
 
 describe('campo de alturas continuo (R20)', () => {

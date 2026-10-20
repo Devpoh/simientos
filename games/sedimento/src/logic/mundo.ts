@@ -25,7 +25,7 @@ export function superficieDeCampo(campo: CampoAlturas, tileMundo: number): Super
 
 export function crearMundo(semilla: number = tuning.mapa.semilla): Mundo {
   const mapa = generarMapa({ ...tuning.mapa, semilla }, tuning.clima);
-  const campo = crearCampoAlturas(mapa, { ...tuning.alturas, tamanoHex: tuning.render.tamanoHex });
+  const campo = crearCampoAlturas(mapa, tuning.alturas);
   const tile = tuning.mundo.tileMundo;
   const tilesU = Math.floor(((campo.columnas - 1) * campo.paso) / tile);
   const tilesV = Math.floor(((campo.filas - 1) * campo.paso) / tile);
@@ -61,13 +61,14 @@ const seco = (sup: Superficie, u: number, v: number): boolean => {
 };
 
 /**
- * Esquina (u, v) de la zona más llana y seca de `ancho`×`alto` tiles que haya a `radio` tiles de `desde`.
+ * Esquina (u, v) de la zona más llana y seca de `ancho`×`alto` tiles que haya a `radio` tiles de `desde` (con preferencia por la más cercana).
  * Sirve para colocar la aldea provisional; la colocación real validará con la rejilla de ocupación (P3).
  */
 export function buscarLlano(
   sup: Superficie, ancho: number, alto: number, desde: { u: number; v: number }, radio: number, limites: { u: number; v: number },
 ): { u: number; v: number; desnivel: number } | null {
   let mejor: { u: number; v: number; desnivel: number } | null = null;
+  let mejorPuntos = Infinity;
   for (let u0 = Math.max(0, Math.floor(desde.u - radio)); u0 + ancho <= Math.min(limites.u, desde.u + radio); u0 += 2) {
     for (let v0 = Math.max(0, Math.floor(desde.v - radio)); v0 + alto <= Math.min(limites.v, desde.v + radio); v0 += 2) {
       let min = Infinity;
@@ -81,7 +82,12 @@ export function buscarLlano(
           if (h > max) max = h;
         }
       }
-      if (ok && (!mejor || max - min < mejor.desnivel)) mejor = { u: u0, v: v0, desnivel: max - min };
+      // Gana lo más llano; a igualdad aproximada, lo más cercano a `desde` (0,002 de desnivel por tile de distancia).
+      const puntos = max - min + 0.002 * Math.hypot(u0 + ancho / 2 - desde.u, v0 + alto / 2 - desde.v);
+      if (ok && puntos < mejorPuntos) {
+        mejorPuntos = puntos;
+        mejor = { u: u0, v: v0, desnivel: max - min };
+      }
     }
   }
   return mejor;

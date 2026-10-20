@@ -47,6 +47,42 @@ export interface ConfigMapa {
   caidaFertilidad: number;
   /** Exponente altura → metros: >1 deja la llanura cerca del nivel del mar y eleva las cumbres. */
   curvaAltitud: number;
+  costa: ConfigCosta;
+}
+
+/** Cómo se diseña la silueta de la costa: cuántos accidentes y de qué tamaño (fracciones del ancho y del alto del mapa). */
+export interface ConfigCosta {
+  rasgosMin: number;
+  rasgosMax: number;
+  anchoMin: number;
+  anchoMax: number;
+  /** [mín, máx] de cuánto entra o sale la costa, como fracción del alto. */
+  cabo: number[];
+  bahia: number[];
+  golfo: number[];
+  /** Límites del perfil (fracción del alto): ni tan al norte que toque la sierra, ni tan al sur que no quede orilla. */
+  perfilMin: number;
+  perfilMax: number;
+}
+
+export type TipoRasgoCosta = 'cabo' | 'bahia' | 'golfo';
+
+/** Un accidente de la costa. `magnitud` > 0 saca la tierra hacia el mar (cabo); < 0 mete el mar tierra adentro. */
+export interface RasgoCosta {
+  tipo: TipoRasgoCosta;
+  /** Columna central, y anchura en columnas. */
+  columna: number;
+  ancho: number;
+  magnitud: number;
+}
+
+/**
+ * La silueta del territorio como DATO de diseño (R001): afecta a la navegación y al comercio, no es del render.
+ * `perfil[col]` es la fracción del alto (0 = norte, 1 = sur) donde empieza el mar en esa columna.
+ */
+export interface Costa {
+  perfil: number[];
+  rasgos: RasgoCosta[];
 }
 
 /** Estado del mapa como arrays planos indexados por hexágono (serializable con JSON). */
@@ -73,6 +109,7 @@ export interface Mapa {
   recursos: number[];
   /** Cauces de los ríos (el principal primero), del nacimiento a la desembocadura o la confluencia. */
   rios: number[][];
+  costa: Costa;
 }
 
 export const esAgua = (t: Terreno) => t === 'mar' || t === 'rio' || t === 'lago';
@@ -82,7 +119,8 @@ export function generarMapa(base: ConfigMapa, climaBase: ConfigClima): Mapa {
   const clima = variarClima(climaBase, cfg.semilla);
   const rejilla = new Rejilla(cfg.columnas, cfg.filas);
   const n = rejilla.total;
-  const altura = calcularAlturas(cfg, rejilla);
+  const costa = generarCosta(cfg);
+  const altura = calcularAlturas(cfg, rejilla, costa);
 
   // Mar: lo bajo que está conectado con el borde sur.
   const ultima = cfg.filas - 1;
@@ -198,6 +236,7 @@ export function generarMapa(base: ConfigMapa, climaBase: ConfigClima): Mapa {
     distAgua: distAgua.map((d) => (d === Infinity ? -1 : d)),
     recursos,
     rios,
+    costa,
   };
 }
 
@@ -218,7 +257,64 @@ function variarConfig(cfg: ConfigMapa): ConfigMapa {
   return { ...cfg, bordeMontanas: cfg.bordeMontanas + desvio(), bordeMar: Math.max(0.08, cfg.bordeMar + desvio()) };
 }
 
-function calcularAlturas(cfg: ConfigMapa, rejilla: Rejilla): number[] {
+/** Perfil de la costa en una columna (con posición fraccionaria: las filas impares van medio hexágono desplazadas). */
+export function perfilEn(costa: Costa, x: number): number {
+  const p = costa.perfil;
+  const c = Math.min(p.length - 1, Math.max(0, x));
+  const a = Math.floor(c);
+  const b = Math.min(p.length - 1, a + 1);
+  return p[a] + (p[b] - p[a]) * (c - a);
+}
+
+/** Ventana suave (0..1) centrada en `centro`: cos² dentro de `ancho` columnas, 0 fuera. */
+function ventana(col: number, centro: number, ancho: number): number {
+  const d = Math.abs(col - centro) / (ancho / 2);
+  if (d >= 1) return 0;
+  const c = Math.cos((d * Math.PI) / 2);
+  return c * c;
+}
+
+/**
+ * Diseña la costa: la línea base de la configuración, una ondulación suave y 2–4 accidentes (cabos, bahías, golfos).
+ * Siempre hay al menos un cabo y una bahía, repartidos por el ancho sin solaparse del todo.
+ * El perfil se acota para que ni la sierra ni la fila sur queden afectadas (las montañas no encogen, R001).
+ */
+export function generarCosta(cfg: ConfigMapa): Costa {
+  const c = cfg.costa;
+  const rng = crearRng(derivarSemilla(cfg.semilla, 'costa'));
+  const semillaBordes = derivarSemilla(cfg.semilla, 'bordes');
+  const n = enteroEntre(rng, c.rasgosMin, c.rasgosMax);
+  const tipos: TipoRasgoCosta[] = ['cabo', 'bahia'];
+  const otros: TipoRasgoCosta[] = ['cabo', 'bahia', 'golfo'];
+  while (tipos.length < n) tipos.push(otros[Math.floor(rng() * otros.length)]);
+  // Orden aleatorio de los tipos y un hueco por accidente a lo ancho del mapa.
+  for (let i = tipos.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [tipos[i], tipos[j]] = [tipos[j], tipos[i]];
+  }
+  const hueco = cfg.columnas / n;
+  const rasgos: RasgoCosta[] = tipos.map((tipo, k) => {
+    const ancho = Math.round(cfg.columnas * (c.anchoMin + rng() * (c.anchoMax - c.anchoMin)));
+    const columna = Math.round(hueco * (k + 0.2 + rng() * 0.6));
+    const [min, max] = c[tipo];   // [mín, máx]
+    const tam = min + rng() * (max - min);
+    return { tipo, columna, ancho, magnitud: tipo === 'cabo' ? tam : -tam };
+  });
+  const base = 1 - cfg.bordeMar;
+  const perfil = Array.from({ length: cfg.columnas + 1 }, (_, col) => {
+    const onda = (fbm(semillaBordes, col * 0.09, 9.5, 2) - 0.5) * 2 * cfg.ondulacionBordes;
+    let y = base + onda;
+    for (const r of rasgos) {
+      const w = ventana(col, r.columna, r.ancho);
+      // el golfo tiene el fondo más plano que una bahía
+      y += r.magnitud * (r.tipo === 'golfo' ? Math.sqrt(w) : w);
+    }
+    return Math.min(c.perfilMax, Math.max(c.perfilMin, y));
+  });
+  return { perfil, rasgos };
+}
+
+function calcularAlturas(cfg: ConfigMapa, rejilla: Rejilla, costa: Costa): number[] {
   const semillaRuido = derivarSemilla(cfg.semilla, 'relieve');
   const semillaBordes = derivarSemilla(cfg.semilla, 'bordes');
   const alturas = new Array<number>(rejilla.total);
@@ -230,9 +326,8 @@ function calcularAlturas(cfg: ConfigMapa, rejilla: Rejilla): number[] {
     const x = col + (fila & 1) * 0.5;
     // Las fronteras ondulan por columna (ruido de baja frecuencia) para que no sean filas rectas.
     const ondaMontanas = (fbm(semillaBordes, x * 0.09, 0, 2) - 0.5) * 2 * cfg.ondulacionBordes;
-    const ondaMar = (fbm(semillaBordes, x * 0.09, 9.5, 2) - 0.5) * 2 * cfg.ondulacionBordes;
     const m = Math.max(0.05, cfg.bordeMontanas + ondaMontanas);
-    const s = Math.min(0.95, 1 - cfg.bordeMar + ondaMar);
+    const s = perfilEn(costa, x);
     // Perfil continuo (sin escalones): sierra → piedemonte → valle → costa → mar.
     let base: number;
     let amplitud: number;

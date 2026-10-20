@@ -29,6 +29,7 @@ function mapaPrueba(columnas: number, filas: number, terrenoPorIndice: Record<nu
     distAgua: new Array(total).fill(0),
     recursos: new Array(total).fill(0),
     rios: [],
+    costa: { perfil: [], rasgos: [] },
   };
 }
 

@@ -77,3 +77,51 @@ describe('generarMapa', () => {
     for (const f of ribera) expect(f).toBeGreaterThan(0.8);
   });
 });
+
+describe('costa como dato de diseño (R001)', () => {
+  /** Primera fila de mar de cada columna (la silueta real de la costa en el mapa generado). */
+  const filaCosta = (s: number): number[] => {
+    const m = conSemilla(s);
+    const rej = new Rejilla(m.columnas, m.filas);
+    return Array.from({ length: m.columnas }, (_, c) => {
+      for (let f = 0; f < m.filas; f++) if (m.terreno[rej.indice(c, f)] === 'mar') return f;
+      return m.filas;
+    });
+  };
+
+  it.each(SEMILLAS)('semilla %i: la costa trae al menos un cabo y una bahía, dentro de los límites', (s) => {
+    const { costa } = conSemilla(s);
+    expect(costa.rasgos.length).toBeGreaterThanOrEqual(base.costa.rasgosMin);
+    expect(costa.rasgos.length).toBeLessThanOrEqual(base.costa.rasgosMax);
+    expect(costa.rasgos.some((r) => r.tipo === 'cabo')).toBe(true);
+    expect(costa.rasgos.some((r) => r.tipo === 'bahia' || r.tipo === 'golfo')).toBe(true);
+    for (const r of costa.rasgos) expect(r.tipo === 'cabo' ? r.magnitud > 0 : r.magnitud < 0).toBe(true);
+    expect(costa.perfil).toHaveLength(base.columnas + 1);
+    for (const y of costa.perfil) {
+      expect(y).toBeGreaterThanOrEqual(base.costa.perfilMin);
+      expect(y).toBeLessThanOrEqual(base.costa.perfilMax);
+    }
+  });
+
+  it.each(SEMILLAS)('semilla %i: la silueta real es irregular (varias filas de diferencia entre cabo y bahía)', (s) => {
+    const filas = filaCosta(s);
+    expect(Math.max(...filas) - Math.min(...filas)).toBeGreaterThanOrEqual(4);
+  });
+
+  it.each(SEMILLAS)('semilla %i: las montañas conservan su altura y su extensión', (s) => {
+    const m = conSemilla(s);
+    expect(Math.max(...m.altura)).toBeGreaterThanOrEqual(0.9);
+    const montana = m.terreno.filter((t) => t === 'montana').length;
+    expect(montana / m.terreno.length).toBeGreaterThanOrEqual(0.05);
+  });
+
+  it('un cabo adelanta la costa hacia el sur y una bahía la retrasa respecto a la línea base', () => {
+    const m = conSemilla(base.semilla);
+    const baseY = 1 - base.bordeMar;
+    const cabo = m.costa.rasgos.find((r) => r.tipo === 'cabo');
+    const bahia = m.costa.rasgos.find((r) => r.tipo !== 'cabo');
+    expect(m.costa.perfil[cabo!.columna]).toBeGreaterThan(baseY - base.ondulacionBordes - 0.02);
+    expect(m.costa.perfil[bahia!.columna]).toBeLessThan(baseY + base.ondulacionBordes + 0.02);
+  });
+});
+

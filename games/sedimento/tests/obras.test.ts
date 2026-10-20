@@ -16,8 +16,8 @@ function mundo(semilla: number): Mundo {
   let t = cacheMundos.get(semilla);
   if (!t) {
     const mapa = generarMapa({ ...tuning.mapa, semilla }, tuning.clima);
-    const campo = crearCampoAlturas(mapa, { ...tuning.alturas, tamanoHex: tuning.render.tamanoHex });
-    t = { mapa, rejilla: new Rejilla(mapa.columnas, mapa.filas), tamanoHex: tuning.render.tamanoHex, alturaEn: campo.alturaEn, aguaEn: campo.aguaEn };
+    const campo = crearCampoAlturas(mapa, tuning.alturas);
+    t = { mapa, rejilla: new Rejilla(mapa.columnas, mapa.filas), tamanoHex: tuning.alturas.tamanoHex, alturaEn: campo.alturaEn, aguaEn: campo.aguaEn };
     cacheMundos.set(semilla, t);
   }
   return t;
@@ -101,7 +101,7 @@ describe('colocación libre (R21)', () => {
 
   it('explica el motivo: agua, pendiente, fuera del mapa y sin agua al lado', () => {
     const { t, e } = aldea();
-    const campo = crearCampoAlturas(t.mapa, { ...tuning.alturas, tamanoHex: tuning.render.tamanoHex });
+    const campo = crearCampoAlturas(t.mapa, tuning.alturas);
     const rio = campo.rios[0];
     const p = rio.puntos[Math.floor(rio.puntos.length / 2)];
     expect(motivoNoConstruible(e, t, 'casa', { x: p.x, z: p.z, giro: 0 }, cfg)).toBe('agua');

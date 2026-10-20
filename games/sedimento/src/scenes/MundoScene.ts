@@ -63,7 +63,7 @@ export class MundoScene extends Phaser.Scene {
     // Aldea provisional sobre la zona más llana y seca cerca del centro del mapa (la colocación real llega en P3).
     const ancho = 20;
     const alto = 18;
-    const llano = buscarLlano(mundo.superficie, ancho, alto, { u: mundo.tilesU * 0.5, v: mundo.tilesV * 0.5 }, Math.min(mundo.tilesU, mundo.tilesV) * 0.4, { u: mundo.tilesU, v: mundo.tilesV });
+    const llano = buscarLlano(mundo.superficie, ancho, alto, { u: mundo.tilesU * 0.5, v: mundo.tilesV * 0.5 }, Math.max(mundo.tilesU, mundo.tilesV), { u: mundo.tilesU, v: mundo.tilesV });
     const origen = llano ?? { u: mundo.tilesU / 2 - ancho / 2, v: mundo.tilesV / 2 - alto / 2, desnivel: NaN };
     this.llano = origen;
     const elevacion = (u: number, v: number): number => alturaPx(mundo.superficie, mundo.cfg, u, v);

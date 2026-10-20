@@ -1963,6 +1963,15 @@
       "sintoma": "Con el zoom de pantalla de Windows/Chrome (125 %, 150 %) el pixel art podía verse borroso o con píxeles de distinto tamaño",
       "causa": "El factor entero se calculaba en píxeles CSS, que no son píxeles físicos cuando devicePixelRatio ≠ 1",
       "solucion": "zoomCss(ventana, dpr, base) = k/dpr con k entero sobre píxeles físicos; probado con tests (dpr 1, 1,25 y 1,5)"
+    },
+    {
+      "id": "E008",
+      "t": "2026-10-20T06:28:55.814Z",
+      "estado": "resuelto",
+      "fase": "P2",
+      "sintoma": "Las montañas nuevas se veían con muchas rayas negras",
+      "causa": "Los estratos y la sombra más oscura de la rampa roca usaban el tono 0, casi tinta (#2a2840)",
+      "solucion": "Roca limitada a los tres tonos medios y sin estratos; nieve y roca siguen en bandas duras sin tramado"
     }
   ],
   "faltantes": [
@@ -2037,6 +2046,14 @@
       "cerrado": false,
       "area": "arte",
       "texto": "Arte de era 0 y 1 (R77, progresion.md §4): choza de ramas y paja, choza de madera y paja, hoguera comunal, cobertizo, empalizada, altar de piedras, claro de entrenamiento y milicia (garrote, honda, arco de caza); después casa de adobe con techo plano, santuario y cuartel de adobe → Plan: D, justo después de las espaldas (D4) y antes de niños y ancianos; boceto de la choza primero. La partida empieza aquí (F102)"
+    },
+    {
+      "id": "L010",
+      "t": "2026-10-20T06:28:28.444Z",
+      "prioridad": "baja",
+      "cerrado": false,
+      "texto": "Campo de cebada en orientación girada (2×3, surcos en v) para encajar campos en cualquier sentido → Plan: D, cola baja (tras era 0–1)",
+      "area": "arte"
     }
   ],
   "recomendaciones": [
@@ -2044,10 +2061,11 @@
       "id": "R001",
       "t": "2026-10-19T06:39:33.234Z",
       "prioridad": "media",
-      "cerrado": false,
+      "cerrado": true,
       "area": "mapa",
       "texto": "Que mapa.ts genere la forma de isla o costa (cabos, bahías, golfo) como dato, en vez de recortar el rectángulo en alturas.ts → Plan: aceptada, B la hace en P2 tramo 3 (terreno procedural)",
-      "porque": "Al ensanchar el recorte del borde las montañas encogen; la silueta del territorio es un dato de diseño (afecta a la navegación y al comercio), no del render"
+      "porque": "Al ensanchar el recorte del borde las montañas encogen; la silueta del territorio es un dato de diseño (afecta a la navegación y al comercio), no del render",
+      "cerradoEn": "2026-10-20T06:28:55.307Z"
     },
     {
       "id": "R002",
@@ -2233,6 +2251,13 @@
       "fase": "F102",
       "texto": "Progresión desde cero (docs/gdd/progresion.md): 4 eras (campamento, aldea, ciudad, imperio) y niveles por familia (vivienda, almacén, caminos, herramientas, producción, comercio, religión, gobierno, defensa, militar, cuartel, transporte); cada nivel exige material, conocimiento, necesidad y trabajo; sin saltos, mejora en el sitio, puede retroceder, conviven niveles. Las casas actuales del atlas son de era 2; el arte de era 0–1 pasa a ser prioritario",
       "porque": "R77: el usuario quiere que el imperio se construya desde cero con progresión en todo, y delegó el diseño en A"
+    },
+    {
+      "id": "D027",
+      "t": "2026-10-20T06:28:55.560Z",
+      "fase": "P2",
+      "texto": "La costa es un dato de diseño en mapa.ts: generarCosta() produce un perfil por columna con 2-4 rasgos (cabo, bahía, golfo; siempre al menos un cabo y una bahía) acotado entre perfilMin y perfilMax; calcularAlturas lo lee en vez de recortar el rectángulo. tuning.json pierde la sección render (3D); tamanoHex pasa a alturas",
+      "porque": "R001: la silueta afecta a navegación y comercio y al ensanchar el recorte las montañas encogían; render solo se leía para tamanoHex"
     }
   ],
   "conceptos": [
@@ -2382,6 +2407,22 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T06:28:55.816Z",
+      "texto": "Error E008 (resuelto): Las montañas nuevas se veían con muchas rayas negras"
+    },
+    {
+      "t": "2026-10-20T06:28:55.563Z",
+      "texto": "Decisión: La costa es un dato de diseño en mapa.ts: generarCosta() produce un perfil por columna con 2-4 rasgos (cabo, bahía, golfo; siempre al menos un cabo y una bahía) acotado entre perfilMin y perfilMax; calcularAlturas lo lee en vez de recortar el rectángulo. tuning.json pierde la sección render (3D); tamanoHex pasa a alturas"
+    },
+    {
+      "t": "2026-10-20T06:28:55.311Z",
+      "texto": "Cerrado R001"
+    },
+    {
+      "t": "2026-10-20T06:28:28.446Z",
+      "texto": "Falta: Campo de cebada en orientación girada (2×3, surcos en v) para encajar campos en cualquier sentido → Plan: D, cola baja (tras era 0–1)"
+    },
     {
       "t": "2026-10-20T06:26:58.795Z",
       "texto": "Concepto: Progresión con puertas (gating)"
@@ -2731,5 +2772,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T06:26:58.795Z"
+  "actualizado": "2026-10-20T06:28:55.816Z"
 }

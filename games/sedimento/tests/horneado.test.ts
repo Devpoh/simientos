@@ -155,7 +155,7 @@ describe('mundo procedural', () => {
       const m = crearMundo(semilla);
       expect(m.tilesU).toBeGreaterThan(60);
       expect(m.tilesV).toBeGreaterThan(40);
-      const llano2 = buscarLlano(m.superficie, 20, 18, { u: m.tilesU / 2, v: m.tilesV / 2 }, Math.min(m.tilesU, m.tilesV) * 0.4, { u: m.tilesU, v: m.tilesV });
+      const llano2 = buscarLlano(m.superficie, 20, 18, { u: m.tilesU / 2, v: m.tilesV / 2 }, Math.max(m.tilesU, m.tilesV), { u: m.tilesU, v: m.tilesV });
       expect(llano2, `semilla ${semilla}`).not.toBeNull();
       expect(llano2!.desnivel).toBeLessThan(0.3);
       expect(alturaPx(m.superficie, m.cfg, m.tilesU / 2, 1)).toBeGreaterThanOrEqual(0);
