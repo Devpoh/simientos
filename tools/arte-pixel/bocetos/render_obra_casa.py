@@ -1,7 +1,7 @@
 """Hojas de revisión de las 6 etapas de obra de una casa (x1, x4 y cada etapa en x8).
 
 Uso:  python bocetos/render_obra_casa.py [w d [u|v [variante]]]     (por defecto 2 2 u a)
-Escribe en bocetos/ : obra_<w>x<d>_<eje>_x1.png, _x4.png y e<n>_x8.png. Comprueba paleta y ampliación exacta.
+Escribe en bocetos/ : obra_<w>x<d><variante>_<eje>_x1.png, _x4.png y e<n>_x8.png. Comprueba paleta y ampliación exacta.
 """
 import os
 import sys
@@ -37,7 +37,7 @@ def a_img(px, esc=1, fondo=None):
 
 etapas = OB.hoja_vista(w, d, kw, eje)
 fondo = c("hierba", 3)
-pref = os.path.join(AQUI, f"obra_{w}x{d}_{eje}")
+pref = os.path.join(AQUI, f"obra_{w}x{d}{var}_{eje}")
 for i, s in enumerate(etapas, 1):
     a_img(s.px, 8, fondo).save(os.path.join(AQUI, f"e{i}_x8.png"))
 n, ew, eh = len(etapas), etapas[0].w, etapas[0].h

@@ -96,6 +96,14 @@ def hueco(s, O, a, b, la, lb, s0, t0, w, h, arco=False, dintel=True):
     s.cara(O, a, la, b, lb, fn, fid=9, mascara=mk)
 
 
+def fn_tapa(ramp, tono, seed=1):
+    """Superficie superior de un muro o bloque (leve ruido, sin textura de hiladas)."""
+    def fn(s, t, X, Y):
+        n = fbm(s * 0.09 + seed, t * 0.09, 2, seed)
+        return a_indice(np.full(s.shape, RID[ramp]), tono + (n - 0.5) * 0.5)
+    return fn
+
+
 def sin_aislados(px, minimo=2):
     """Quita píxeles sueltos del decal de suelo (menos de `minimo` vecinos de 8)."""
     op = px != TRANSP
@@ -161,8 +169,14 @@ class Obra:
                     s.pset(x, yy, col)
 
     def bloque(self, u, v, z, du, dv, dz, tono=3.7, seed=1):
-        self.caja(u, v, z, du, dv, dz, f_mar(tono, seed, vetas=False), f_mar(tono - 2.1, seed + 1, vetas=False),
-                  f_mar_top(tono + 0.9, seed + 2), fid=30)
+        """Bloque de material: sillar de piedra, o ladrillo de adobe si la casa es de pared de tierra."""
+        if self.pared == "piedra":
+            self.caja(u, v, z, du, dv, dz, f_mar(tono, seed, vetas=False), f_mar(tono - 2.1, seed + 1, vetas=False),
+                      f_mar_top(tono + 0.9, seed + 2), fid=30)
+        else:
+            r, t = self.pared, tono + 0.5      # algo más claros que el suelo, para que se lean sobre la tierra
+            self.caja(u, v, z, du, dv, dz, fn_sillar(r, t, seed, bw=5, bh=3, var=0.6),
+                      fn_sillar(r, t - 1.9, seed + 1, bw=5, bh=3, var=0.6), fn_tapa(r, t + 0.9, seed + 2), fid=30)
 
     def pila_bloques(self, u, v, z0, filas, cols, tam, seed):
         du, dv, dz = tam
@@ -229,8 +243,14 @@ class Obra:
                   f_mar_top(4.5, seed + 2), fid=90)
 
     def muro_sillar(self, u0, v0, du, dv, z0, h, seed, bh=4):
-        self.caja(u0, v0, z0, du, dv, h, fn_sillar("piedra", 3.9, seed, bw=8, bh=bh), fn_sillar("piedra", 2.0, seed + 1, bw=8, bh=bh),
-                  f_mar_top(4.7, seed + 2), fid=91)
+        """Muro a medio levantar con el material de la pared terminada: sillar de piedra o ladrillo de adobe."""
+        if self.pared == "piedra":
+            lit, som, tapa, bw = 3.9, 2.0, 4.7, 8
+        else:   # adobe: los mismos tonos de la pared acabada, un poco más oscuros porque aún no tiene enlucido
+            lit, som, tapa, bw = self.t_lit - 0.5, self.t_som - 0.2, self.t_lit + 0.9, 6
+        self.caja(u0, v0, z0, du, dv, h, fn_sillar(self.pared, lit, seed, bw=bw, bh=bh, var=1.0 if self.pared == "piedra" else 0.7),
+                  fn_sillar(self.pared, som, seed + 1, bw=bw, bh=bh, var=1.0 if self.pared == "piedra" else 0.7),
+                  fn_tapa(self.pared, tapa, seed + 2), fid=91)
 
     def umbral(self, dz):
         t = 4

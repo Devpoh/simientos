@@ -221,9 +221,6 @@ CASAS_3X2 = {
 }
 
 
-CON_OBRA = {(2, 2, "a")}      # variantes con las 6 etapas de obra (obra_casa.py)
-
-
 def _casa(w, d, eje, kw):
     return ED.casa(w, d, eje=eje, **kw)
 
@@ -236,23 +233,19 @@ def _punto_chimenea(spr) -> tuple:
 
 def estructuras() -> list:
     out = []
-    # Viviendas: las variantes con obra (R22) llevan 6 etapas: 1 replanteo, 2 preparación, 3 cimientos, 4 estructura,
-    # 5 cubierta, 6 terminada. Las demás solo la casa terminada (etapa3, pendiente de unificar nombres).
+    # Viviendas: todas llevan las 6 etapas de obra (R22): 1 replanteo, 2 preparación, 3 cimientos, 4 estructura,
+    # 5 cubierta, 6 terminada (la última etapa es siempre la estructura terminada).
     for w, d, tabla in ((2, 2, CASAS_2X2), (3, 2, CASAS_3X2)):
         for var, kw in tabla.items():
             est = {}
             etapas = []
             huella_obra = {}
-            if (w, d, var) in CON_OBRA:
-                for n, o in OB.etapas_casa(w, d, kw).items():
-                    est[f"etapa{n}"] = Estado(0, o["orient"])
-                    huella_obra[f"etapa{n}"] = o["huella"]
-                    etapas.append(f"etapa{n}")
-                final = "etapa6"
-            else:
-                final = "etapa3"
-            est[final] = Estado(0, {"u": [_casa(w, d, "u", kw)], "v": [_casa(w, d, "v", kw)]})
-            etapas.append(final)
+            for n, o in OB.etapas_casa(w, d, kw).items():
+                est[f"etapa{n}"] = Estado(0, o["orient"])
+                huella_obra[f"etapa{n}"] = o["huella"]
+                etapas.append(f"etapa{n}")
+            est["etapa6"] = Estado(0, {"u": [_casa(w, d, "u", kw)], "v": [_casa(w, d, "v", kw)]})
+            etapas.append("etapa6")
             out.append(Entrada(f"casa_{w}x{d}_{var}", "estructura", (w, d), est, bloquea=True,
                                centro=(w * 8, d * 8), recortar=True, etapas=etapas, huella_obra=huella_obra,
                                puertas=[{"i": 0, "j": d, "lado": "v+"}], puntos={"chimenea": _punto_chimenea}))

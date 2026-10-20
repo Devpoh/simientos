@@ -27,7 +27,7 @@ Los sprites se dibujan con código (Python + Pillow + numpy + scipy) y se export
 
 ## Obras: `etapas` y `huellaObra`
 
-- `etapas` lista los estados de obra en orden; **la última es la estructura terminada**. Las casas con obra (hoy `casa_2x2_a`) tienen `etapa1…etapa6`; el resto, solo `etapa3` (terminada) hasta que lleguen sus etapas.
+- `etapas` lista los estados de obra en orden; **la última es la estructura terminada**. **Todas las casas** (2×2 a-d y 3×2 a-b) tienen `etapa1…etapa6`. Los muros de la etapa 4 y el material apilado usan el de la pared de cada variante (sillar de piedra o ladrillo de adobe).
 - `huellaObra[etapa]` = `{u0, v0, u1, v1}` en **subceldas** (1 tile = 4 subceldas = 16 px de suelo), relativo a la esquina trasera de la huella: la huella + lo que sobresale (andamio, material). Para casas 2×2 la huella pura es `{0, 0, 8, 8}`. La **bloqueada** durante la obra es `huellaObra`; la huella pura sigue siendo la de la casa terminada. Los márgenes se calculan al dibujar (cada pieza que sobresale se registra) y el exportador falla si algo sobresale más de 1 subcelda.
 - La etapa 5 existe en orientación `u` y `v` (cumbrera); las etapas 1-4 son iguales en ambas (alias).
 
