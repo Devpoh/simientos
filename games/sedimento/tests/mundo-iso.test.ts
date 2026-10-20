@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { aPantalla, aRejilla, centroHuella, claveOrden, claveOrdenEstructura } from '../src/logic/iso';
-import { escalaEntera } from '../src/logic/pantalla';
+import { escalaEntera, escalaFisica, zoomCss } from '../src/logic/pantalla';
 import { MedidorFotogramas } from '../src/logic/rendimiento';
 
 describe('isometría 2:1 (tile 32×16)', () => {
@@ -49,6 +49,26 @@ describe('escalado entero del lienzo', () => {
   it('limita por el lado más justo y nunca baja de ×1', () => {
     expect(escalaEntera({ ancho: 2880, alto: 1100 }, base)).toBe(2);
     expect(escalaEntera({ ancho: 400, alto: 300 }, base)).toBe(1);
+  });
+});
+
+describe('escalado con el zoom de pantalla de Windows (devicePixelRatio)', () => {
+  const base = { ancho: 960, alto: 540 };
+  it('sin zoom de pantalla coincide con el escalado entero normal', () => {
+    expect(zoomCss({ ancho: 1920, alto: 1080 }, 1, base)).toBe(2);
+  });
+  it('al 125 % (1536×864 CSS = 1920×1080 físicos) el zoom CSS es 1,6 y equivale a ×2 físico', () => {
+    const z = zoomCss({ ancho: 1536, alto: 864 }, 1.25, base);
+    expect(z).toBeCloseTo(1.6, 9);
+    expect(escalaFisica(z, 1.25)).toBe(2);
+  });
+  it('al 150 % el píxel del arte ocupa siempre un número entero de píxeles físicos', () => {
+    for (const [w, h] of [[1280, 720], [1100, 700], [1707, 960], [800, 400]]) {
+      const z = zoomCss({ ancho: w, alto: h }, 1.5, base);
+      const fisico = z * 1.5;
+      expect(Number.isInteger(Math.round(fisico * 1e6) / 1e6), `${w}×${h}`).toBe(true);
+      expect(fisico).toBeGreaterThanOrEqual(1);
+    }
   });
 });
 

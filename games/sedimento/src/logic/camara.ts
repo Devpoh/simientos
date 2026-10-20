@@ -7,13 +7,18 @@ export interface EstadoCamara { x: number; y: number; zoom: number }
 export interface Limites { minX: number; maxX: number; minY: number; maxY: number }
 export interface Direccion { x: -1 | 0 | 1; y: -1 | 0 | 1 }
 
-/** Caja del mapa isométrico (rombo de n×n tiles) más un margen para poder mirar un poco más allá del borde. */
-export function limitesMundo(tiles: number, tile: { ancho: number; alto: number }, margen: number): Limites {
+/**
+ * Caja del mapa isométrico (rombo de tilesU×tilesV tiles, con u hacia la derecha y v hacia la izquierda) más un margen
+ * para mirar un poco más allá del borde. `alturaPx` es lo que sobresale el relieve por encima del rombo.
+ */
+export function limitesMundo(
+  tilesU: number, tilesV: number, tile: { ancho: number; alto: number }, margen: number, alturaPx = 0,
+): Limites {
   return {
-    minX: (-tiles * tile.ancho) / 2 - margen,
-    maxX: (tiles * tile.ancho) / 2 + margen,
-    minY: -margen,
-    maxY: tiles * tile.alto + margen,
+    minX: (-tilesV * tile.ancho) / 2 - margen,
+    maxX: (tilesU * tile.ancho) / 2 + margen,
+    minY: -alturaPx - margen,
+    maxY: ((tilesU + tilesV) * tile.alto) / 2 + margen,
   };
 }
 

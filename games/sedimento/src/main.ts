@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import tuning from './data/tuning.json';
 import { medidor } from './core/metricas';
-import { escalaEntera } from './logic/pantalla';
+import { zoomCss } from './logic/pantalla';
 import { BootScene } from './scenes/BootScene';
 import { MundoScene } from './scenes/MundoScene';
 
 const base = { ancho: tuning.pantalla.ancho, alto: tuning.pantalla.alto };
-const zoomVentana = (): number => escalaEntera({ ancho: window.innerWidth, alto: window.innerHeight }, base);
+// Entero en píxeles físicos (no CSS): con el zoom de Windows/Chrome el pixel art seguiría borroso.
+const zoomVentana = (): number => zoomCss({ ancho: window.innerWidth, alto: window.innerHeight }, window.devicePixelRatio, base);
 
 const juego = new Phaser.Game({
   type: Phaser.AUTO,

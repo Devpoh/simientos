@@ -41,7 +41,8 @@
         "tests": "206/206 en el último commit verde (f6e8aab/81082a1)",
         "resultado": "grep sin referencias 3D vivas; panel:probar 44/44"
       },
-      "fin": "2026-10-20T06:22:12.675Z"
+      "fin": "2026-10-20T06:22:12.675Z",
+      "commit": "9eee916"
     },
     {
       "id": "P1",
@@ -1916,6 +1917,33 @@
       "sintoma": "Tras cualquier comando fase, P0–P10 pasaban al final y estado daba F102 como siguiente",
       "causa": "studio/bitacora.mjs ordenaba las fases solo por id (F < P < S)",
       "solucion": "Ordenar por versión (0.0 < 0.1 < … < 1.0) y después por id"
+    },
+    {
+      "id": "E005",
+      "t": "2026-10-20T06:23:11.545Z",
+      "estado": "resuelto",
+      "fase": "P2",
+      "sintoma": "Montañas nevadas borrosas, como difuminadas, en el terreno horneado",
+      "causa": "Sombreado continuo con ruido liso y tramado ordenado sobre la rampa de roca y piedra, más manchas de tierra naranja: se leía como degradado y no como pixel art",
+      "solucion": "Roca y nieve en bandas duras (banda(sombra) a 5 niveles, sin tramado), estratos por altura y borde de nieve nítido; el tramado queda solo para hierba y agua"
+    },
+    {
+      "id": "E006",
+      "t": "2026-10-20T06:23:11.707Z",
+      "estado": "resuelto",
+      "fase": "P2",
+      "sintoma": "Toda la llanura salía como arena y el río y los lagos siempre con orilla arenosa",
+      "causa": "La arena se decidía solo por altura baja y no por el tipo de agua; el usuario aclaró que río y lago no siempre tienen arena",
+      "solucion": "tipoDeOrilla(): arena siempre en la costa del mar; en río y lago solo en tramos que elige un ruido suave (umbralArenaDulce); el resto, ribera de hierba húmeda"
+    },
+    {
+      "id": "E007",
+      "t": "2026-10-20T06:23:11.889Z",
+      "estado": "resuelto",
+      "fase": "P2",
+      "sintoma": "Con el zoom de pantalla de Windows/Chrome (125 %, 150 %) el pixel art podía verse borroso o con píxeles de distinto tamaño",
+      "causa": "El factor entero se calculaba en píxeles CSS, que no son píxeles físicos cuando devicePixelRatio ≠ 1",
+      "solucion": "zoomCss(ventana, dpr, base) = k/dpr con k entero sobre píxeles físicos; probado con tests (dpr 1, 1,25 y 1,5)"
     }
   ],
   "faltantes": [
@@ -2155,6 +2183,13 @@
       "fase": "P2b",
       "texto": "Marcos 9-slice de paneles HTML (D): madera y piedra, 16×16 con esquinas 6×6 y variante resaltada en oro; interior oscuro para texto claro (cambiable a azul noche con una constante si el usuario lo prefiere)",
       "porque": "R70: la UI HTML tiene que verse pixel art; el interior oscuro maximiza el contraste del texto"
+    },
+    {
+      "id": "D025",
+      "t": "2026-10-20T06:23:12.391Z",
+      "fase": "P2",
+      "texto": "Terreno: crearMundo(semilla) reutiliza mapa+campo de alturas existentes, 1 tile = 1 unidad de mundo (86×62 tiles) y se hornea con voxel space a una imagen de índices de paleta (src/data/paleta.ts generado de paleta.txt y comprobado por test), troceada en 512 px; arena según tipo de agua",
+      "porque": "reutiliza lógica ya testeada (R59 procedural al cargar), sin generar arte por fotograma; ~1,5 s de horneado en este PC (SwiftShader no influye): candidato a Web Worker en P10"
     }
   ],
   "conceptos": [
@@ -2283,9 +2318,49 @@
       "t": "2026-10-20T06:07:19.454Z",
       "concepto": "Radio de servicio (cobertura)",
       "explicacion": "En los city-builders, muchos edificios no producen bienes sino que cubren una necesidad en un área: un pozo da agua a las casas que están a menos de N tiles, un templo da fe, un mercado reparte comida. La casa mira qué servicios le llegan y con eso sube o baja de nivel. Así la forma de la ciudad importa: no basta con tener un templo, tiene que estar cerca de la gente (Caesar III, Pharaoh)."
+    },
+    {
+      "id": "C022",
+      "t": "2026-10-20T06:23:12.056Z",
+      "concepto": "Voxel space: terreno 2D desde un mapa de alturas",
+      "explicacion": "Para dibujar un relieve isométrico sin modelos 3D, cada columna de pantalla recorre el terreno de lo más cercano a lo más lejano y solo pinta lo que asoma por encima de lo ya pintado. Laderas, acantilados y costa salen solas del mapa de alturas, y se hace una vez al cargar (horneado) para que el juego solo dibuje imágenes."
+    },
+    {
+      "id": "C023",
+      "t": "2026-10-20T06:23:12.230Z",
+      "concepto": "Sombreado en bandas y tramado (dithering)",
+      "explicacion": "En pixel art, un degradado continuo se ve borroso. Se usan pocos tonos duros (bandas) para roca y nieve, y un tramado ordenado (patrón de píxeles alternos) solo donde conviene una transición suave, como hierba o agua. La luz sale siempre del mismo lado."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T06:23:12.392Z",
+      "texto": "Decisión: Terreno: crearMundo(semilla) reutiliza mapa+campo de alturas existentes, 1 tile = 1 unidad de mundo (86×62 tiles) y se hornea con voxel space a una imagen de índices de paleta (src/data/paleta.ts generado de paleta.txt y comprobado por test), troceada en 512 px; arena según tipo de agua"
+    },
+    {
+      "t": "2026-10-20T06:23:12.231Z",
+      "texto": "Concepto: Sombreado en bandas y tramado (dithering)"
+    },
+    {
+      "t": "2026-10-20T06:23:12.058Z",
+      "texto": "Concepto: Voxel space: terreno 2D desde un mapa de alturas"
+    },
+    {
+      "t": "2026-10-20T06:23:11.890Z",
+      "texto": "Error E007 (resuelto): Con el zoom de pantalla de Windows/Chrome (125 %, 150 %) el pixel art podía verse borroso o con píxeles de distinto tamaño"
+    },
+    {
+      "t": "2026-10-20T06:23:11.708Z",
+      "texto": "Error E006 (resuelto): Toda la llanura salía como arena y el río y los lagos siempre con orilla arenosa"
+    },
+    {
+      "t": "2026-10-20T06:23:11.547Z",
+      "texto": "Error E005 (resuelto): Montañas nevadas borrosas, como difuminadas, en el terreno horneado"
+    },
+    {
+      "t": "2026-10-20T06:22:13.312Z",
+      "texto": "Fase P0 actualizada: Limpieza y pivote a pixel art"
+    },
     {
       "t": "2026-10-20T06:22:12.706Z",
       "texto": "Fase P0 → hecha: Limpieza y pivote a pixel art"
@@ -2595,5 +2670,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T06:22:12.706Z"
+  "actualizado": "2026-10-20T06:23:12.392Z"
 }

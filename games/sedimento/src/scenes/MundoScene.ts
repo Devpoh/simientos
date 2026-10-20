@@ -4,6 +4,10 @@ import type { AtlasPixel } from '../data/atlas';
 import { exponer, marcarListo } from '../core/test-hooks';
 import { medidor } from '../core/metricas';
 import { aPantalla } from '../logic/iso';
+import { escalaFisica } from '../logic/pantalla';
+import { alturaPx, buscarLlano, crearMundo, hornearMundo } from '../logic/mundo';
+import { crearTrozos } from '../render/terrenoHorneado';
+import { params } from '../core/test-hooks';
 import { ControlCamara } from '../render/controlCamara';
 import { CLAVE_REGISTRO_ATLAS, ESTADO_FINAL, colocar, type PedidoSprite } from '../render/sprites';
 import { PanelRendimiento } from '../ui/panelRendimiento';
@@ -30,6 +34,8 @@ const ALDEA: PedidoSprite[] = [
 export class MundoScene extends Phaser.Scene {
   private panel?: PanelRendimiento;
   private camara?: ControlCamara;
+  private medidas: Record<string, number> = {};
+  private llano?: { u: number; v: number; desnivel: number };
 
   constructor() {
     super('Mundo');
@@ -37,24 +43,40 @@ export class MundoScene extends Phaser.Scene {
 
   create(): void {
     const atlas = this.registry.get(CLAVE_REGISTRO_ATLAS) as AtlasPixel;
-    const color = (hex: string): number => Phaser.Display.Color.HexStringToColor(hex).color;
-    const cam = this.cameras.main;
-    cam.setBackgroundColor(color(tuning.mundo.colorFondo));
+    this.cameras.main.setBackgroundColor(Phaser.Display.Color.HexStringToColor(tuning.mundo.colorFondo).color);
 
-    // Suelo provisional: un rombo plano del tamaño del mapa (el terreno horneado llega en el tramo 3).
-    const n = tuning.mundo.tiles;
-    const esquinas = [aPantalla(0, 0), aPantalla(n, 0), aPantalla(n, n), aPantalla(0, n)];
-    this.add
-      .graphics()
-      .fillStyle(color(tuning.mundo.colorSuelo))
-      .fillPoints(esquinas.map((p) => new Phaser.Math.Vector2(p.x, p.y)), true)
-      .setDepth(-1e6);
+    // Terreno procedural horneado una sola vez (R59): semilla → mapa → alturas → imagen de paleta → trozos.
+    const semilla = Number(params.get('semilla')) || tuning.mapa.semilla;
+    const t0 = performance.now();
+    const mundo = crearMundo(semilla);
+    const t1 = performance.now();
+    const imagen = hornearMundo(mundo);
+    const t2 = performance.now();
+    const trozos = crearTrozos(this, imagen, tuning.mundo.lado);
+    const t3 = performance.now();
 
-    for (const p of ALDEA) colocar(this, atlas, p);
+    this.medidas = {
+      semilla, tilesU: mundo.tilesU, tilesV: mundo.tilesV, pxAncho: imagen.ancho, pxAlto: imagen.alto, trozos: trozos.length,
+      msGenerar: Math.round(t1 - t0), msHornear: Math.round(t2 - t1), msTexturas: Math.round(t3 - t2),
+    };
 
-    this.camara = new ControlCamara(this, aPantalla(n / 2, n / 2));
+    // Aldea provisional sobre la zona más llana y seca cerca del centro del mapa (la colocación real llega en P3).
+    const ancho = 20;
+    const alto = 18;
+    const llano = buscarLlano(mundo.superficie, ancho, alto, { u: mundo.tilesU * 0.5, v: mundo.tilesV * 0.5 }, Math.min(mundo.tilesU, mundo.tilesV) * 0.4, { u: mundo.tilesU, v: mundo.tilesV });
+    const origen = llano ?? { u: mundo.tilesU / 2 - ancho / 2, v: mundo.tilesV / 2 - alto / 2, desnivel: NaN };
+    this.llano = origen;
+    const elevacion = (u: number, v: number): number => alturaPx(mundo.superficie, mundo.cfg, u, v);
+    for (const p of ALDEA) colocar(this, atlas, { ...p, u: p.u - 20 + origen.u, v: p.v - 20 + origen.v }, elevacion);
 
-    this.panel = new PanelRendimiento(() => ({ sprites: this.children.length, escala: this.scale.zoom }));
+    const c = aPantalla(origen.u + ancho / 2, origen.v + alto / 2);
+    this.camara = new ControlCamara(
+      this,
+      { x: c.x, y: c.y - elevacion(origen.u + ancho / 2, origen.v + alto / 2) },
+      { tilesU: mundo.tilesU, tilesV: mundo.tilesV, alturaPx: -imagen.origenY },
+    );
+
+    this.panel = new PanelRendimiento(() => ({ sprites: this.children.length, escala: escalaFisica(this.scale.zoom, window.devicePixelRatio) }));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.panel?.destruir());
 
     const r1 = (v: number): number => Math.round(v * 10) / 10;
@@ -66,7 +88,8 @@ export class MundoScene extends Phaser.Scene {
       const c = this.camara?.leer();
       return c ? { x: Math.round(c.x), y: Math.round(c.y), zoom: c.zoom } : null;
     });
-    exponer('escalaEntera', () => this.scale.zoom);
+    exponer('terreno', () => ({ ...this.medidas, llano: this.llano }));
+    exponer('escalaEntera', () => escalaFisica(this.scale.zoom, window.devicePixelRatio));
     this.events.once(Phaser.Scenes.Events.UPDATE, marcarListo);
   }
 

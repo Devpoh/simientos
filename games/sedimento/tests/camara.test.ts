@@ -7,12 +7,17 @@ import {
 
 const vista = { ancho: 960, alto: 540 };
 const pasos = tuning.camara.zoomPasos;
-const lim = limitesMundo(tuning.mundo.tiles, { ancho: 32, alto: 16 }, tuning.camara.margenLimitePx);
+const lim = limitesMundo(64, 64, { ancho: 32, alto: 16 }, tuning.camara.margenLimitePx);
 const centro: EstadoCamara = { x: 0, y: 512, zoom: 1 };
 
 describe('límites del mapa', () => {
   it('el mapa de 64×64 tiles mide 2048×1024 px y los límites añaden el margen', () => {
     expect(lim).toEqual({ minX: -1024 - 64, maxX: 1024 + 64, minY: -64, maxY: 1024 + 64 });
+  });
+
+  it('un mapa rectangular (u≠v) se extiende más hacia el lado largo y el relieve sube el límite superior', () => {
+    const l = limitesMundo(80, 60, { ancho: 32, alto: 16 }, 0, 100);
+    expect(l).toEqual({ minX: -960, maxX: 1280, minY: -100, maxY: 1120 });
   });
 
   it('la vista no sale de los límites en ningún lado', () => {
@@ -28,7 +33,7 @@ describe('límites del mapa', () => {
   });
 
   it('si el mundo es más pequeño que la vista, se centra en él', () => {
-    const chico = limitesMundo(4, { ancho: 32, alto: 16 }, 0);
+    const chico = limitesMundo(4, 4, { ancho: 32, alto: 16 }, 0);
     const e = limitarCentro({ x: 500, y: -300, zoom: 1 }, vista, chico);
     expect(e).toEqual({ x: 0, y: 32, zoom: 1 });
   });

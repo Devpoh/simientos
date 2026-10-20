@@ -5,7 +5,7 @@ import Phaser from 'phaser';
 import tuning from '../data/tuning.json';
 import {
   arrastrar, desplazar, direccionBordes, limitarCentro, limitesMundo, zoomHaciaCursor,
-  type Direccion, type EstadoCamara,
+  type Direccion, type EstadoCamara, type Limites,
 } from '../logic/camara';
 
 type Teclas = Record<'arriba' | 'abajo' | 'izq' | 'der', Phaser.Input.Keyboard.Key[]>;
@@ -13,12 +13,20 @@ type Teclas = Record<'arriba' | 'abajo' | 'izq' | 'der', Phaser.Input.Keyboard.K
 export class ControlCamara {
   private estado: EstadoCamara;
   private readonly vista: { ancho: number; alto: number };
-  private readonly lim = limitesMundo(tuning.mundo.tiles, { ancho: tuning.pantalla.tileAncho, alto: tuning.pantalla.tileAlto }, tuning.camara.margenLimitePx);
+  private readonly lim: Limites;
   private readonly teclas: Teclas;
   private ratonDentro = false;
   private ultimoZoomMs = -Infinity;
 
-  constructor(private readonly scene: Phaser.Scene, centro: { x: number; y: number }) {
+  constructor(
+    private readonly scene: Phaser.Scene,
+    centro: { x: number; y: number },
+    mundo: { tilesU: number; tilesV: number; alturaPx: number },
+  ) {
+    this.lim = limitesMundo(
+      mundo.tilesU, mundo.tilesV, { ancho: tuning.pantalla.tileAncho, alto: tuning.pantalla.tileAlto },
+      tuning.camara.margenLimitePx, mundo.alturaPx,
+    );
     const cam = scene.cameras.main;
     this.vista = { ancho: cam.width, alto: cam.height };
     this.estado = limitarCentro({ ...centro, zoom: tuning.camara.zoomInicial }, this.vista, this.lim);

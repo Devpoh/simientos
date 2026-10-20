@@ -703,9 +703,9 @@
     "tileAlto": 16
   },
   "mundo": {
-    "tiles": 64,
-    "colorSuelo": "#4b8640",
-    "colorFondo": "#0a1736"
+    "colorFondo": "#0a1736",
+    "tileMundo": 1,
+    "lado": 512
   },
   "rendimiento": {
     "ventanaFotogramas": 300,
@@ -727,5 +727,13 @@
     "margenBordePx": 6,
     "margenLimitePx": 64,
     "deltaMaxMs": 100
+  },
+  "horneado": {
+    "pxPorAltura": 16,
+    "pendienteRoca": 0.55,
+    "alturaCumbre": 3.2,
+    "alturaPlaya": 0.3,
+    "muestrasPorPixel": 1.5,
+    "umbralArenaDulce": 0.64
   }
 }

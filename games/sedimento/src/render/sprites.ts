@@ -41,15 +41,18 @@ function resolver(atlas: AtlasPixel, p: PedidoSprite): string {
 /**
  * Crea la imagen en su sitio: origen en el ancla del fotograma, posición a píxel entero y
  * profundidad = clave de orden u+v (vértice frontal en estructuras, pies en lo puntual).
+ * `elevacionPx` da cuánto sube el terreno en ese punto: el sprite se apoya sobre el relieve, no sobre el plano.
  */
-export function colocar(scene: Phaser.Scene, atlas: AtlasPixel, p: PedidoSprite): Phaser.GameObjects.Image {
+export function colocar(
+  scene: Phaser.Scene, atlas: AtlasPixel, p: PedidoSprite, elevacionPx: (u: number, v: number) => number = () => 0,
+): Phaser.GameObjects.Image {
   const clave = resolver(atlas, p);
   const s = atlas.sprites[p.id];
   const f = atlas.frames[clave];
   const sobreHuella = s.anclaEn === 'huella';
   const c = sobreHuella ? centroHuella(p.u, p.v, s.huella) : { u: p.u, v: p.v };
   const pos = aPantalla(c.u, c.v);
-  const img = scene.add.image(Math.round(pos.x), Math.round(pos.y), `atlas-${f.atlas}`, clave);
+  const img = scene.add.image(Math.round(pos.x), Math.round(pos.y) - elevacionPx(c.u, c.v), `atlas-${f.atlas}`, clave);
   img.setOrigin(f.ancla.x / f.w, f.ancla.y / f.h);
   img.setDepth(sobreHuella ? claveOrdenEstructura(p.u, p.v, s.huella) : claveOrden(p.u, p.v));
   return img;
