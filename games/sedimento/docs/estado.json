@@ -14,8 +14,15 @@
   "fases": [
     {
       "id": "P0",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "git tag pre-pixel-art (7200b9c) y apartado en commit propio (efb2873)",
+        "Lo 3D movido a D:/Recursos GC/3d con LEEME.md (R58), 122 MB",
+        "CLAUDE.md del juego, traspaso.md y versiones.md reescritos y más cortos; referencias 3D quitadas de skills, reglas y agentes",
+        "Panel sin 3D y con «Pixel art propio» (C, ac65965); panel:probar 44/44",
+        "Docs nuevos: pixel-art, catalogo, colisiones, seleccion, ciudadanos, camara (C) y estructuras (A)",
+        "Roadmap P0–P10 + P2b y ruta hasta la 1.0 sin información 3D"
+      ],
       "creada": "2026-10-20T05:01:34.270Z",
       "titulo": "Limpieza y pivote a pixel art",
       "objetivo": "Tag pre-pixel-art, borrado de todo lo 3D (R57), docs más cortos y roadmap pixel en el panel",
@@ -29,7 +36,12 @@
       "sesion": "A+C",
       "version": "0.0",
       "tramo": "alfa",
-      "inicio": "2026-10-20T05:19:45.177Z"
+      "inicio": "2026-10-20T05:19:45.177Z",
+      "verificacion": {
+        "tests": "206/206 en el último commit verde (f6e8aab/81082a1)",
+        "resultado": "grep sin referencias 3D vivas; panel:probar 44/44"
+      },
+      "fin": "2026-10-20T06:22:12.675Z"
     },
     {
       "id": "P1",
@@ -2129,6 +2141,20 @@
       "fase": "P7",
       "texto": "Catálogo de estructuras en docs/gdd/estructuras.md: un modelo común (huella, etapas, requisitos, trabajadores, producción, almacén, radio de servicio, durabilidad, niveles, efectos) y 12 categorías (vivienda, agricultura, materias primas, talleres, almacenes, comercio, agua, religión, salud y ocio, gobierno, militar, prestigio) repartidas por fases; la v0.1 usa solo el núcleo de la aldea",
       "porque": "R74: el usuario delegó en A el sistema de estructuras; con un modelo común, una sola ficha y un solo sistema sirven para cualquier edificio nuevo"
+    },
+    {
+      "id": "D023",
+      "t": "2026-10-20T06:15:06.390Z",
+      "fase": "P2",
+      "texto": "La escena de medición de 60 fps (P2 tramo 4) es una aldea de referencia animada y es la que se ve por defecto: ≥ 300 ciudadanos y animales animados en el sitio, ≥ 150 edificios y ≥ 600 árboles sobre el terreno procedural",
+      "porque": "R64: el usuario quiere ver vida en el navegador antes de P4/P9; la medición de R56 necesita esa misma carga, así que una escena sirve para las dos cosas"
+    },
+    {
+      "id": "D024",
+      "t": "2026-10-20T06:21:06.317Z",
+      "fase": "P2b",
+      "texto": "Marcos 9-slice de paneles HTML (D): madera y piedra, 16×16 con esquinas 6×6 y variante resaltada en oro; interior oscuro para texto claro (cambiable a azul noche con una constante si el usuario lo prefiere)",
+      "porque": "R70: la UI HTML tiene que verse pixel art; el interior oscuro maximiza el contraste del texto"
     }
   ],
   "conceptos": [
@@ -2260,6 +2286,22 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T06:22:12.706Z",
+      "texto": "Fase P0 → hecha: Limpieza y pivote a pixel art"
+    },
+    {
+      "t": "2026-10-20T06:21:06.318Z",
+      "texto": "Decisión: Marcos 9-slice de paneles HTML (D): madera y piedra, 16×16 con esquinas 6×6 y variante resaltada en oro; interior oscuro para texto claro (cambiable a azul noche con una constante si el usuario lo prefiere)"
+    },
+    {
+      "t": "2026-10-20T06:15:06.391Z",
+      "texto": "Decisión: La escena de medición de 60 fps (P2 tramo 4) es una aldea de referencia animada y es la que se ve por defecto: ≥ 300 ciudadanos y animales animados en el sitio, ≥ 150 edificios y ≥ 600 árboles sobre el terreno procedural"
+    },
+    {
+      "t": "2026-10-20T06:13:40.331Z",
+      "texto": "Autopiloto (/autopiloto) activo: B en P2 tramo 3 (terreno procedural + costa + yacimientos), C en P0-docs (3 tramos), D en borde 9-slice (R70) → D3-t2 → campo D2 en el catálogo. Siguiente fase para B: P2b."
+    },
     {
       "t": "2026-10-20T06:13:23.925Z",
       "texto": "Error E004 (resuelto): Tras cualquier comando fase, P0–P10 pasaban al final y estado daba F102 como siguiente"
@@ -2553,5 +2595,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T06:13:23.925Z"
+  "actualizado": "2026-10-20T06:22:12.706Z"
 }
