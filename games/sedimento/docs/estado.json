@@ -315,12 +315,14 @@
       "estado": "pendiente",
       "hecho": [],
       "creada": "2026-10-19T06:08:08.989Z",
-      "titulo": "Fundación de la aldea",
-      "objetivo": "Al empezar, aldea inicial sobre el terreno continuo: almacén, chozas y senda junto al río",
+      "titulo": "Fundación desde cero",
+      "objetivo": "La partida empieza con 6–8 familias, una hoguera comunal, cestos, herramientas de piedra y provisiones para unas semanas; el jugador levanta las primeras chozas de ramas y paja (era 0, R77)",
       "criterios": [
-        "test: la fundación coloca el almacén y las chozas sin solapes ni pendientes inválidas en 10 semillas",
-        "Senda inicial trazada desde el almacén hacia el agua",
-        "La cámara empieza enfocando la aldea"
+        "test: el estado inicial no tiene ninguna estructura de nivel > 0 ni materiales de era 1",
+        "Las primeras chozas se construyen con madera y paja recogidas y llevadas a mano",
+        "Senda inicial desde la hoguera hacia el agua",
+        "La cámara empieza enfocando el campamento",
+        "Captura MIRADA del campamento inicial"
       ],
       "version": "0.1",
       "tramo": "alfa"
@@ -431,6 +433,23 @@
         "Inspector: de dónde viene y adónde va cada bien",
         "Las minas y canteras solo se construyen sobre un yacimiento del mapa y extraen su material (R73)",
         "Mina, leñador y molino con su sprite y sus 6 etapas de obra (D, R71); trabajadores visibles trabajando"
+      ],
+      "version": "0.1",
+      "tramo": "alfa"
+    },
+    {
+      "id": "F109b",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T06:26:58.375Z",
+      "titulo": "Progresión de la aldea: de choza a adobe",
+      "objetivo": "Las cuatro puertas de progresion.md (material, conocimiento, necesidad, trabajo) para subir de nivel; de era 0 a era 1 (R77)",
+      "criterios": [
+        "test: puedeMejorar devuelve qué falta; no se puede saltar un nivel",
+        "test: sin material no empieza la obra y sin mantenimiento la casa retrocede",
+        "Mejora en el sitio con las etapas 4–6 del nivel nuevo; la familia sigue dentro",
+        "La ficha y la vista previa dicen qué falta y dónde conseguirlo",
+        "test: una partida simulada con semilla llega a la era 1 en 20–30 min de juego"
       ],
       "version": "0.1",
       "tramo": "alfa"
@@ -758,7 +777,7 @@
       "hecho": [],
       "creada": "2026-10-19T06:08:08.989Z",
       "titulo": "Casas que evolucionan",
-      "objetivo": "Choza de caña → casa de adobe → casa con patio, según la prosperidad del hogar",
+      "objetivo": "Casas de era 1 → 2: casa de adobe → casa de ladrillo o piedra con teja → casa con patio, según la prosperidad del hogar (progresion.md)",
       "criterios": [
         "Mejoran y empeoran con el hogar",
         "Cada nivel con su sprite en pixel art y sus etapas de obra (lista §10 del pivote)",
@@ -1178,7 +1197,7 @@
       "hecho": [],
       "creada": "2026-10-19T06:08:08.989Z",
       "titulo": "Reclutamiento",
-      "objetivo": "Milicia y levas que restan mano de obra; cuarteles por tipo de soldado (R72), equipo y entrenamiento",
+      "objetivo": "Milicia y levas que restan mano de obra; cuarteles por tipo y por nivel (claro de entrenamiento → cuartel de adobe → de ladrillo → de piedra), equipo y entrenamiento (R72, R77)",
       "criterios": [
         "test: reclutar baja la producción",
         "Coste en armas y comida",
@@ -1229,7 +1248,7 @@
         "test: cada tipo tiene ventaja y desventaja clara (arqueros frente a infantería, caballería frente a arqueros…)",
         "Ruptura por moral",
         "Bonus de terreno justificados",
-        "Sprites de cada tipo con marchar, atacar y caer (D, R72)"
+        "Sprites de cada tipo y nivel (milicia de era 0 → hierro de era 3) con marchar, atacar y caer (D, R72, R77)"
       ],
       "version": "0.5",
       "tramo": "alfa"
@@ -1345,7 +1364,7 @@
       "hecho": [],
       "creada": "2026-10-19T06:08:08.989Z",
       "titulo": "Árbol tecnológico",
-      "objetivo": "Tecnologías con requisitos, costes, tiempo y dependencias; costes de oportunidad",
+      "objetivo": "Tecnologías con requisitos, costes y dependencias que abren las eras 0–3 de progresion.md (bronce, ladrillo cocido, escritura, hierro…); costes de oportunidad",
       "criterios": [
         "No se puede desbloquear todo",
         "Cada avance abre opciones reales",
@@ -2010,6 +2029,14 @@
       "cerrado": false,
       "area": "arte",
       "texto": "Familias de estructuras del catálogo (docs/gdd/estructuras.md, R74): primero el núcleo de la v0.1 (choza, granero, almacén, pozo, acequia, pesquero, leñador, pozo de arcilla, adobería, alfar, altar, mercado de comida) → Plan: D, cola D11, por familias con boceto, antes de F102"
+    },
+    {
+      "id": "L009",
+      "t": "2026-10-20T06:26:58.375Z",
+      "prioridad": "alta",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Arte de era 0 y 1 (R77, progresion.md §4): choza de ramas y paja, choza de madera y paja, hoguera comunal, cobertizo, empalizada, altar de piedras, claro de entrenamiento y milicia (garrote, honda, arco de caza); después casa de adobe con techo plano, santuario y cuartel de adobe → Plan: D, justo después de las espaldas (D4) y antes de niños y ancianos; boceto de la choza primero. La partida empieza aquí (F102)"
     }
   ],
   "recomendaciones": [
@@ -2021,6 +2048,15 @@
       "area": "mapa",
       "texto": "Que mapa.ts genere la forma de isla o costa (cabos, bahías, golfo) como dato, en vez de recortar el rectángulo en alturas.ts → Plan: aceptada, B la hace en P2 tramo 3 (terreno procedural)",
       "porque": "Al ensanchar el recorte del borde las montañas encogen; la silueta del territorio es un dato de diseño (afecta a la navegación y al comercio), no del render"
+    },
+    {
+      "id": "R002",
+      "t": "2026-10-20T06:23:53.664Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "El llano se ve como un verde casi uniforme y las bases de la montaña dejan manchas grises sueltas: dar al suelo la variación de la muestra (matas, tierra pisada, tonos por humedad) y limpiar los islotes de roca al pie del acantilado → Plan: B en P9 (ambiente) o en una pasada de arte del terreno tras P2",
+      "porque": "En P2-t3a-vista.png el 70 % de la pantalla es hierba plana; la muestra aprobada tenía más textura y el usuario lee la calidad mirando el suelo"
     }
   ],
   "decisiones": [
@@ -2190,6 +2226,13 @@
       "fase": "P2",
       "texto": "Terreno: crearMundo(semilla) reutiliza mapa+campo de alturas existentes, 1 tile = 1 unidad de mundo (86×62 tiles) y se hornea con voxel space a una imagen de índices de paleta (src/data/paleta.ts generado de paleta.txt y comprobado por test), troceada en 512 px; arena según tipo de agua",
       "porque": "reutiliza lógica ya testeada (R59 procedural al cargar), sin generar arte por fotograma; ~1,5 s de horneado en este PC (SwiftShader no influye): candidato a Web Worker en P10"
+    },
+    {
+      "id": "D026",
+      "t": "2026-10-20T06:26:58.589Z",
+      "fase": "F102",
+      "texto": "Progresión desde cero (docs/gdd/progresion.md): 4 eras (campamento, aldea, ciudad, imperio) y niveles por familia (vivienda, almacén, caminos, herramientas, producción, comercio, religión, gobierno, defensa, militar, cuartel, transporte); cada nivel exige material, conocimiento, necesidad y trabajo; sin saltos, mejora en el sitio, puede retroceder, conviven niveles. Las casas actuales del atlas son de era 2; el arte de era 0–1 pasa a ser prioritario",
+      "porque": "R77: el usuario quiere que el imperio se construya desde cero con progresión en todo, y delegó el diseño en A"
     }
   ],
   "conceptos": [
@@ -2330,9 +2373,27 @@
       "t": "2026-10-20T06:23:12.230Z",
       "concepto": "Sombreado en bandas y tramado (dithering)",
       "explicacion": "En pixel art, un degradado continuo se ve borroso. Se usan pocos tonos duros (bandas) para roca y nieve, y un tramado ordenado (patrón de píxeles alternos) solo donde conviene una transición suave, como hierba o agua. La luz sale siempre del mismo lado."
+    },
+    {
+      "id": "C024",
+      "t": "2026-10-20T06:26:58.793Z",
+      "concepto": "Progresión con puertas (gating)",
+      "explicacion": "Una puerta es una condición que bloquea el siguiente paso hasta que la cumples. En CIMIENTOS cada mejora tiene cuatro: material en el almacén, conocimiento (era), necesidad del hogar y trabajo (la obra). Si la interfaz dice siempre qué puerta falta, el jugador tiene un objetivo claro en vez de frustrarse; si las puertas no se ven, parece que el juego está roto."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T06:26:58.795Z",
+      "texto": "Concepto: Progresión con puertas (gating)"
+    },
+    {
+      "t": "2026-10-20T06:26:58.591Z",
+      "texto": "Decisión: Progresión desde cero (docs/gdd/progresion.md): 4 eras (campamento, aldea, ciudad, imperio) y niveles por familia (vivienda, almacén, caminos, herramientas, producción, comercio, religión, gobierno, defensa, militar, cuartel, transporte); cada nivel exige material, conocimiento, necesidad y trabajo; sin saltos, mejora en el sitio, puede retroceder, conviven niveles. Las casas actuales del atlas son de era 2; el arte de era 0–1 pasa a ser prioritario"
+    },
+    {
+      "t": "2026-10-20T06:23:53.665Z",
+      "texto": "Recomendación (arte): El llano se ve como un verde casi uniforme y las bases de la montaña dejan manchas grises sueltas: dar al suelo la variación de la muestra (matas, tierra pisada, tonos por humedad) y limpiar los islotes de roca al pie del acantilado → Plan: B en P9 (ambiente) o en una pasada de arte del terreno tras P2"
+    },
     {
       "t": "2026-10-20T06:23:12.392Z",
       "texto": "Decisión: Terreno: crearMundo(semilla) reutiliza mapa+campo de alturas existentes, 1 tile = 1 unidad de mundo (86×62 tiles) y se hornea con voxel space a una imagen de índices de paleta (src/data/paleta.ts generado de paleta.txt y comprobado por test), troceada en 512 px; arena según tipo de agua"
@@ -2670,5 +2731,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T06:23:12.392Z"
+  "actualizado": "2026-10-20T06:26:58.795Z"
 }

@@ -1,6 +1,6 @@
 # Estructuras de la ciudad (R53, R71, R73, R74)
 
-Una ciudad no es casa + templo + mercado. Este es el catálogo de lo que se puede construir y el **modelo común** que siguen todas las estructuras. Los números de balance van a `src/data/edificios.json` + `tuning.json` (P7), con su porqué.
+Una ciudad no es casa + templo + mercado. **Cada estructura tiene niveles por era (ver `progresion.md`, R77): aquí va el catálogo; allí, cómo se sube de nivel.** Este es el catálogo de lo que se puede construir y el **modelo común** que siguen todas las estructuras. Los números de balance van a `src/data/edificios.json` + `tuning.json` (P7), con su porqué.
 
 ## 1. Modelo común (lo implementa P7 en `logic/sim/edificio.ts`)
 
