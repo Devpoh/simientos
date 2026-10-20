@@ -478,6 +478,9 @@
       "octavas": 4,
       "resolucion": 4,
       "filo": 1.6
-    }
+    },
+    "resolucionSombra": 4,
+    "alcanceSombra": 14,
+    "minRegion": 28
   }
 }

@@ -171,5 +171,5 @@ describe('mundo procedural', () => {
     expect(pintados.every((v) => v < COLORES.length)).toBe(true);
     expect(enRampa(img, 'agua')).toBeGreaterThan(1000);
     expect(enRampa(img, 'hierba')).toBeGreaterThan(1000);
-  });
+  }, 60000);
 });

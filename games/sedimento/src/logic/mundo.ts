@@ -3,7 +3,8 @@
 import tuning from '../data/tuning.json';
 import { crearCampoAlturas, type CampoAlturas } from './alturas';
 import { hornear, type ConfigHorneado, type ImagenIndices, type Superficie } from './horneado';
-import { generarMapa, type Mapa } from './mapa';
+import { axialAMundo, Rejilla } from './hex';
+import { esAgua, generarMapa, type Mapa } from './mapa';
 import { conRelieve } from './relieve';
 
 export interface Mundo {
@@ -14,6 +15,53 @@ export interface Mundo {
   cfg: ConfigHorneado;
   tilesU: number;
   tilesV: number;
+}
+
+/**
+ * Fertilidad suave (0..1) por tile: cada hexágono de tierra reparte su fertilidad con un peso gaussiano, así el llano
+ * varía sin dibujar hexágonos. Los hexágonos de agua no cuentan: la orilla no se tiñe de «sin fertilidad».
+ */
+export function fertilidadSuave(mapa: Mapa, campo: CampoAlturas, tileMundo: number, tilesU: number, tilesV: number): (u: number, v: number) => number {
+  const nu = tilesU + 2;
+  const nv = tilesV + 2;
+  const suma = new Float32Array(nu * nv);
+  const peso = new Float32Array(nu * nv);
+  const rejilla = new Rejilla(mapa.columnas, mapa.filas);
+  const R = tuning.alturas.tamanoHex;
+  const radio = 2.4;
+  const sigma = 0.95;
+  for (let i = 0; i < rejilla.total; i++) {
+    if (esAgua(mapa.terreno[i])) continue;
+    const { q, r } = rejilla.axial(i);
+    const p = axialAMundo(q, r, R);
+    const cu = (p.x - campo.origenX) / tileMundo;
+    const cv = (p.z - campo.origenZ) / tileMundo;
+    for (let v = Math.max(0, Math.floor(cv - radio)); v <= Math.min(nv - 1, Math.ceil(cv + radio)); v++) {
+      for (let u = Math.max(0, Math.floor(cu - radio)); u <= Math.min(nu - 1, Math.ceil(cu + radio)); u++) {
+        const d2 = (u - cu) * (u - cu) + (v - cv) * (v - cv);
+        const w = Math.exp(-d2 / (2 * sigma * sigma));
+        suma[v * nu + u] += w * mapa.fertilidad[i];
+        peso[v * nu + u] += w;
+      }
+    }
+  }
+  const valor = (u: number, v: number): number => {
+    const k = v * nu + u;
+    return peso[k] > 1e-3 ? suma[k] / peso[k] : 0.5;
+  };
+  return (u, v) => {
+    const x = Math.min(nu - 2, Math.max(0, u));
+    const y = Math.min(nv - 2, Math.max(0, v));
+    const i = Math.floor(x);
+    const j = Math.floor(y);
+    const fx = x - i;
+    const fy = y - j;
+    const a = valor(i, j);
+    const b = valor(i + 1, j);
+    const c = valor(i, j + 1);
+    const d = valor(i + 1, j + 1);
+    return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy;
+  };
 }
 
 /** Superficie en coordenadas de tile: 1 tile = `tileMundo` unidades del campo de alturas. */
@@ -43,7 +91,8 @@ export function crearMundo(semilla: number = tuning.mapa.semilla): Mundo {
     ...(({ relieve: _r, ...resto }) => resto)(tuning.horneado),
   };
   const { relieve, ...cfgHorneado } = tuning.horneado;
-  const superficie = conRelieve(superficieDeCampo(campo, tile), tilesU, tilesV, campo.nivelMar, semilla, relieve);
+  const fertilidad = fertilidadSuave(mapa, campo, tile, tilesU, tilesV);
+  const superficie: Superficie = { ...conRelieve(superficieDeCampo(campo, tile), tilesU, tilesV, campo.nivelMar, semilla, relieve), fertilidad };
   return { semilla, mapa, campo, superficie, cfg: { ...cfg, ...cfgHorneado, alturaMax: cfg.alturaMax + relieve.amplitud * 0.6 }, tilesU, tilesV };
 }
 

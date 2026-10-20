@@ -2423,6 +2423,10 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-20T14:38:00.235Z",
+      "texto": "Traspaso B (21-10): HECHO y aceptado P1, P2 t1 (Phaser 4, 960x540, escalado entero), t2 (camara), t3a-3c (terreno horneado voxel-space, costa en mapa.ts R001, yacimientos R73) y t3d parcial (sombras proyectadas, tono minimo roca/nieve, curvatura, fertilidad suave, limpieza morfologica, relieve ridged). A MEDIAS: 3d de calidad del terreno: horneado tarda ~3,5 s (CPU) y la montana aun es manchas planas frente a la muestra; falta comparar lado a lado con prototypes/imperium-muestra/salida/escena_base_960x540.png y pulir (tuning.horneado y logic/horneado.ts). SIGUIENTE exacto: tramo 4 de P2 = aldea de referencia animada (>=300 ciudadanos y animales con animaciones del atlas, >=150 edificios, >=600 arboles en huecos libres sobre el terreno) + skill .claude/skills/bench-60fps + shot de 20 s con GPU real (p95<=16,6 ms, max<=33 ms); considerar Web Worker para el horneado. Despues P2b (capa HTML/CSS), P3 (ocupacion; declarar huellaObra y categoria cultivo en atlas.ts). TRAMPAS: no regenerar public/recursos/pixel mientras corre shot (D escribe atomico); tests de rutas/mapa necesitan costa y yacimientos en el Mapa de prueba; no tocar el dev :5173 de A; usuario ve arena solo en costa de mar, rios y lagos con ribera de hierba; sin tramado en roca/nieve."
+    },
+    {
       "t": "2026-10-20T14:34:26.120Z",
       "texto": "21-10, tras el reinicio del límite de uso: B retoma P2 tramo 3d (terreno, R78/R79); C retoma C3 (Lo que pediste); D rehace el almacén de era 1 más humilde con techo de paja (R80) y después boceta la era 0. El servidor dev de :5173 lo cerró el sistema por falta de memoria."
     },
@@ -2803,5 +2807,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T14:34:26.120Z"
+  "actualizado": "2026-10-20T14:38:00.235Z"
 }
