@@ -27,6 +27,7 @@ import barcos as BA
 import edificios as ED
 import campos as CA
 import edificios2 as E2
+import montanas as MT
 import obra_casa as OB
 import templo as TP
 from iso import Spr
@@ -152,6 +153,21 @@ def ambiente() -> list:
     return [Entrada("ambiente_gaviota", "ambiente", (1, 1), {
         "volar": Estado(6, _dos(lambda f, v: PX.gaviota(f, v), 2)),
     })]
+
+
+# ------------------------------------------------------------------ montañas (R84, D033)
+def montanas() -> list:
+    """Piezas de montaña del boceto M1 (macizo, cresta, acantilados, pie de ladera).
+
+    Se colocan sobre las cumbres del relieve (P2c2); su huella bloquea el paso (R50).
+    """
+    out = []
+    for p in MT.piezas_catalogo():
+        wt, dt = p.huella
+        out.append(Entrada(f"montana_{p.nombre}", "roca", (wt, dt),
+                           {"base": Estado(0, {"unica": [MT.como_spr(p)]})},
+                           bloquea=True, centro=(p.W / 2, p.D / 2), recortar=True))
+    return out
 
 
 # ------------------------------------------------------------------ vegetación y rocas
@@ -303,4 +319,4 @@ def barcos() -> list:
 
 
 def todo() -> list:
-    return ciudadanos() + criaturas() + animales() + ambiente() + vegetacion() + props() + estructuras() + barcos()
+    return ciudadanos() + criaturas() + animales() + ambiente() + montanas() + vegetacion() + props() + estructuras() + barcos()

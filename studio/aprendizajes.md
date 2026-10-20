@@ -12,3 +12,5 @@ Una línea por lección reutilizable: `- [área] síntoma → causa → solució
 - [general] `render.py`/muestra: la luz sale de la normal del heightfield + sombra proyectada (−2 tonos); la precalculada en rejilla fina (4/tile) es barata, el trazado por píxel no.
 - [phaser] Phaser 4: `Phaser.Math.Vector2[]` en `fillPoints` (no Geom.Point); `scale.zoom` acepta fracciones (CSS) con `Scale.NONE`.
 - [bash] Windows: en Bash heredocs con `'` o `rm -r` pueden denegarse; escribir tests temporales con Write y borrarlos con `rm -f`.
+- [arte] `bytes(numpy.shape)` revienta si un lado > 255 al hashear sprites grandes → usa `str(shape).encode()` (el hash solo ha de ser estable).
+- [general] El bench de 60 fps exige ventana con GPU real: en un contenedor sin Xvfb ni GPU no arranca («Target page … has been closed»). Verifica con `npm run shot` y deja el bench para una máquina con GPU.

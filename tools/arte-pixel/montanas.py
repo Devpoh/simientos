@@ -640,3 +640,15 @@ if __name__ == "__main__":
     os.makedirs(SALIDA, exist_ok=True)
     hoja_comparativa(os.path.join(SALIDA, "montanas_comparativa_x2.png"))
     hoja_piezas(os.path.join(SALIDA, "montanas_piezas_x4.png"), piezas_cache())
+
+
+def como_spr(p):
+    """Convierte una Pieza del boceto en Spr del catalogo (misma proyeccion y ancla)."""
+    s = Spr(p.w, p.h, p.ax, p.ay)
+    s.px = p.px.copy()
+    return s
+
+
+def piezas_catalogo():
+    """Piezas de montana listas para el atlas: las mismas del boceto M1, con semillas fijas."""
+    return piezas()

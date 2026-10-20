@@ -87,7 +87,7 @@ def recoger(entradas):
                     for pn, fn in e.puntos.items():
                         if hasattr(s, "chimenea"):
                             pts[pn] = dict(zip("xy", fn(s)))
-                    h = hashlib.sha1(s.px.tobytes() + bytes(s.px.shape) + f"{ax},{ay},{pts}".encode()).hexdigest()
+                    h = hashlib.sha1(s.px.tobytes() + str(s.px.shape).encode() + f"{ax},{ay},{pts}".encode()).hexdigest()
                     unicas.setdefault(h, {"px": s.px, "claves": []})["claves"].append(clave)
                     frames[clave] = {"hash": h, "w": int(s.w), "h": int(s.h), "ancla": {"x": ax, "y": ay}}
                     if pts:

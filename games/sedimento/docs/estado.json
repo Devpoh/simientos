@@ -145,8 +145,10 @@
     },
     {
       "id": "P2c",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "dividida en P2c1 (piezas de montana en el atlas) y P2c2 (colocacion determinista y horneado suave)"
+      ],
       "creada": "2026-10-20T15:06:19.282Z",
       "titulo": "Montañas como piezas y cordilleras",
       "objetivo": "Las montañas del mapa son piezas de sprite de D (picos, macizos, cordilleras encadenadas, crestas, colinas, acantilados) colocadas siguiendo las cumbres del relieve, en lugar del sombreado procedural (R84, D033)",
@@ -159,7 +161,8 @@
       ],
       "sesion": "B",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "fin": "2026-10-20T17:29:06.088Z"
     },
     {
       "id": "P2d",
@@ -1981,6 +1984,32 @@
       ],
       "version": "1.0",
       "tramo": "beta"
+    },
+    {
+      "id": "P2c1",
+      "estado": "hecha",
+      "hecho": [
+        "montanas.py se integra en el catalogo: cinco piezas del boceto M1 (macizo 17x11, cresta 10x4, acantilado 2x2 y 3x2, pie de ladera 4x3) con huella, ancla de huella, altura y bloquea=true",
+        "npm run arte determinista (dos pasadas con el mismo md5) y arte:verificar en verde: 90 sprites, 1237 fotogramas, 59 colores, 0 flotantes/hundidos",
+        "Hoja de piezas x4 sobre hierba mirada (docs/evidencia/P2c1-piezas-montana-x4.png) y comparada con el boceto M1",
+        "309 tests verdes; el juego sigue igual de aspecto (P2c2 las coloca)"
+      ],
+      "creada": "2026-10-20T17:29:06.132Z",
+      "titulo": "Piezas de montana en el atlas",
+      "objetivo": "El atlas incluye las piezas de montana del boceto M1 (macizo, cresta, acantilado 2x2 y 3x2, pie de ladera) con huella, ancla, altura y bloqueo, generadas por tools/arte-pixel/montanas.py y validadas por sprite-qa (R84, D033)",
+      "criterios": [
+        "Las piezas salen en atlas.json con categoria roca/montana, huella y ancla de huella, bloquea=true",
+        "npm run arte sigue siendo determinista y arte:verificar pasa (paleta, ampliacion entera)",
+        "Captura de la hoja de piezas mirada y comparada con el boceto M1 aprobado",
+        "El juego no cambia de aspecto todavia: P2c2 las coloca"
+      ],
+      "inicio": "2026-10-20T17:29:06.133Z",
+      "verificacion": {
+        "tests": "309/309",
+        "arte": "arte:verificar TODO CORRECTO",
+        "captura": "P2c1-piezas-montana-x4.png"
+      },
+      "fin": "2026-10-20T17:47:05.413Z"
     }
   ],
   "errores": [
@@ -2056,6 +2085,15 @@
       "sintoma": "Las montañas nuevas se veían con muchas rayas negras",
       "causa": "Los estratos y la sombra más oscura de la rampa roca usaban el tono 0, casi tinta (#2a2840)",
       "solucion": "Roca limitada a los tres tonos medios y sin estratos; nieve y roca siguen en bandas duras sin tramado"
+    },
+    {
+      "id": "E009",
+      "t": "2026-10-20T17:47:05.454Z",
+      "estado": "resuelto",
+      "fase": "P2c1",
+      "sintoma": "npm run arte reventaba con ValueError: bytes must be in range(0, 256) al hashear la forma del sprite",
+      "causa": "exportar.py usaba bytes(s.px.shape) para el hash; con piezas grandes (448x411) el lado supera 255 y bytes() lo rechaza",
+      "solucion": "hashear str(s.px.shape).encode() en vez de bytes(shape); el hash solo necesita ser estable, no interpretable"
     }
   ],
   "faltantes": [
@@ -2627,6 +2665,22 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-20T17:47:05.454Z",
+      "texto": "Error E009 (resuelto): npm run arte reventaba con ValueError: bytes must be in range(0, 256) al hashear la forma del sprite"
+    },
+    {
+      "t": "2026-10-20T17:47:05.420Z",
+      "texto": "Fase P2c1 → hecha: Piezas de montana en el atlas"
+    },
+    {
+      "t": "2026-10-20T17:29:06.140Z",
+      "texto": "Fase P2c1 creada: Piezas de montana en el atlas"
+    },
+    {
+      "t": "2026-10-20T17:29:06.095Z",
+      "texto": "Fase P2c → hecha: Montañas como piezas y cordilleras"
+    },
+    {
       "t": "2026-10-20T17:24:54.566Z",
       "texto": "P2b: interfaz HTML/CSS lista. Siguiente P2c (montanas como piezas y cordilleras)."
     },
@@ -3123,5 +3177,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T17:24:54.566Z"
+  "actualizado": "2026-10-20T17:47:05.454Z"
 }

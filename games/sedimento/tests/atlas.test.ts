@@ -105,6 +105,36 @@ describe('atlas de pixel art: validador', () => {
   });
 });
 
+describe('atlas de pixel art: montañas como piezas (R84, D033)', () => {
+  const PIEZAS: [string, number, number][] = [
+    ['montana_macizo', 17, 11],
+    ['montana_cresta', 10, 4],
+    ['montana_acantilado_2x2', 2, 2],
+    ['montana_acantilado_3x2', 3, 2],
+    ['montana_pie_ladera', 4, 3],
+  ];
+
+  it('las cinco piezas del boceto M1 están en el atlas con su huella', () => {
+    for (const [id, w, d] of PIEZAS) {
+      const s = atlas.sprites[id];
+      expect(s, id).toBeDefined();
+      expect(s.categoria, id).toBe('roca');
+      expect(s.huella, id).toEqual({ w, d });
+      expect(s.bloquea, id).toBe(true);
+      expect(s.anclaEn, id).toBe('huella');
+      expect(s.altura, id).toBeGreaterThan(0);
+      expect(s.estados.base.orientaciones.unica?.length, id).toBe(1);
+    }
+  });
+
+  it('el macizo es mayor que la cresta y esta que un acantilado (variedad de tamaño)', () => {
+    const area = (id: string) => atlas.sprites[id].huella.w * atlas.sprites[id].huella.d;
+    expect(area('montana_macizo')).toBeGreaterThan(area('montana_cresta'));
+    expect(area('montana_cresta')).toBeGreaterThan(area('montana_acantilado_3x2'));
+    expect(area('montana_acantilado_3x2')).toBeGreaterThan(area('montana_acantilado_2x2'));
+  });
+});
+
 describe('atlas de pixel art: contenido reutilizado de la muestra', () => {
   it('10 ciudadanos (5 oficios x 2 géneros) con idle y caminar en 4 orientaciones', () => {
     for (const oficio of OFICIOS) {
