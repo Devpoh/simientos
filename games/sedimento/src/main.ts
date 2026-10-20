@@ -8,12 +8,15 @@ import { crearMundo } from './render/mundo';
 import { crearEdificios } from './render/edificios';
 import { Rejilla } from './logic/hex';
 import { configDesdeTuning } from './logic/sim/config';
-import { colocarObra, fundarAsentamiento, motivoNoConstruible } from './logic/sim/obras';
+import { NOMBRE_ETAPA, cancelarObra, colocarObra, fundarAsentamiento, huellaDe, motivoNoConstruible, priorizarObra, progresoEtapa, progresoObra, suspenderObra, textoBloqueo } from './logic/sim/obras';
+import { puntoEnRect } from './logic/geometria2d';
+import { sembrarObrasDePrueba } from './core/obras-prueba';
 import { SIN_HERRAMIENTA, TEXTO_MOTIVO, transicion, type EventoHerramienta, type Herramienta } from './logic/herramienta';
-import type { TipoEdificio, Ubicacion } from './logic/sim/tipos';
+import { ETAPAS_OBRA, type TipoEdificio, type Ubicacion } from './logic/sim/tipos';
 import { crearFantasma } from './render/fantasma';
 import { crearObras } from './render/obras';
-import { CONSTRUIBLES, crearMenuConstruccion } from './ui/menuConstruccion';
+import { CONSTRUIBLES, NOMBRE, crearMenuConstruccion } from './ui/menuConstruccion';
+import { crearPanelObra, type DatosObra } from './ui/panelObra';
 import { alimentoDisponible, fijarRacion, personas, reservaDias } from './logic/sim/raciones';
 import { avanzarTicks, crearEstado } from './logic/sim/simulacion';
 import { crearPanelCiudad, type DatosCiudad } from './ui/panelCiudad';
@@ -83,6 +86,10 @@ const mundoFisico = { mapa, rejilla: new Rejilla(mapa.columnas, mapa.filas), tam
 const aldea = fundarAsentamiento(sim, mundoFisico, cfgSim);
 // Como en Civ, la partida empieza mirando a tu asentamiento.
 vista.control.irA(aldea.x, aldea.z);
+if (params.has('obrasPrueba')) sembrarObrasDePrueba(sim, mundoFisico, cfgSim, aldea);
+// ?enfocarObra=N (test): la cámara empieza mirando la obra N de las de prueba.
+const obraEnfocada = sim.obras[Number(params.get('enfocarObra'))];
+if (obraEnfocada) vista.control.irA(obraEnfocada.x, obraEnfocada.z);
 const edificios = crearEdificios(mundo.disposicion, tuning.render, mundo.sueloEn, semilla);
 vista.escena.add(edificios.raiz);
 edificios.sincronizar(sim.edificios);
@@ -97,6 +104,19 @@ const fantasma = crearFantasma(cfgSim, tuning.render, mundo.campo.alturaEn);
 vista.escena.add(fantasma.raiz);
 const obrasRender = crearObras(cfgSim, tuning.render, mundo.campo.alturaEn);
 vista.escena.add(obrasRender.raiz);
+// Obra seleccionada con un clic sin herramienta (A6d). El panel solo emite eventos; aquí se llama a la simulación.
+let obraSeleccionada: number | null = null;
+const panelObra = crearPanelObra(contenedor, {
+  cancelar: (id) => {
+    cancelarObra(sim, id, cfgSim);
+    obraSeleccionada = null;
+  },
+  suspender: (id, suspendida) => suspenderObra(sim, id, suspendida),
+  priorizar: (id, prioritaria) => priorizarObra(sim, id, prioritaria ? 1 : 0),
+  cerrar: () => {
+    obraSeleccionada = null;
+  },
+});
 const aplicar = (ev: EventoHerramienta) => {
   herramienta = transicion(herramienta, ev, pasoGiro);
   menu.marcar(herramienta.modo === 'colocar' ? herramienta.tipo : null);
@@ -107,7 +127,10 @@ const pedida = params.get('herramienta');
 if (pedida && (CONSTRUIBLES as readonly string[]).includes(pedida)) aplicar({ tipo: 'elegir', edificio: pedida as TipoEdificio });
 let intento: { u: Ubicacion; motivo: string | null } | null = null;
 const alTecla = (e: KeyboardEvent) => {
-  if (herramienta.modo === 'ninguna') return;
+  if (herramienta.modo === 'ninguna') {
+    if (e.code === 'Escape') obraSeleccionada = null;
+    return;
+  }
   if (e.code === 'KeyZ') aplicar({ tipo: 'girar', pasos: -1 });
   else if (e.code === 'KeyX') aplicar({ tipo: 'girar', pasos: 1 });
   else if (e.code === 'Escape') aplicar({ tipo: 'cancelar' });
@@ -122,16 +145,37 @@ const alSoltar = (e: PointerEvent) => {
   if (e.button !== 0 || !pulsado) return;
   const clic = Math.hypot(e.clientX - pulsado.x, e.clientY - pulsado.y) <= tuning.render.construccion.umbralClic;
   pulsado = null;
-  if (!clic || herramienta.modo !== 'colocar') return;
+  if (!clic) return;
   const caja = lienzo.getBoundingClientRect();
   seleccion.apuntar(e.clientX - caja.left, e.clientY - caja.top, vista.camara, caja.width, caja.height);
   const p = seleccion.punto;
-  if (!p) return;
+  if (herramienta.modo === 'ninguna') {
+    // Sin herramienta, un clic sobre la huella de una obra la selecciona; en cualquier otro sitio, la suelta.
+    const bajo = p ? sim.obras.find((o) => puntoEnRect({ x: p.x, z: p.z }, huellaDe(o.tipo, o, cfgSim), tuning.render.construccion.margenClicObra)) : undefined;
+    obraSeleccionada = bajo ? bajo.id : null;
+    return;
+  }
+  if (herramienta.modo !== 'colocar' || !p) return;
   const r = colocarObra(sim, mundoFisico, herramienta.tipo, { x: p.x, z: p.z, giro: herramienta.giro }, cfgSim);
   if ('id' in r) aplicar({ tipo: 'colocado', soltar: false });
 };
 lienzo.addEventListener('pointerdown', alPulsar);
 lienzo.addEventListener('pointerup', alSoltar);
+
+const datosObra = (o: (typeof sim.obras)[number]): DatosObra => ({
+  id: o.id,
+  nombre: NOMBRE[o.tipo],
+  etapa: NOMBRE_ETAPA[o.etapa],
+  numeroEtapa: ETAPAS_OBRA.indexOf(o.etapa) + 1,
+  totalEtapas: ETAPAS_OBRA.length,
+  porcentaje: progresoObra(o, cfgSim) * 100,
+  porcentajeEtapa: progresoEtapa(o, cfgSim) * 100,
+  motivo: textoBloqueo(o.bloqueo),
+  parada: o.bloqueo !== null,
+  suspendida: o.suspendida,
+  prioritaria: o.prioridad > 0,
+  constructores: o.constructores,
+});
 
 const datosCiudad = (): DatosCiudad => ({
   personas: personas(sim),
@@ -147,6 +191,8 @@ const panelCiudad = crearPanelCiudad(contenedor, tuning.economia.racionesPermiti
 
 // Reloj de juego (lógica pura en logic/reloj.ts): el HUD y las teclas solo piden cambios.
 let reloj = crearReloj(tuning.reloj);
+// ?pausa=1 (test): el reloj arranca parado para poder mirar una obra sin que avance.
+if (params.has('pausa')) reloj = alternarPausa(reloj);
 const acciones: AccionesHud = {
   alternarPausa: () => {
     reloj = alternarPausa(reloj);
@@ -176,7 +222,8 @@ exponer('hud', () => ({ reservaDias: reservaDias(sim, cfgSim) }));
 exponer('construccion', () => ({
   herramienta,
   intento,
-  obras: sim.obras.map((o) => ({ id: o.id, tipo: o.tipo, etapa: o.etapa, x: +o.x.toFixed(2), z: +o.z.toFixed(2), giro: +o.giro.toFixed(3), bloqueo: o.bloqueo })),
+  seleccionada: obraSeleccionada,
+  obras: sim.obras.map((o) => ({ id: o.id, tipo: o.tipo, etapa: o.etapa, progresoEtapa: +progresoEtapa(o, cfgSim).toFixed(2), progreso: +progresoObra(o, cfgSim).toFixed(2), x: +o.x.toFixed(2), z: +o.z.toFixed(2), giro: +o.giro.toFixed(3), bloqueo: o.bloqueo, suspendida: o.suspendida, prioridad: o.prioridad })),
 }));
 exponer('tiempo', () => ({ dia: fecha(reloj.tick, tuning.reloj).diaTotal, tick: reloj.tick, pausa: reloj.pausado, velocidad: reloj.velocidad }));
 
@@ -209,7 +256,10 @@ vista.renderer.setAnimationLoop((ts: number) => {
     menu.motivo(null, 0, 0);
     intento = null;
   }
-  obrasRender.sincronizar(sim.obras);
+  const seleccionada = sim.obras.find((o) => o.id === obraSeleccionada);
+  if (!seleccionada) obraSeleccionada = null;
+  obrasRender.sincronizar(sim.obras, obraSeleccionada);
+  panelObra.mostrar(seleccionada ? datosObra(seleccionada) : null);
   hud.actualizar(fecha(reloj.tick, tuning.reloj), reloj.pausado, tuning.reloj.velocidades.indexOf(reloj.velocidad));
   vista.renderizar();
   if (primerFrame) {
@@ -231,6 +281,7 @@ if (import.meta.hot) {
     lienzo.removeEventListener('pointerup', alSoltar);
     fantasma.liberar();
     obrasRender.liberar();
+    panelObra.liberar();
     menu.liberar();
     lienzo.removeEventListener('pointermove', alMoverRaton);
     lienzo.removeEventListener('pointerleave', alSalirRaton);

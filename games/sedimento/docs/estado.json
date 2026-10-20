@@ -62,9 +62,28 @@
       "fin": "2026-10-19T06:39:35.740Z"
     },
     {
+      "id": "A2b",
+      "estado": "hecha",
+      "hecho": [
+        "10 paquetes nuevos catalogados (#21-#30) con los 13 campos de R25, licencias citadas textualmente desde itch.io",
+        "5 mejores descargados en recursos-sin-revisar/pixelart/: sbs-iso-town-pack, sbs-iso-overworld-pack (incluye agua), kenney-isometric-miniature-farm, kenney-sketch-desert, narik-wooden-gui",
+        "Cada descarga con su LICENSE.txt y una vista previa .png/.jpg en recursos-sin-revisar/previews/",
+        "Top 3 razonado anadido al final del catalogo"
+      ],
+      "creada": "2026-10-19T07:00:58.985Z",
+      "titulo": "Pixel art CC0 de itch.io",
+      "fin": "2026-10-19T07:00:58.987Z"
+    },
+    {
       "id": "A3",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Portada «SEDIMENTO — Art Direction Lab» con propósito, estilo elegido B (R42), 4 estilos, estados de recurso y meta visual",
+        "Modelos: 485 modelos de 7 paquetes con autor, formato, licencia, estado, popularidad y compatibilidad; visor y comparación; 4 kits Kenney CC0 descargados con LICENSE.txt",
+        "Materiales: 12 texturas PBR (terreno, edificios y agua) en esfera y plano con luz y HDRI; visor 3D con interruptor por mapa; miniaturas diferidas",
+        "Paquetes: tarjetas de los 20 paquetes del catálogo con imagen, licencia, precio y estado; B primero; filtros, búsqueda y estados vacío y de error; los de pago salen descartados (R43)",
+        "Servidor: rutas de solo lectura y APIs que leen el catálogo y el disco; pruebas ampliadas a 74 comprobaciones en escritorio y móvil"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Art Direction Lab: base, modelos y materiales",
       "objetivo": "Portada y navegación del laboratorio en :4400 con modelos 3D y materiales PBR (Fase C, parte 1)",
@@ -77,12 +96,21 @@
       ],
       "version": "0.0",
       "tramo": "alfa",
-      "inicio": "2026-10-19T06:23:04.571Z"
+      "inicio": "2026-10-19T06:23:04.571Z",
+      "verificacion": {
+        "tests": "panel:probar 74/74, 0 errores de consola",
+        "resultado": "todas las secciones sin tarjetas ni imágenes rotas, sin scroll horizontal, en 1400 px y 390 px",
+        "captura": "A3-escritorio-lab-portada.png"
+      },
+      "fin": "2026-10-19T06:53:38.510Z",
+      "commit": "dcc1a61"
     },
     {
       "id": "A4",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Cancelada: el usuario decidió el estilo sin necesitar el comparador (R48)"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Art Direction Lab: pixel art, estilos, construcción y comparador",
       "objetivo": "Secciones de pixel art, estilos A–D, demo de construcción progresiva y comparador con favoritos (Fase C, parte 2, y Fase D)",
@@ -94,7 +122,8 @@
         "Favoritos y comentarios que se guardan en el servidor y sobreviven a recargar"
       ],
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "fin": "2026-10-19T07:30:24.419Z"
     },
     {
       "id": "A5",
@@ -125,12 +154,58 @@
         "resultado": "shot sin errores ni avisos; 34 draw calls y 604 k triángulos",
         "captura": "A5-terreno-cerca.png"
       },
-      "fin": "2026-10-19T06:39:33.060Z"
+      "fin": "2026-10-19T06:39:33.060Z",
+      "commit": "a1e4e29"
+    },
+    {
+      "id": "A5-limpieza",
+      "estado": "hecha",
+      "hecho": [
+        "tuning.json: alturas.nivelMar, alturas.rio.laminaMin, render.terreno.cauceDesde/cauceHasta/fraccionPlayaLago, render.seleccion.lados",
+        "VECINDAD exportado desde hex.ts y reutilizado en alturas.ts y agua.ts (ya no se repite en linea)",
+        "terrenoContinuo.ts: indices del Uint32Array escritos directamente, sin indices.set([...]) por celda",
+        "tests/alturas.test.ts: aguaEn da NaN en tierra firme; nacimiento de cada rio en tierra firme (via lamina[0]+margenOrilla, ya que alturaEn(p0) queda bajo tierraMin tras la propia excavacion del cauce)",
+        "npm run check en verde (159 tests, tsc sin errores), npm run shot sin errores (no hay cambio visible)"
+      ],
+      "creada": "2026-10-19T07:09:12.123Z",
+      "titulo": "Limpieza tras revision (reco R003)",
+      "fin": "2026-10-19T07:09:12.125Z"
+    },
+    {
+      "id": "A5b",
+      "estado": "hecha",
+      "hecho": [
+        "Paleta sobria en palmeras, coníferas, cañas, matas y rocas",
+        "Palmera datilera esbelta con tronco anillado y dátiles pardos",
+        "Tamarisco en lugar del árbol redondo y nuevo arbusto bajo para colinas, monte y estepa",
+        "Flores eliminadas y colores de los modelos Kenney apagados",
+        "Densidad por bioma: vega con palmerales, estepa casi desnuda, monte con arbustos"
+      ],
+      "creada": "2026-10-19T07:08:43.428Z",
+      "titulo": "Vegetación y decorado acordes al estilo",
+      "objetivo": "Sustituir los árboles, palmeras, flores, matas y rocas low-poly de colores chillones por vegetación sobria y realista, coherente con el terreno continuo y con espertativas/ (R46)",
+      "criterios": [
+        "Palmeras datileras, tamariscos y cañas con proporciones reales, troncos con textura y follaje con 2–3 tonos apagados (sin verdes saturados)",
+        "Flores y setas de colores eliminadas; matas bajas y piedras con colores de la paleta del terreno",
+        "Densidad por bioma: vega con palmerales y cañaverales, estepa casi desnuda y monte con arbustos dispersos",
+        "Sin cambios de rendimiento: instancing y menos de 40 draw calls; shot sin errores",
+        "Capturas de cerca y de lejos MIRADAS y comparadas con espertativas/"
+      ],
+      "inicio": "2026-10-19T07:18:49.858Z",
+      "verificacion": {
+        "tests": "183/183, tsc limpio",
+        "resultado": "shot sin errores ni avisos; draw calls 36–37 (<40); vegetación 4181 ejemplares",
+        "captura": "A5b-cerca.png"
+      },
+      "fin": "2026-10-19T07:27:17.471Z",
+      "commit": "64a9d2c"
     },
     {
       "id": "A6",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "dividida en A6a/A6b/A6c/A6d"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Prototipo de construcción libre y progresiva",
       "objetivo": "Colocar vivienda y almacén donde se quiera, trazar caminos y ver las obras subir por etapas con trabajadores, materiales y tiempo (Fase F)",
@@ -142,12 +217,93 @@
         "Cancelar, suspender y priorizar; motivo del retraso visible; capturas de cada etapa MIRADAS"
       ],
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "inicio": "2026-10-19T07:08:43.633Z",
+      "fin": "2026-10-19T07:09:30.215Z"
+    },
+    {
+      "id": "A6a",
+      "estado": "hecha",
+      "hecho": [
+        "tipos: Ubicacion {x, z, giro}; Obra y Edificio en coordenadas libres con celda de datos; huella y pendienteMax por edificio",
+        "obras.ts: motivoNoConstruible por fuera del mapa, solape SAT con giro, agua, pendiente, terreno, fertilidad y vecindad (agua/arcilla) alrededor de la huella",
+        "6 etapas (plano → preparación → cimientos → estructura → cubierta → edificio) con fracciones de trabajo y materiales en tuning.obras",
+        "cancelar (devuelve materiales), suspender y priorizar; hecho obra-etapa en cada cambio",
+        "Fundación libre: almacén junto al agua y chozas con giro aleatorio, sin solapes",
+        "tests/obras.test.ts reescrito: 19 tests (10 semillas de fundación)"
+      ],
+      "creada": "2026-10-19T07:09:30.576Z",
+      "titulo": "Construcción libre: lógica de colocación y 6 etapas",
+      "objetivo": "Obras y edificios en coordenadas libres (x, z, giro) con huella, validadas por solape, agua, pendiente y terreno, y que avanzan por plano → preparación → cimientos → estructura → cubierta → terminado",
+      "criterios": [
+        "test: colocación libre con giro; solape (SAT), pendiente y agua dan su motivo",
+        "test: una obra recorre las 6 etapas en orden según trabajo y materiales, y solo funciona al terminar",
+        "test: cancelar devuelve los materiales; suspender para el avance; la prioridad reparte antes a las obras prioritarias",
+        "La fundación coloca el almacén y las chozas libremente y sin solapes en 10 semillas",
+        "check en verde y shot sin errores"
+      ],
+      "inicio": "2026-10-19T07:09:30.578Z",
+      "verificacion": {
+        "tests": "167/167",
+        "resultado": "shot sin errores; la aldea se funda en coordenadas libres",
+        "captura": "A6a-fundacion.png"
+      },
+      "fin": "2026-10-19T07:18:07.625Z",
+      "commit": "2520085"
+    },
+    {
+      "id": "A6b",
+      "estado": "hecha",
+      "hecho": [
+        "logic/herramienta.ts: máquina de estados (elegir/girar/cancelar/colocado) y textos de motivo, con 6 tests",
+        "render/fantasma.ts: volumen translúcido de la huella y contorno pegado al terreno, verde o rojo",
+        "render/obras.ts: replanteo de cada obra con cuerda y estacas",
+        "ui/menuConstruccion.ts: barra con 9 edificios y su coste, y aviso del motivo junto al cursor",
+        "main.ts: Z/X giran 15°, Esc cancela, clic coloca; ?herramienta=casa para tests; exponer(construccion)",
+        "camara: fijarHerramienta() para que el botón izquierdo no mueva la cámara mientras se construye"
+      ],
+      "creada": "2026-10-19T07:09:30.836Z",
+      "titulo": "Construcción libre: vista previa y giro",
+      "objetivo": " vista previa y giro:Elegir edificio, vista previa transparente verde o roja con el motivo, Z/X para girar, Esc para cancelar y clic para colocar",
+      "inicio": "2026-10-19T07:18:08.845Z",
+      "criterios": [
+        "test: la herramienta (lógica pura) elige, gira con Z/X, cancela con Esc y sigue colocando tras un clic",
+        "Vista previa transparente verde o roja con el motivo en texto junto al cursor",
+        "Clic sin arrastre coloca la obra; arrastrar con la herramienta activa no mueve la cámara",
+        "Las obras colocadas se ven en plano (cuerda y estacas sobre el relieve)",
+        "shot sin errores; capturas MIRADAS"
+      ],
+      "verificacion": {
+        "tests": "189/189",
+        "resultado": "2 casas colocadas y girada 45°; ocupado explicado en texto; obra en plano visible",
+        "captura": "A6b-verde.png"
+      },
+      "fin": "2026-10-19T07:29:18.469Z"
+    },
+    {
+      "id": "A6c",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T07:09:31.096Z",
+      "titulo": "Caminos trazados",
+      "objetivo": "Trazar caminos con puntos y curva sobre el relieve, que aceleran el paso"
+    },
+    {
+      "id": "A6d",
+      "estado": "en-curso",
+      "hecho": [],
+      "creada": "2026-10-19T07:09:31.396Z",
+      "titulo": "Obras visibles por etapas",
+      "objetivo": "Vivienda y almacén se ven pasar por las 6 etapas; cancelar, suspender y priorizar desde la UI; motivo del retraso visible",
+      "inicio": "2026-10-19T07:30:04.316Z"
     },
     {
       "id": "A7",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "Decisión del usuario registrada (R46–R48): estilo B, 3D realista y cálido; el pixel art queda como plan B",
+        "Métricas de rendimiento por estilo: se miden en G1–G4 sobre el estilo elegido"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Elección del estilo",
       "objetivo": "Recomendación razonada con evidencia y decisión del usuario (Fase G)",
@@ -157,7 +313,8 @@
         "Recomendación escrita en gdd/arte.md y decisión del usuario registrada"
       ],
       "version": "0.0",
-      "tramo": "beta"
+      "tramo": "beta",
+      "fin": "2026-10-19T07:30:24.062Z"
     },
     {
       "id": "A8",
@@ -237,8 +394,14 @@
     },
     {
       "id": "C3",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "logic/camara.ts: distanciaLibre, distanciaDeVista, segmentoTocaCilindro, edificiosQueTapan y avanzarOpacidad (puros, con tests)",
+        "El punto de mira sigue superficieEn (terreno o agua) suavizado; el rig acorta la distancia con límite blando y duro",
+        "render/camara/oclusion.ts + atenuación por trama en render/edificios.ts: solo se atenúa el edificio que tapa y se restaura con transición",
+        "tuning.render.camara.colision y .oclusion; gdd/camara.md con parámetros y limitaciones",
+        "estado() expone distanciaVista, acortada y ocluidos"
+      ],
       "creada": "2026-10-19T05:02:27.484Z",
       "titulo": "Cámara: terreno y oclusión",
       "objetivo": "La cámara nunca atraviesa terreno ni edificios y gestiona lo que tapa la vista (Fases D y §9)",
@@ -249,7 +412,15 @@
         "Capturas en montaña y en ciudad MIRADAS"
       ],
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "inicio": "2026-10-19T06:54:26.808Z",
+      "verificacion": {
+        "tests": "167/167 (23 nuevos de cámara)",
+        "resultado": "shot sin errores: suelo llano sin acortar, montaña acorta a 5,5 y a 2,5 al tumbarla, 1–3 edificios atenuados al girar cerca de la aldea",
+        "captura": "C3-montana.png"
+      },
+      "fin": "2026-10-19T07:18:39.740Z",
+      "commit": "d83931c"
     },
     {
       "id": "C4",
@@ -1874,6 +2045,39 @@
       "tramo": "beta"
     },
     {
+      "id": "G1",
+      "estado": "en-curso",
+      "hecho": [],
+      "creada": "2026-10-19T07:30:24.717Z",
+      "titulo": "Terreno con texturas PBR e iluminación real",
+      "objetivo": "Terreno con texturas PBR CC0 (hierba, hierba seca, arena, barro, roca y grava) mezcladas por bioma, pendiente y humedad, más HDRI de cielo y luz cálida de tarde",
+      "inicio": "2026-10-19T07:30:25.648Z"
+    },
+    {
+      "id": "G2",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T07:30:24.976Z",
+      "titulo": "Agua realista",
+      "objetivo": "Agua con normal map, profundidad, reflejo del cielo y la espuma de orilla y las olas que gustaron en el prototipo pixel art (R47)"
+    },
+    {
+      "id": "G3",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T07:30:25.188Z",
+      "titulo": "Edificios con materiales reales",
+      "objetivo": "Choza, casa y almacén con proporciones creíbles y texturas PBR de adobe, caña y madera; nada de colores planos"
+    },
+    {
+      "id": "G4",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-19T07:30:25.429Z",
+      "titulo": "Vegetación realista",
+      "objetivo": "Palmeras, tamariscos, cañas y matas con texturas o materiales coherentes con G1"
+    },
+    {
       "id": "P1",
       "estado": "hecha",
       "hecho": [
@@ -1929,8 +2133,35 @@
       "fin": "2026-10-19T06:09:25.798Z"
     }
   ],
-  "errores": [],
-  "faltantes": [],
+  "errores": [
+    {
+      "id": "E001",
+      "t": "2026-10-19T07:18:07.823Z",
+      "estado": "resuelto",
+      "fase": "A6a",
+      "sintoma": "Dos casas pegadas con el hueco de tuning.obras.separacion seguían dando «ocupado»",
+      "causa": "rectsSolapan agranda los DOS rects con el margen: el hueco efectivo era 2 × separacion",
+      "solucion": "Pasar separacion / 2 como margen; test de SAT pegado/girado como regresión"
+    },
+    {
+      "id": "E002",
+      "t": "2026-10-19T07:18:39.582Z",
+      "estado": "resuelto",
+      "fase": "C3",
+      "sintoma": "En suelo llano la cámara se acortaba a 2,1 con la distancia pedida a 9,8",
+      "causa": "El objetivo está en el suelo y se exigía el margen entero desde el primer metro del rayo, así que siempre había bloqueo cerca del objetivo",
+      "solucion": "El margen crece con la distancia (0,3 por metro) hasta su valor completo; tests con suelo llano a 20° y con una ladera"
+    }
+  ],
+  "faltantes": [
+    {
+      "id": "L001",
+      "t": "2026-10-19T06:53:30.909Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "texto": "Las texturas de recursos-sin-revisar no traen LICENSE.txt (el catálogo #9 dice que sí) y la de agua (others_0020) no tiene origen anotado: hay que verificar y escribir la licencia de cada carpeta antes de integrarlas"
+    }
+  ],
   "recomendaciones": [
     {
       "id": "R001",
@@ -1949,6 +2180,59 @@
       "area": "mapa",
       "texto": "Que mapa.ts genere la forma de isla o costa (cabos, bahías, golfo) como dato, en vez de recortar el rectángulo en alturas.ts",
       "porque": "Al ensanchar el recorte del borde las montañas encogen; la silueta del territorio es un dato de diseño (afecta a la navegación y al comercio), no del render"
+    },
+    {
+      "id": "R003",
+      "t": "2026-10-19T06:41:52.727Z",
+      "prioridad": "baja",
+      "cerrado": true,
+      "area": "código",
+      "texto": "Limpieza tras A5 (revisor): pasar a tuning nivelMar, 0.02 de lámina mínima, 0.8/1.25 de la máscara del cauce, LADOS_MARCA; exportar VECINDAD desde hex.ts y reutilizarla en agua.ts; aguaEn con margen para la orilla; tests de aguaEn en seco y de la poda del nacimiento del río",
+      "porque": "Deuda menor detectada por revisor-codigo en a1e4e29; mecánica, ideal para C",
+      "cerradoEn": "2026-10-19T07:09:52.325Z"
+    },
+    {
+      "id": "R004",
+      "t": "2026-10-19T06:52:51.991Z",
+      "prioridad": "baja",
+      "cerrado": false,
+      "area": "recursos",
+      "texto": "Civilization Builder Mega Pack (3dsultan, itch.io) - 499 modelos FBX de edificios/monumentos de asentamientos y civilizaciones historicas, estilizado, con mapas PBR. De pago (2.79 USD con descuento, generado con IA). Descartado por ahora por R43 (cero gasto).",
+      "porque": "El usuario lo señaló como visualmente atractivo; podría servir para las civilizaciones aliadas/enemigas futuras (Roma, Egipto) si se levanta la regla de cero gasto."
+    },
+    {
+      "id": "R005",
+      "t": "2026-10-19T06:53:31.113Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "texto": "Cuando haya recursos 2D (LPC Desert Ruins, Mesopotamian Tombs) descargados, mostrarlos en A4 como hoja de sprites o tileset; Quaternius MegaKit solo se baja a mano desde itch.io",
+      "porque": "El laboratorio ya sabe distinguir descargado y sin revisar, pero esos dos no tienen descarga directa por curl"
+    },
+    {
+      "id": "R006",
+      "t": "2026-10-19T07:11:48.318Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Llevar al agua 3D lo que gustó del agua del prototipo pixel art: espuma que respira en la orilla, crestas que avanzan hacia la costa y destellos escasos que cambian a saltos",
+      "porque": "R47: al usuario le gustó ese efecto del agua"
+    },
+    {
+      "id": "R007",
+      "t": "2026-10-19T07:19:43.868Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "cámara",
+      "texto": "La oclusión de C3 solo atenúa edificios: una palmera cercana puede tapar el objetivo (C3-ocluido-uno.png). En A5b, que la vegetación alta aporte cuerpos a la oclusión o se atenúe igual",
+      "porque": "Con la cámara baja, las copas tapan la vista de la ciudad"
+    },
+    {
+      "id": "R008",
+      "t": "2026-10-19T07:27:17.296Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "texto": "Apagar el verde del terreno de la vega (render.colores / paleta.ts): al lado de la vegetación sobria sigue siendo un verde muy vivo",
+      "porque": "En A5b-cerca.png el césped contrasta con palmeras y tamariscos oliva; las referencias usan verdes oliva y ocres"
     }
   ],
   "decisiones": [
@@ -2058,6 +2342,54 @@
       "fase": "A2",
       "texto": "No se compra ningún recurso: el paquete Beelim y cualquier otro de pago quedan descartados. Solo CC0 o CC-BY gratuitos, o modelos propios",
       "porque": "El usuario lo dijo explícitamente el 19-10: «no compro nada, no tengo ni 0,1 dólar para gastar»"
+    },
+    {
+      "id": "D018",
+      "t": "2026-10-19T06:53:30.591Z",
+      "fase": "A3",
+      "texto": "El laboratorio se parte en un marco nuevo (studio/panel/laboratorio.js: portada, materiales y paquetes) y la sección Modelos se queda en index.html; las APIs /api/modelos, /api/materiales, /api/paquetes y /api/expectativas salen de los archivos reales (el catálogo se parsea, no se duplica) y las rutas de recursos son de solo lectura y no salen de su carpeta",
+      "porque": "Así lo que ve el usuario nunca se desincroniza del catálogo de C ni de lo que hay en disco, y index.html no sigue creciendo (la auditoría ya lo avisaba)"
+    },
+    {
+      "id": "D019",
+      "t": "2026-10-19T06:53:30.745Z",
+      "fase": "A3",
+      "texto": "Estado de un recurso = sin revisar (no descargado) / descargado (en disco) / integrado (usado en el juego) / descartado (de pago, por R43). Los paquetes con precio salen descartados aunque el catálogo de C los marque pendiente, y los que encajan con B van primero sin esconder el resto",
+      "porque": "R41 pide esas etiquetas, R43 prohíbe el gasto y R42 pide destacar B sin esconder A ni C"
+    },
+    {
+      "id": "D020",
+      "t": "2026-10-19T07:08:06.274Z",
+      "fase": "A4",
+      "texto": "Prototipo pixel art cerrado a petición del usuario con veredicto CAMBIAR (sin decidir): la v2 cenital 3/4 continua queda como candidata del estilo C para A7, en prototypes/pixel-cimientos",
+      "porque": "El usuario pidió volver al proyecto; el prototipo ya responde qué calidad se logra y sus límites (sin giro de cámara, coste de arte por etapa de obra)"
+    },
+    {
+      "id": "D021",
+      "t": "2026-10-19T07:18:39.430Z",
+      "fase": "C3",
+      "texto": "Oclusión por cilindros (radio y alto del modelo × escala) y atenuación por trama de ruido en el shader del material de edificios; la colisión usa superficieEn (terreno o agua), con margen que crece 0,3 m por metro cerca del objetivo",
+      "porque": "El cilindro es barato y suficiente para chozas y almacenes; el dithering evita transparencia y sus problemas de orden. El margen creciente evita que una cámara a 20° con el objetivo en el suelo estuviese siempre bloqueada (lo mostró la primera captura: distancia 2,1 en suelo llano)"
+    },
+    {
+      "id": "D022",
+      "t": "2026-10-19T07:27:17.140Z",
+      "fase": "A5b",
+      "texto": "El tipo de especie «arbol» pasa a ser un tamarisco y se añade «arbusto»; las flores del decorado se eliminan del código y de tuning; los colores de render.modelos.colores se apagan",
+      "porque": "R46: el usuario quiere vegetación sobria y acorde a las referencias, sin flores de colores. Mantener el nombre «arbol» evita tocar la lógica de bosque y la galería"
+    },
+    {
+      "id": "D023",
+      "t": "2026-10-19T07:30:23.480Z",
+      "fase": "A7",
+      "texto": "Estilo elegido: B, 3D cálido y realista con texturas PBR CC0, HDRI y modelos con materiales reales. El pixel art queda como plan B (R47). El comparador A4 se cancela: el usuario ya decidió viendo el juego y el prototipo",
+      "porque": "R46–R48: el usuario descarta los gráficos provisionales, quiere los definitivos ya y su referencia son las imágenes de espertativas/ (3D realista y cálido)"
+    },
+    {
+      "id": "D024",
+      "t": "2026-10-20T04:52:30.153Z",
+      "texto": "PIVOTE DEFINITIVO a pixel art 2D (R49): se abandona el render 3D (three.js) y todos los modelos/texturas 3D descargados; se reutilizan los sprites y generadores de prototypes/imperium-muestra sobre la misma base lógica (src/logic). Requisitos nuevos: R50 colisiones estrictas, R51 selección múltiple y formaciones, R52 ficha de ciudadano estilo Tropico 6 con coger y soltar, R53 ficha de estructuras (durabilidad/producción), R56 mínimo 60 fps, R57 eliminar la documentación y los recursos 3D obsoletos.",
+      "porque": "El usuario no encuentra arte 3D utilizable y la muestra en pixel art generada por código alcanzó la calidad buscada (59 colores, escena animada, hoja de sprites verificada). Detalle y hoja de ruta P0–P10 en .claude/docs/pivote-pixel-art.md."
     }
   ],
   "conceptos": [
@@ -2216,9 +2548,259 @@
       "t": "2026-10-19T06:39:33.382Z",
       "concepto": "Mapa de alturas (heightmap)",
       "explicacion": "El terreno es una rejilla de alturas y alturaEn(x, z) interpola entre los 4 puntos más cercanos (interpolación bilineal). Así cualquier cosa (árbol, casa, cámara) sabe a qué altura está el suelo en cualquier punto, sin hexágonos. Las celdas de datos siguen existiendo, pero invisibles: solo deciden el bioma y la altura objetivo."
+    },
+    {
+      "id": "C027",
+      "t": "2026-10-19T07:18:07.986Z",
+      "concepto": "SAT (teorema del eje separador)",
+      "explicacion": "Dos rectángulos girados NO se tocan si existe una línea (eje) sobre la que sus sombras no se solapan. Basta probar los 4 ejes de sus lados. Así CIMIENTOS sabe si una casa girada 45° choca con otra sin usar casillas."
+    },
+    {
+      "id": "C028",
+      "t": "2026-10-19T07:18:39.110Z",
+      "concepto": "Colisión de cámara por muestreo de rayo",
+      "explicacion": "Para que la cámara no entre en el terreno se muestrea el rayo objetivo→cámara y se compara con la altura del suelo. Hay un límite blando (con holgura, se persigue con suavizado) y uno duro (justo el suelo, se aplica ya en el mismo fotograma). Se suaviza la proporción de la distancia, no la distancia, para que el zoom normal no se arrastre."
+    },
+    {
+      "id": "C029",
+      "t": "2026-10-19T07:18:39.266Z",
+      "concepto": "Atenuar sin transparencia (dithering)",
+      "explicacion": "Un edificio que tapa la vista se atenúa descartando píxeles con una trama de ruido ordenado según un atributo por instancia (visibilidad 0–1). No hay transparencia, así que no hay problemas de orden de dibujo, y la sombra se mantiene. Se ve punteado, de ahí el nombre."
+    },
+    {
+      "id": "C030",
+      "t": "2026-10-20T04:52:30.527Z",
+      "concepto": "LOD por zoom en pixel art",
+      "explicacion": "Escalar pixel art a medias rompe el estilo, así que los juegos de estrategia usan niveles de detalle con arte distinto: cerca sprites completos, a distancia media versiones simplificadas (la mitad de tamaño) y lejos iconos o mapa estratégico. Los generadores paramétricos producen cada nivel automáticamente. Además reduce el coste de dibujo al alejar la cámara."
+    },
+    {
+      "id": "C031",
+      "t": "2026-10-20T04:52:30.692Z",
+      "concepto": "Rejilla de ocupación y colisiones",
+      "explicacion": "Para que ningún ciudadano atraviese una casa hace falta UNA sola fuente de verdad: una rejilla donde cada celda dice si está libre o bloqueada. La colocación de edificios, el pathfinding (A*) y el orden de dibujo consultan esa misma rejilla; la huella del edificio (no su dibujo) es la que bloquea, y las puertas son celdas especiales por las que se entra."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T04:52:30.694Z",
+      "texto": "Concepto: Rejilla de ocupación y colisiones"
+    },
+    {
+      "t": "2026-10-20T04:52:30.528Z",
+      "texto": "Concepto: LOD por zoom en pixel art"
+    },
+    {
+      "t": "2026-10-20T04:52:30.366Z",
+      "texto": "20-10: cerrada la muestra prototypes/imperium-muestra (veredicto SEGUIR). Relevo para sesiones A/B/C/(D): .claude/docs/pivote-pixel-art.md y .claude/docs/prompts-relevo-pixel-art.md. Pendiente de la sesión A en P0: git tag pre-pixel-art y borrar lo 3D (R57). Entregables de la muestra en prototypes/imperium-muestra/salida/."
+    },
+    {
+      "t": "2026-10-20T04:52:30.162Z",
+      "texto": "Decisión: PIVOTE DEFINITIVO a pixel art 2D (R49): se abandona el render 3D (three.js) y todos los modelos/texturas 3D descargados; se reutilizan los sprites y generadores de prototypes/imperium-muestra sobre la misma base lógica (src/logic). Requisitos nuevos: R50 colisiones estrictas, R51 selección múltiple y formaciones, R52 ficha de ciudadano estilo Tropico 6 con coger y soltar, R53 ficha de estructuras (durabilidad/producción), R56 mínimo 60 fps, R57 eliminar la documentación y los recursos 3D obsoletos."
+    },
+    {
+      "t": "2026-10-19T07:30:25.678Z",
+      "texto": "Fase G1 → en-curso: Terreno con texturas PBR e iluminación real"
+    },
+    {
+      "t": "2026-10-19T07:30:25.463Z",
+      "texto": "Fase G4 creada: Vegetación realista"
+    },
+    {
+      "t": "2026-10-19T07:30:25.217Z",
+      "texto": "Fase G3 creada: Edificios con materiales reales"
+    },
+    {
+      "t": "2026-10-19T07:30:25.010Z",
+      "texto": "Fase G2 creada: Agua realista"
+    },
+    {
+      "t": "2026-10-19T07:30:24.752Z",
+      "texto": "Fase G1 creada: Terreno con texturas PBR e iluminación real"
+    },
+    {
+      "t": "2026-10-19T07:30:24.474Z",
+      "texto": "Fase A4 → hecha: Art Direction Lab: pixel art, estilos, construcción y comparador"
+    },
+    {
+      "t": "2026-10-19T07:30:24.102Z",
+      "texto": "Fase A7 → hecha: Elección del estilo"
+    },
+    {
+      "t": "2026-10-19T07:30:23.482Z",
+      "texto": "Decisión: Estilo elegido: B, 3D cálido y realista con texturas PBR CC0, HDRI y modelos con materiales reales. El pixel art queda como plan B (R47). El comparador A4 se cancela: el usuario ya decidió viendo el juego y el prototipo"
+    },
+    {
+      "t": "2026-10-19T07:30:04.343Z",
+      "texto": "Fase A6d → en-curso: Obras visibles por etapas"
+    },
+    {
+      "t": "2026-10-19T07:29:18.498Z",
+      "texto": "Fase A6b → hecha: Construcción libre: vista previa y giro"
+    },
+    {
+      "t": "2026-10-19T07:27:18.965Z",
+      "texto": "Fase A5b actualizada: Vegetación y decorado acordes al estilo"
+    },
+    {
+      "t": "2026-10-19T07:27:17.501Z",
+      "texto": "Fase A5b → hecha: Vegetación y decorado acordes al estilo"
+    },
+    {
+      "t": "2026-10-19T07:27:17.298Z",
+      "texto": "Recomendación (general): Apagar el verde del terreno de la vega (render.colores / paleta.ts): al lado de la vegetación sobria sigue siendo un verde muy vivo"
+    },
+    {
+      "t": "2026-10-19T07:27:17.142Z",
+      "texto": "Decisión: El tipo de especie «arbol» pasa a ser un tamarisco y se añade «arbusto»; las flores del decorado se eliminan del código y de tuning; los colores de render.modelos.colores se apagan"
+    },
+    {
+      "t": "2026-10-19T07:19:43.870Z",
+      "texto": "Recomendación (cámara): La oclusión de C3 solo atenúa edificios: una palmera cercana puede tapar el objetivo (C3-ocluido-uno.png). En A5b, que la vegetación alta aporte cuerpos a la oclusión o se atenúe igual"
+    },
+    {
+      "t": "2026-10-19T07:18:49.886Z",
+      "texto": "Fase A5b → en-curso: Vegetación y decorado acordes al estilo"
+    },
+    {
+      "t": "2026-10-19T07:18:40.616Z",
+      "texto": "Fase C3 actualizada: Cámara: terreno y oclusión"
+    },
+    {
+      "t": "2026-10-19T07:18:39.768Z",
+      "texto": "Fase C3 → hecha: Cámara: terreno y oclusión"
+    },
+    {
+      "t": "2026-10-19T07:18:39.584Z",
+      "texto": "Error E002 (resuelto): En suelo llano la cámara se acortaba a 2,1 con la distancia pedida a 9,8"
+    },
+    {
+      "t": "2026-10-19T07:18:39.432Z",
+      "texto": "Decisión: Oclusión por cilindros (radio y alto del modelo × escala) y atenuación por trama de ruido en el shader del material de edificios; la colisión usa superficieEn (terreno o agua), con margen que crece 0,3 m por metro cerca del objetivo"
+    },
+    {
+      "t": "2026-10-19T07:18:39.268Z",
+      "texto": "Concepto: Atenuar sin transparencia (dithering)"
+    },
+    {
+      "t": "2026-10-19T07:18:39.111Z",
+      "texto": "Concepto: Colisión de cámara por muestreo de rayo"
+    },
+    {
+      "t": "2026-10-19T07:18:08.872Z",
+      "texto": "Fase A6b → en-curso: Construcción libre"
+    },
+    {
+      "t": "2026-10-19T07:18:08.692Z",
+      "texto": "Fase A6a actualizada: Construcción libre: lógica de colocación y 6 etapas"
+    },
+    {
+      "t": "2026-10-19T07:18:07.987Z",
+      "texto": "Concepto: SAT (teorema del eje separador)"
+    },
+    {
+      "t": "2026-10-19T07:18:07.826Z",
+      "texto": "Error E001 (resuelto): Dos casas pegadas con el hueco de tuning.obras.separacion seguían dando «ocupado»"
+    },
+    {
+      "t": "2026-10-19T07:18:07.654Z",
+      "texto": "Fase A6a → hecha: Construcción libre: lógica de colocación y 6 etapas"
+    },
+    {
+      "t": "2026-10-19T07:13:00.310Z",
+      "texto": "DOC-1 hecha (19-10): CLAUDE.md, auditoria.md, traspaso.md y requisitos-usuario.md puestos al dia tras A5. Commit 1903e40."
+    },
+    {
+      "t": "2026-10-19T07:11:48.320Z",
+      "texto": "Recomendación (arte): Llevar al agua 3D lo que gustó del agua del prototipo pixel art: espuma que respira en la orilla, crestas que avanzan hacia la costa y destellos escasos que cambian a saltos"
+    },
+    {
+      "t": "2026-10-19T07:09:52.333Z",
+      "texto": "Cerrado R003"
+    },
+    {
+      "t": "2026-10-19T07:09:31.438Z",
+      "texto": "Fase A6d creada: Obras visibles por etapas"
+    },
+    {
+      "t": "2026-10-19T07:09:31.137Z",
+      "texto": "Fase A6c creada: Caminos trazados"
+    },
+    {
+      "t": "2026-10-19T07:09:30.875Z",
+      "texto": "Fase A6b creada: Construcción libre"
+    },
+    {
+      "t": "2026-10-19T07:09:30.625Z",
+      "texto": "Fase A6a creada: Construcción libre: lógica de colocación y 6 etapas"
+    },
+    {
+      "t": "2026-10-19T07:09:30.255Z",
+      "texto": "Fase A6 → hecha: Prototipo de construcción libre y progresiva"
+    },
+    {
+      "t": "2026-10-19T07:09:12.164Z",
+      "texto": "Fase A5-limpieza creada: Limpieza tras revision (reco R003)"
+    },
+    {
+      "t": "2026-10-19T07:08:43.662Z",
+      "texto": "Fase A6 → en-curso: Prototipo de construcción libre y progresiva"
+    },
+    {
+      "t": "2026-10-19T07:08:43.459Z",
+      "texto": "Fase A5b creada: Vegetación y decorado acordes al estilo"
+    },
+    {
+      "t": "2026-10-19T07:08:06.276Z",
+      "texto": "Decisión: Prototipo pixel art cerrado a petición del usuario con veredicto CAMBIAR (sin decidir): la v2 cenital 3/4 continua queda como candidata del estilo C para A7, en prototypes/pixel-cimientos"
+    },
+    {
+      "t": "2026-10-19T07:00:59.019Z",
+      "texto": "Fase A2b creada: Pixel art CC0 de itch.io"
+    },
+    {
+      "t": "2026-10-19T06:54:26.837Z",
+      "texto": "Fase C3 → en-curso: Cámara: terreno y oclusión"
+    },
+    {
+      "t": "2026-10-19T06:53:41.540Z",
+      "texto": "Fase A3 actualizada: Art Direction Lab: base, modelos y materiales"
+    },
+    {
+      "t": "2026-10-19T06:53:38.541Z",
+      "texto": "Fase A3 → hecha: Art Direction Lab: base, modelos y materiales"
+    },
+    {
+      "t": "2026-10-19T06:53:31.115Z",
+      "texto": "Recomendación (general): Cuando haya recursos 2D (LPC Desert Ruins, Mesopotamian Tombs) descargados, mostrarlos en A4 como hoja de sprites o tileset; Quaternius MegaKit solo se baja a mano desde itch.io"
+    },
+    {
+      "t": "2026-10-19T06:53:30.912Z",
+      "texto": "Falta: Las texturas de recursos-sin-revisar no traen LICENSE.txt (el catálogo #9 dice que sí) y la de agua (others_0020) no tiene origen anotado: hay que verificar y escribir la licencia de cada carpeta antes de integrarlas"
+    },
+    {
+      "t": "2026-10-19T06:53:30.746Z",
+      "texto": "Decisión: Estado de un recurso = sin revisar (no descargado) / descargado (en disco) / integrado (usado en el juego) / descartado (de pago, por R43). Los paquetes con precio salen descartados aunque el catálogo de C los marque pendiente, y los que encajan con B van primero sin esconder el resto"
+    },
+    {
+      "t": "2026-10-19T06:53:30.592Z",
+      "texto": "Decisión: El laboratorio se parte en un marco nuevo (studio/panel/laboratorio.js: portada, materiales y paquetes) y la sección Modelos se queda en index.html; las APIs /api/modelos, /api/materiales, /api/paquetes y /api/expectativas salen de los archivos reales (el catálogo se parsea, no se duplica) y las rutas de recursos son de solo lectura y no salen de su carpeta"
+    },
+    {
+      "t": "2026-10-19T06:52:51.992Z",
+      "texto": "Recomendación (recursos): Civilization Builder Mega Pack (3dsultan, itch.io) - 499 modelos FBX de edificios/monumentos de asentamientos y civilizaciones historicas, estilizado, con mapas PBR. De pago (2.79 USD con descuento, generado con IA). Descartado por ahora por R43 (cero gasto)."
+    },
+    {
+      "t": "2026-10-19T06:51:49.790Z",
+      "texto": "El usuario aclara (2026-10-19): el juego empieza en la civilizacion sumeria, pero mas adelante habra muchas mas civilizaciones aliadas y enemigas (Roma, Egipto, etc). Recursos de esas esteticas (p. ej. LPC Desert Ruins egipcio en el catalogo, estilos romanos) no se descartan por no ser sumerios: son candidatos para civilizaciones futuras, no para la v0.1."
+    },
+    {
+      "t": "2026-10-19T06:41:52.730Z",
+      "texto": "Recomendación (código): Limpieza tras A5 (revisor): pasar a tuning nivelMar, 0.02 de lámina mínima, 0.8/1.25 de la máscara del cauce, LADOS_MARCA; exportar VECINDAD desde hex.ts y reutilizarla en agua.ts; aguaEn con margen para la orilla; tests de aguaEn en seco y de la poda del nacimiento del río"
+    },
+    {
+      "t": "2026-10-19T06:39:39.445Z",
+      "texto": "Fase A5 actualizada: Prototipo de terreno continuo"
+    },
     {
       "t": "2026-10-19T06:39:35.768Z",
       "texto": "Fase A2 → hecha: Catalogo de recursos graficos"
@@ -2392,5 +2974,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-19T06:39:35.768Z"
+  "actualizado": "2026-10-20T04:52:30.694Z"
 }

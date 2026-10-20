@@ -15,7 +15,7 @@ export interface MenuConstruccion {
   liberar(): void;
 }
 
-const NOMBRE: Record<TipoEdificio, string> = {
+export const NOMBRE: Record<TipoEdificio, string> = {
   choza: 'Choza',
   casa: 'Casa',
   almacen: 'Almacén',

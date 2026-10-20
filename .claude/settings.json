@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Edit(/games/**)",
+      "Edit(/prototypes/**)",
+      "Edit(/studio/**)",
+      "Bash(npm *)",
+      "Bash(npx *)",
+      "Bash(node *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git stash*)",
+      "Bash(git rev-parse*)",
+      "Bash(ls*)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(grep *)",
+      "Bash(find *)",
+      "Bash(wc *)",
+      "Bash(sed *)",
+      "Bash(cp *)",
+      "Bash(mkdir *)",
+      "Bash(cd *)",
+      "PowerShell(npm *)",
+      "PowerShell(npx *)",
+      "PowerShell(node *)",
+      "PowerShell(git status*)",
+      "PowerShell(git diff*)",
+      "PowerShell(git log*)",
+      "PowerShell(git add *)",
+      "PowerShell(git commit *)",
+      "PowerShell(Get-ChildItem*)",
+      "WebSearch",
+      "mcp__plugin_context7_context7"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git * push*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean*)",
+      "Bash(git checkout -- *)",
+      "Bash(git rebase*)",
+      "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(rm -r *)",
+      "Bash(rm -R*)",
+      "Bash(sudo *)",
+      "Bash(cat *.env*)",
+      "Read(**/.env*)",
+      "Edit(**/.env*)",
+      "PowerShell(git push*)",
+      "PowerShell(git reset --hard*)",
+      "PowerShell(git clean*)",
+      "PowerShell(Remove-Item *-Recurse*)",
+      "PowerShell(Remove-Item * -r*)",
+      "PowerShell(rm -r*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.mjs\"", "timeout": 10 }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          { "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/typecheck-al-parar.mjs\"", "timeout": 120 }
+        ]
+      }
+    ]
+  }
+}

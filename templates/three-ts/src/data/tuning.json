@@ -1,0 +1,7 @@
+{
+  "jugador": { "velocidad": 6, "tamano": 1 },
+  "moneda": { "radio": 0.35, "cantidadInicial": 6, "radioRecogida": 0.9 },
+  "mundo": { "mitadLado": 10 },
+  "camara": { "altura": 9, "distancia": 11, "suavizado": 6 },
+  "puntuacion": { "valorBase": 10, "bonusPorRacha": 5, "rachaMaxima": 5 }
+}

@@ -63,7 +63,15 @@
       "profundidadLechoMar": 1.2,
       "frecuenciaVariacion": 0.12,
       "variacionColor": 0.07,
-      "rugosidad": 0.95
+      "rugosidad": 0.95,
+      "escalaTextura": 0.55,
+      "escalaTexturaLejos": 0.11,
+      "tinte": 0.18,
+      "brillo": 1,
+      "fuerzaNormal": 0.9,
+      "rugosidadCapas": [0.92, 0.95, 0.96, 0.7, 0.85, 0.95, 0.88, 0.6],
+      "mezclaRuidoHierba": 0.45,
+      "frecuenciaRuidoHierba": 0.09
     },
     "alturaNivel": 0.3,
     "rebajeAgua": 0.45,
@@ -210,6 +218,7 @@
         "suavizado": 10
       }
     },
+    "texturas": { "terreno": "recursos/texturas/terreno", "ladoDifusa": 1024, "ladoNormal": 512, "hdri": "recursos/hdri/atardecer_2k.hdr", "intensidadEntorno": 0.55, "hdriDeFondo": false },
     "construccion": {
       "colorValido": "#7fe08a",
       "colorInvalido": "#ff6b5a",
@@ -224,7 +233,30 @@
       "colorEstaca": "#7a5634",
       "radioEstaca": 0.018,
       "altoEstaca": 0.14,
-      "umbralClic": 6
+      "umbralClic": 6,
+      "pasosProgreso": 12,
+      "colorTierra": "#a98d63",
+      "colorMonton": "#8f7550",
+      "colorZanja": "#4f3d2b",
+      "colorPiedra": "#9a8f7c",
+      "colorMuro": "#c99a66",
+      "colorAndamio": "#7a5634",
+      "colorViga": "#6e4e2e",
+      "colorTecho": "#d2b06c",
+      "colorAdobe": "#b98a58",
+      "colorCana": "#c4b270",
+      "colorSeleccion": "#fff2b0",
+      "altoLosa": 0.02,
+      "montones": 5,
+      "altoHilada": 0.07,
+      "grosorMuro": 0.06,
+      "altoMuroBase": 0.22,
+      "altoMuroPorTamano": 0.3,
+      "altoAndamio": 0.16,
+      "vigasMax": 8,
+      "pilaMax": 12,
+      "unidadPila": 5,
+      "margenClicObra": 0.12
     },
     "seleccion": {
       "color": "#fff2b0",

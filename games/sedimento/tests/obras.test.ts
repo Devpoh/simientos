@@ -5,7 +5,7 @@ import { rectsSolapan } from '../src/logic/geometria2d';
 import { Rejilla } from '../src/logic/hex';
 import { generarMapa } from '../src/logic/mapa';
 import { configDesdeTuning } from '../src/logic/sim/config';
-import { cancelarObra, colocarObra, fundarAsentamiento, huellaDe, motivoNoConstruible, priorizarObra, puedeConstruir, suspenderObra, type Mundo } from '../src/logic/sim/obras';
+import { NOMBRE_ETAPA, cancelarObra, colocarObra, fundarAsentamiento, huellaDe, motivoNoConstruible, priorizarObra, progresoEtapa, puedeConstruir, suspenderObra, textoBloqueo, type Mundo } from '../src/logic/sim/obras';
 import { avanzarDias, crearEstado } from '../src/logic/sim/simulacion';
 import { ETAPAS_OBRA, type EstadoSim, type TipoEdificio, type Ubicacion } from '../src/logic/sim/tipos';
 
@@ -208,5 +208,51 @@ describe('obras por etapas (R22)', () => {
     avanzarDias(e, 1, cfg);
     expect(obra(e, b.id)!.constructores).toBe(1);
     expect(obra(e, a.id)!.bloqueo).toBe('sin-trabajadores');
+  });
+});
+
+describe('progreso y textos de una obra (A6d)', () => {
+  it('progresoEtapa va de 0 a 1 dentro de cada etapa y vuelve a 0 al cambiar de etapa', () => {
+    const { t, e, almacen } = aldea();
+    const id = ('id' in colocarObra(e, t, 'casa', buscarSitio(e, t, 'casa', almacen), cfg) ? e.obras[0].id : -1);
+    const o = e.obras.find((x) => x.id === id)!;
+    expect(progresoEtapa(o, cfg)).toBe(0);
+    const etapaInicial = o.etapa;
+    let anterior = 0;
+    let vueltas = 0;
+    while (o.etapa === etapaInicial && vueltas++ < 200) {
+      avanzarDias(e, 1, cfg);
+      const p = progresoEtapa(o, cfg);
+      if (o.etapa === etapaInicial) {
+        expect(p).toBeGreaterThanOrEqual(anterior);
+        expect(p).toBeLessThanOrEqual(1);
+        anterior = p;
+      }
+    }
+    expect(o.etapa).not.toBe(etapaInicial);
+    expect(progresoEtapa(o, cfg)).toBeLessThan(1);
+  });
+
+  it('progresoEtapa vale la fracción de trabajo hecha', () => {
+    const { t, e, almacen } = aldea();
+    colocarObra(e, t, 'casa', buscarSitio(e, t, 'casa', almacen), cfg);
+    const o = e.obras[0];
+    o.etapa = 'estructura';
+    o.trabajoEtapa = cfg.edificios.casa.trabajo * cfg.obras.fraccionTrabajo.estructura * 0.25;
+    expect(progresoEtapa(o, cfg)).toBeCloseTo(0.25);
+    o.trabajoEtapa = 1e9;
+    expect(progresoEtapa(o, cfg)).toBe(1);
+  });
+
+  it('textoBloqueo explica en español por qué está parada', () => {
+    expect(textoBloqueo(null)).toBe('Avanza con normalidad');
+    expect(textoBloqueo('esperando:adobe')).toBe('Falta adobe');
+    expect(textoBloqueo('esperando:cana')).toBe('Falta caña');
+    expect(textoBloqueo('sin-trabajadores')).toBe('No hay trabajadores libres');
+    expect(textoBloqueo('suspendida')).toBe('Obra suspendida');
+  });
+
+  it('cada etapa tiene nombre', () => {
+    for (const etapa of ETAPAS_OBRA) expect(NOMBRE_ETAPA[etapa].length).toBeGreaterThan(0);
   });
 });

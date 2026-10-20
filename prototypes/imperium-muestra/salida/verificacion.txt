@@ -1,0 +1,6 @@
+Escena base 960x540: 59 colores usados de 59 de la paleta; fuera de paleta: 0
+escena_x2_1920x1080.png: ampliación x2 por vecino más cercano exacta (sin mezcla de píxeles): SÍ
+escena_x4_3840x2160.png: ampliación x4 por vecino más cercano exacta (sin mezcla de píxeles): SÍ
+GIF: 60 fotogramas, 960x540, colores fuera de paleta: 0
+Hoja de sprites: 58 colores, fuera de paleta: 0
+RESULTADO: TODO CORRECTO

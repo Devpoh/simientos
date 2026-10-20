@@ -7,6 +7,7 @@ import type { ConfigRender } from './config';
 import { crearDisposicion, type Disposicion } from './disposicion';
 import { Paleta } from './paleta';
 import { crearTerrenoContinuo } from './terrenoContinuo';
+import { cargarTexturasTerreno, type TexturasTerreno } from './texturasTerreno';
 import { crearVegetacion, type SueloEn } from './vegetacion';
 
 export interface Mundo {
@@ -15,6 +16,8 @@ export interface Mundo {
   readonly caja: THREE.Box3;
   readonly ejemplaresVegetacion: number;
   readonly verticesTerreno: number;
+  /** true cuando ya llegaron las texturas PBR del terreno. */
+  readonly terrenoConTexturas: boolean;
   /** Relieve continuo (R20): altura del suelo y del agua en cualquier punto. */
   readonly campo: CampoAlturas;
   /** Altura del suelo en un punto: para apoyar edificios y personas. */
@@ -39,12 +42,26 @@ export function crearMundo(mapa: Mapa, cfg: ConfigRender, cfgAlturas: Omit<Confi
 
   const raiz = new THREE.Group();
   raiz.add(terreno.malla, agua.raiz, vegetacion.raiz, decorado.raiz);
+  // Texturas PBR (G1) en segundo plano: el primer frame sale ya con el color por vértice.
+  let texturas: TexturasTerreno | null = null;
+  let liberado = false;
+  const base = import.meta.env.BASE_URL + cfg.texturas.terreno;
+  cargarTexturasTerreno(base, cfg.texturas.ladoDifusa, cfg.texturas.ladoNormal)
+    .then((t) => {
+      if (liberado) return t.liberar();
+      texturas = t;
+      terreno.aplicarTexturas(t);
+    })
+    .catch((e: unknown) => console.warn('Texturas del terreno no disponibles; se usa el color por vértice.', e));
 
   return {
     raiz,
     caja: disp.caja,
     ejemplaresVegetacion: vegetacion.total,
     verticesTerreno: terreno.vertices,
+    get terrenoConTexturas() {
+      return terreno.conTexturas;
+    },
     campo,
     sueloEn,
     disposicion: disp,
@@ -53,6 +70,8 @@ export function crearMundo(mapa: Mapa, cfg: ConfigRender, cfgAlturas: Omit<Confi
       decorado.actualizar(dt);
     },
     liberar() {
+      liberado = true;
+      texturas?.liberar();
       terreno.liberar();
       agua.liberar();
       vegetacion.liberar();

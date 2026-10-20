@@ -1,0 +1,11 @@
+Texturas de terreno: hierba, hierba_seca, arena, barro, roca, tierra_seca, grava, nieve
+Autor/fuente: Poly Haven (https://polyhaven.com)
+Licencia: CC0 1.0 Universal (https://polyhaven.com/license) — uso comercial libre, sin atribucion obligatoria.
+Integrado: 2026-10-19 (fases G1).
+Difusa (difusa.jpg) tal cual, 1024x1024. Normal (normal.jpg) reescalada a 512x512 con ffmpeg (filtro lanczos).
+No se copia la rugosidad.
+
+Nota: estas texturas se descargaron a recursos-sin-revisar/ en una sesion anterior (A2) sin
+registrar la URL de la ficha individual de cada una en Poly Haven, solo la biblioteca general
+(docs/recursos/catalogo.md, #9). La licencia CC0 1.0 cubre toda la biblioteca por igual, asi
+que esta sin verificar la pagina exacta de cada textura, no la licencia.

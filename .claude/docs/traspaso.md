@@ -1,4 +1,12 @@
-# Traspaso entre sesiones (última actualización: 2026-10-19, tras A5)
+# Traspaso entre sesiones (última actualización: 2026-10-20, **PIVOTE A PIXEL ART**)
+
+> ## ⚠️ CAMBIO DE RUMBO DEL 20-10 (R49–R55): TODO EL JUEGO PASA A PIXEL ART 2D
+> **Lee primero `.claude/docs/pivote-pixel-art.md`.** Se abandonan el render 3D (three.js) y los modelos/texturas 3D descargados; se mantiene la lógica (`src/logic/`), la bitácora, el panel y los documentos. Los sprites y generadores de `prototypes/imperium-muestra/` **se reutilizan** (pasan a `tools/arte-pixel/`). Nuevos requisitos obligatorios: **colisiones estrictas**, **selección múltiple con ratón y formaciones**, **ficha de ciudadano estilo Tropico 6 con coger y soltar**, **ficha de estructuras (durabilidad, producción)**.
+> **R57: la documentación y los recursos 3D obsoletos se ELIMINAN** (ver `pivote-pixel-art.md` §1). Todo lo que más abajo diga «el 3D es la vía principal» (R47/R48) queda **sustituido por R49**. Prompts de arranque: `.claude/docs/prompts-relevo-pixel-art.md`.
+
+---
+
+# (Contenido anterior del traspaso, al 19-10, tras A5)
 
 > Lee esto **antes de nada** si eres una sesión nueva. Después: `node studio/bitacora.mjs estado`, `games/sedimento/CLAUDE.md` y `.claude/docs/sesiones.md`.
 > **Regla del usuario (R40): dejar siempre todo documentado.** Antes de cerrar una sesión, actualiza este archivo y deja una `nota` en la bitácora.

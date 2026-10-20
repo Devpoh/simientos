@@ -241,3 +241,40 @@ export function fundarAsentamiento(e: EstadoSim, t: Mundo, cfg: ConfigSim): Ubic
   registrar(e, cfg.economia.maxHechos, { tipo: 'fundacion', sujeto: 'ciudad', datos: { x: almacen.x, z: almacen.z } });
   return almacen;
 }
+
+/** Progreso dentro de la etapa actual (0..1): lo que se ve avanzar en la maqueta de la obra y en el panel. */
+export function progresoEtapa(o: Obra, cfg: ConfigSim): number {
+  const tope = cfg.edificios[o.tipo].trabajo * cfg.obras.fraccionTrabajo[o.etapa];
+  return tope <= 0 ? 1 : Math.min(1, Math.max(0, o.trabajoEtapa / tope));
+}
+
+export const NOMBRE_ETAPA: Record<EtapaObra, string> = {
+  plano: 'Plano',
+  preparacion: 'Preparación del terreno',
+  cimientos: 'Cimientos',
+  estructura: 'Estructura',
+  cubierta: 'Cubierta',
+};
+
+const NOMBRE_BIEN: Record<(typeof BIENES)[number], string> = {
+  cebada: 'cebada',
+  datiles: 'dátiles',
+  pescado: 'pescado',
+  arcilla: 'arcilla',
+  cana: 'caña',
+  paja: 'paja',
+  adobe: 'adobe',
+  hoces: 'hoces',
+};
+
+/** Por qué está parada una obra, en texto claro para el jugador (el código viene de `Obra.bloqueo`). */
+export function textoBloqueo(bloqueo: string | null): string {
+  if (bloqueo === null) return 'Avanza con normalidad';
+  if (bloqueo === 'suspendida') return 'Obra suspendida';
+  if (bloqueo === 'sin-trabajadores') return 'No hay trabajadores libres';
+  if (bloqueo.startsWith('esperando:')) {
+    const bien = bloqueo.slice('esperando:'.length) as (typeof BIENES)[number];
+    return `Falta ${NOMBRE_BIEN[bien] ?? bien}`;
+  }
+  return bloqueo;
+}

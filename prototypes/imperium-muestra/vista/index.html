@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>IMPERIUM · muestra pixel art (en progreso)</title>
+<style>
+body{margin:0;background:#0f1424;color:#e8dfca;font:14px system-ui,sans-serif;padding:16px 20px}
+h1{font-size:18px;color:#e4be7a;margin:0 0 4px}h2{font-size:14px;color:#e4be7a;margin:22px 0 2px}
+p{margin:0 0 8px;color:#9a97a4;max-width:960px} #hora{color:#7ad9a0}
+img{image-rendering:pixelated;display:block;width:100%;max-width:1920px;border:1px solid #2a2840;background:#1b2a44}
+</style></head><body>
+<h1>IMPERIUM · muestra de pixel art (trabajo en curso)</h1>
+<p>Última publicación: <b id="hora">00:50:35</b> · el visor detecta solo los cambios y recarga únicamente lo que cambió. Pulsa una imagen para verla a tamaño completo.</p>
+<section><h2>ESCENA ANIMADA (30 fps) · puerto, mercado, templo en obra</h2><p>Agua, barcos con reflejo, humo, ciudadanos, animales, banderas, fuente, llamas y haz del faro. 4 s en bucle.</p><a href="escena_fluida.png" target="_blank"><img class="r" data-src="escena_fluida.png" src="escena_fluida.png?v=1792471835"></a></section><section><h2>Escena (fotograma estático)</h2><p>Resolución base 960×540 mostrada ampliada.</p><a href="escena.png" target="_blank"><img class="r" data-src="escena.png" src="escena.png?v=1792471835"></a></section><section><h2>HOJA DE SPRITES · ciudadanos (hombre y mujer), templo y casa en 3 etapas, animales y criaturas</h2><p>Entregable 2.</p><a href="hoja_sprites.png" target="_blank"><img class="r" data-src="hoja_sprites.png" src="hoja_sprites.png?v=1792471835"></a></section><section><h2>PALETA · 59 colores en rampas de oscuro a claro</h2><p>Entregable 3 (hexadecimal en salida/paleta.txt).</p><a href="paleta.png" target="_blank"><img class="r" data-src="paleta.png" src="paleta.png?v=1792471835"></a></section><section><h2>Templo de Júpiter 5×5 · terreno / obra / terminado</h2><p>Mismo generador en tres etapas.</p><a href="templo_etapas.png" target="_blank"><img class="r" data-src="templo_etapas.png" src="templo_etapas.png?v=1792471835"></a></section><section><h2>Ciudadanos 16×24 · 5 oficios, hombres y mujeres</h2><p>Idle + 6 fotogramas de caminar + de espaldas.</p><a href="ciudadanos.png" target="_blank"><img class="r" data-src="ciudadanos.png" src="ciudadanos.png?v=1792471835"></a></section><section><h2>Mercado, faro, puente, torre y etapas de la casa</h2><p>Puestos con toldos, faro con linterna, puente de dos arcos, torre y casa en solar / obra / terminada.</p><a href="edificios2.png" target="_blank"><img class="r" data-src="edificios2.png" src="edificios2.png?v=1792471835"></a></section><section><h2>Mobiliario y ambiente</h2><p>Cajas, barriles, sacos, heno, carretas, pozo, fuente, brasero, valla, estandarte, leña.</p><a href="props.png" target="_blank"><img class="r" data-src="props.png" src="props.png?v=1792471835"></a></section><section><h2>Criaturas mitológicas · minotauro, centauro, sátiro</h2><p>Versión original restaurada a petición del usuario.</p><a href="mitologicos.png" target="_blank"><img class="r" data-src="mitologicos.png" src="mitologicos.png?v=1792471835"></a></section><section><h2>Animales de granja · oveja, vaca, caballo, gallina</h2><p>Pastando, caminando y con variantes de pelaje.</p><a href="animales.png" target="_blank"><img class="r" data-src="animales.png" src="animales.png?v=1792471835"></a></section><section><h2>Barcos · galera, nave mercante, pesquero</h2><p>Dos orientaciones isométricas.</p><a href="barcos.png" target="_blank"><img class="r" data-src="barcos.png" src="barcos.png?v=1792471835"></a></section><section><h2>Vegetación y rocas</h2><p>Ciprés, pino parasol, encina, olivo, arbustos y rocas.</p><a href="arboles.png" target="_blank"><img class="r" data-src="arboles.png" src="arboles.png?v=1792471835"></a></section><section><h2>Casas (2×2 y 3×2)</h2><p>Tejas individuales, estuco con desconchones, postigos.</p><a href="casas.png" target="_blank"><img class="r" data-src="casas.png" src="casas.png?v=1792471835"></a></section><section><h2>escena.gif</h2><p></p><a href="escena.gif" target="_blank"><img class="r" data-src="escena.gif" src="escena.gif?v=1792471835"></a></section>
+<script>
+// Recarga SOLO lo que cambió en disco (así las animaciones no se reinician cada pocos segundos).
+var versiones = {};
+function revisar(){
+  fetch('manifiesto.json?x=' + Date.now(), {cache:'no-store'}).then(function(r){return r.json();}).then(function(m){
+    if (versiones['index.html'] && m['index.html'] !== versiones['index.html']) { location.reload(); return; }
+    versiones['index.html'] = m['index.html'];
+    document.querySelectorAll('img.r').forEach(function(im){
+      var f = im.dataset.src;
+      if (m[f] && versiones[f] !== m[f]) { versiones[f] = m[f]; im.src = f + '?m=' + m[f]; }
+    });
+  }).catch(function(){});
+}
+setInterval(revisar, 2500); revisar();
+</script>
+</body></html>
