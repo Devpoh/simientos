@@ -77,22 +77,36 @@
     },
     {
       "id": "P2",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "t1 Phaser 4 960×540 con escalado entero",
+        "t2 cámara",
+        "t3a–3c terreno horneado, costa y yacimientos",
+        "t3d calidad del terreno (montañas pasan a P2c, R84)",
+        "t4a aldea de referencia (6a74ea9)",
+        "t4b bench con GPU real (a6202b9)",
+        "t4c pantalla completa con píxel entero (9588cf7)"
+      ],
       "creada": "2026-10-20T05:01:34.270Z",
       "titulo": "Phaser 4: mundo isométrico y cámara",
       "objetivo": "El juego arranca en Phaser 4 a 960×540 con escalado entero, terreno horneado y edificios del atlas; cámara 2D; medición de fps",
       "criterios": [
-        "Lienzo 960×540 con pixelArt y escalado solo entero al cambiar la ventana",
+        "Lienzo que llena la ventana con escala entera y alto lógico ≈ 540 al cambiar la ventana (R83, D032)",
         "Terreno procedural horneado en trozos PNG una vez al cargar desde la semilla (R59); solo se dibujan los trozos visibles",
         "Cámara 2D sin giro ni inclinación (R61): botón central, WASD y bordes; zoom por pasos enteros (R60)",
         "exponer() publica fps, msFotoP95, msFotoMax y nSprites; F2 los muestra",
-        "shot de 20 s con la escena de prueba: p95 ≤ 16,6 ms"
+        "bench-60fps con la aldea de referencia en verde con el criterio D034"
       ],
       "sesion": "B",
       "version": "0.0",
       "tramo": "alfa",
-      "inicio": "2026-10-20T05:27:11.966Z"
+      "inicio": "2026-10-20T05:27:11.966Z",
+      "verificacion": {
+        "check": "287 tests en verde",
+        "bench": "×1: 60,1 fps, 0,2 % perdidos, máx 26 ms; ×2: 60,1 fps, 0 %, máx 18,8 ms (un tirón suelto de 49 ms en otra pasada, R005); sin vsync p95 3,6 ms",
+        "captura": "docs/evidencia/P2-t4c-1920x969.png (mirada por B y A)"
+      },
+      "fin": "2026-10-20T15:12:31.183Z"
     },
     {
       "id": "P2b",
@@ -2433,6 +2447,13 @@
       "fase": "P4",
       "texto": "Escala del mundo (R90): 1 tile ≈ 2 m. Los edificios aprobados se quedan como están y se ajustan los seres. El adulto mide como la puerta de la casa (≈ 1,7 m), el caballo llega con la cabeza a la altura del adulto, la vaca es más baja y la oveja llega a la cintura. Los niños miden ≈ 0,6 del adulto. Antes de redibujar nada, D hace UN boceto de escala (casa, choza, almacén, adultos, niño, caballo, vaca y oveja, antes y después, a ×1 y ×4) para que lo apruebe el usuario. Va antes de D4 (espaldas) y de niños y ancianos, porque cambia el tamaño del ciudadano",
       "porque": "el usuario ve a los humanos y a los caballos más grandes de lo lógico al lado de las casas (en la aldea, un adulto es más alto que la puerta); redibujar los seres cuesta mucho menos que redibujar todos los edificios, y hacerlo antes de D4 evita dibujar dos veces"
+    },
+    {
+      "id": "D039",
+      "t": "2026-10-20T15:11:21.543Z",
+      "fase": "P3b",
+      "texto": "Caminos, complemento de D035: el pintor del boceto CAM1 (distancia con signo de la máscara de subceldas + ruido; roca con cantos de Voronoi, tierra con tramado y rodadas) se porta a TS como el horneado y repinta solo los trozos de suelo que cambian al trazar. Las piezas de marching squares quedan como alternativa si repintar un trozo cuesta más de 8 ms",
+      "porque": "el pintor por distancia da curvas, cruces y bordes continuos que las piezas no igualan, y repintar un trozo al construir es un coste puntual, no por fotograma (R56)"
     }
   ],
   "conceptos": [
@@ -2582,6 +2603,14 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T15:12:31.218Z",
+      "texto": "Fase P2 → hecha: Phaser 4: mundo isométrico y cámara"
+    },
+    {
+      "t": "2026-10-20T15:11:21.545Z",
+      "texto": "Decisión: Caminos, complemento de D035: el pintor del boceto CAM1 (distancia con signo de la máscara de subceldas + ruido; roca con cantos de Voronoi, tierra con tramado y rodadas) se porta a TS como el horneado y repinta solo los trozos de suelo que cambian al trazar. Las piezas de marching squares quedan como alternativa si repintar un trozo cuesta más de 8 ms"
+    },
     {
       "t": "2026-10-20T15:09:56.722Z",
       "texto": "Decisión: Escala del mundo (R90): 1 tile ≈ 2 m. Los edificios aprobados se quedan como están y se ajustan los seres. El adulto mide como la puerta de la casa (≈ 1,7 m), el caballo llega con la cabeza a la altura del adulto, la vaca es más baja y la oveja llega a la cintura. Los niños miden ≈ 0,6 del adulto. Antes de redibujar nada, D hace UN boceto de escala (casa, choza, almacén, adultos, niño, caballo, vaca y oveja, antes y después, a ×1 y ×4) para que lo apruebe el usuario. Va antes de D4 (espaldas) y de niños y ancianos, porque cambia el tamaño del ciudadano"
@@ -3051,5 +3080,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T15:09:56.722Z"
+  "actualizado": "2026-10-20T15:12:31.218Z"
 }
