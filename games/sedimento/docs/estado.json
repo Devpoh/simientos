@@ -100,7 +100,7 @@
         "test: rendimiento = área × fertilidad × agua × trabajo (fórmula en simulacion.md)",
         "Los campos cambian de aspecto con las estaciones",
         "La cosecha llega físicamente al almacén",
-        "Campos con etapas visibles: arado → siembra → crecimiento → listo → cosecha (R66, sprites de D)"
+        "Campos con las 6 etapas aprobadas (D2): arado → siembra → brotes → crecimiento → maduro → cosecha (R66)"
       ],
       "version": "0.1",
       "tramo": "alfa"
@@ -1645,6 +1645,24 @@
       "inicio": "2026-10-20T05:27:11.966Z"
     },
     {
+      "id": "P2b",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:53:46.366Z",
+      "titulo": "Capa de interfaz HTML/CSS",
+      "objetivo": "Base de la UI en HTML/CSS superpuesta al lienzo (R70), con el aspecto del pixel art, para las fichas, paneles y HUD de P5–P8",
+      "criterios": [
+        "Capa #ui sobre el lienzo que escala con el mismo factor entero y no roba el ratón al juego salvo en los paneles",
+        "Tokens CSS generados desde paleta.txt (59 colores) y fuente pixel libre (OFL) servida en local, sin CDN",
+        "Panel con borde 9-slice de sprite de D, image-rendering: pixelated y retrato del atlas",
+        "HUD mínimo (fecha y recursos) que se redibuja solo cuando cambia (por eventos, sin bucle)",
+        "Captura mirada a ×1 y ×2; fps sin cambios"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
       "id": "P3",
       "estado": "pendiente",
       "hecho": [],
@@ -1761,7 +1779,7 @@
       "objetivo": "Agua, humo, banderas, animales y barcos animados en bucle, y luz del día",
       "criterios": [
         "Mar como el de pixel-cimientos (olas y espuma de costa) y río como el de la muestra (R65), en bucles de 4 fotogramas",
-        "Humo, banderas y llamas en bucle con pools (sin asignaciones en el bucle)",
+        "Humo, banderas, llamas, gaviotas y sombras de nubes en movimiento (R69) en bucle con pools (sin asignaciones en el bucle)",
         "Animales que pastan y barcos que solo navegan por agua válida (test)",
         "Luz del día por tinte sin salirse de la paleta",
         "Ciudad de referencia a ≥ 60 fps"
@@ -2014,6 +2032,27 @@
       "fase": "P2",
       "texto": "Escalado entero con Scale.NONE + zoom del ScaleManager recalculado al cambiar la ventana (logic/pantalla.ts); el sprite se coloca con origen = ancla del fotograma y posición a píxel entero; los fotogramas del atlas se registran como frames con nombre en la textura atlas-N al arrancar",
       "porque": "FIT puede dar escalas no enteras y píxeles de distinto tamaño; así input y render quedan alineados y el atlas se usa tal cual lo exporta tools/arte-pixel"
+    },
+    {
+      "id": "D016",
+      "t": "2026-10-20T05:37:03.487Z",
+      "fase": "F107",
+      "texto": "Boceto D2 aprobado por el usuario: campo de cebada 3×2 en 6 etapas (arado, siembra, brotes, crecimiento, maduro, cosecha con gavillas), con lindes de tierra y mojones para que no parezca una casilla",
+      "porque": "R66 y §10.11 del pivote: el usuario valida el boceto antes de producir"
+    },
+    {
+      "id": "D017",
+      "t": "2026-10-20T05:37:49.105Z",
+      "fase": "P4",
+      "texto": "Orden de dibujo: u+v solo entre objetos sin huella; entre unidad y estructura manda la comparación de huellas (delante si u ≥ umax o v ≥ vmax, detrás si u ≤ umin o v ≤ vmin), ordenando solo las parejas que se solapan en pantalla con hash espacial",
+      "porque": "B detectó que con la clave única u+v una persona junto a la cara derecha de una casa 2×2 se dibuja detrás de ella (caso (12,5; 11) junto a casa en (10,10))"
+    },
+    {
+      "id": "D018",
+      "t": "2026-10-20T05:53:46.530Z",
+      "fase": "P2b",
+      "texto": "UI híbrida: lo que vive en el mundo (caja de selección, anillos, barras flotantes, vista previa de obra, objeto cogido) se dibuja en Phaser; fichas, paneles, HUD y menús van en HTML/CSS superpuesto (R70), con tokens de la paleta, fuente pixel OFL local y bordes 9-slice",
+      "porque": "Sugerencia del usuario: la UI de fichas y paneles es mucho trabajo y en HTML/CSS es más rápida de hacer y mantener; lo que sigue a la cámara se queda en el lienzo para ser exacto al píxel"
     }
   ],
   "conceptos": [
@@ -2133,6 +2172,18 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T05:53:46.534Z",
+      "texto": "Decisión: UI híbrida: lo que vive en el mundo (caja de selección, anillos, barras flotantes, vista previa de obra, objeto cogido) se dibuja en Phaser; fichas, paneles, HUD y menús van en HTML/CSS superpuesto (R70), con tokens de la paleta, fuente pixel OFL local y bordes 9-slice"
+    },
+    {
+      "t": "2026-10-20T05:37:49.106Z",
+      "texto": "Decisión: Orden de dibujo: u+v solo entre objetos sin huella; entre unidad y estructura manda la comparación de huellas (delante si u ≥ umax o v ≥ vmax, detrás si u ≤ umin o v ≤ vmin), ordenando solo las parejas que se solapan en pantalla con hash espacial"
+    },
+    {
+      "t": "2026-10-20T05:37:03.489Z",
+      "texto": "Decisión: Boceto D2 aprobado por el usuario: campo de cebada 3×2 en 6 etapas (arado, siembra, brotes, crecimiento, maduro, cosecha con gavillas), con lindes de tierra y mojones para que no parezca una casilla"
+    },
     {
       "t": "2026-10-20T05:36:53.828Z",
       "texto": "Concepto: Escalado entero y roundPixels"
@@ -2378,5 +2429,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T05:36:53.828Z"
+  "actualizado": "2026-10-20T05:53:46.534Z"
 }

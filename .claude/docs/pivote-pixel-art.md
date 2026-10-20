@@ -163,6 +163,14 @@ Se abre solo si A tiene una cola de arte (etapas de obra, variantes, niños/anci
 5. **Cero asignaciones en el bucle** (*pools* de sprites, partículas de humo y ciudadanos; reutilizar vectores/arrays). Vigilar el recolector de basura.
 6. **Ciudadanos híbridos:** individuos completos solo cerca de la cámara; lejos, grupos agregados o puntos. **LOD por zoom** (3 niveles, §2).
 7. **Rejilla y *hash* espaciales** para colisiones, selección y vecinos (nada de recorrer todas las unidades).
-8. **Interfaz barata:** los paneles se redibujan solo cuando cambian (no cada fotograma); textos con fuente de mapa de bits.
+8. **Interfaz barata:** los paneles (HTML/CSS, R70) se redibujan solo cuando cambian, por eventos y nunca cada fotograma.
 9. **Medición automática:** `exponer()` publica `fps`, `msFotoP95`, `msFotoMax`, `nSprites`, `nLlamadasDibujo`; un *script* de `shot`/Playwright carga la ciudad de referencia, la deja correr 20 s y falla si p95 > 16,6 ms. Un panel de depuración (tecla **F2**) muestra esas cifras. Usar la skill `performance-optimization` (medir primero con el perfilador, luego arreglar).
 10. **Presupuesto orientativo por fotograma (16,6 ms):** lógica ≤ 3 ms, colisiones/navegación ≤ 2 ms, dibujo de mundo ≤ 6 ms, interfaz ≤ 1 ms, margen ≥ 4 ms.
+
+## 13. Decisiones del usuario tras el pivote (20-10, mandan sobre lo anterior)
+
+- **R58:** lo 3D no se borra, se aparta a `D:\Recursos GC\3d\` (fuera del proyecto). `prototypes/pixel-cimientos` se queda como referencia del mar.
+- **R59** terreno procedural horneado al cargar · **R60** ratón RTS (izquierdo = caja, central/WASD/bordes = cámara, derecho = órdenes) · **R61** cámara sin giro ni inclinación; edificios en 4 orientaciones.
+- **R65** mar como en `pixel-cimientos` (:5180) y río como en la muestra · **R66** campos en 6 etapas (boceto D2 aprobado) · **R69** gaviotas y sombras de nubes · obra en 6 etapas (boceto D1 aprobado).
+- **R70 UI híbrida:** caja, anillos, barras flotantes y vista previa en Phaser; fichas, paneles, HUD y menús en **HTML/CSS superpuesto** (paleta como tokens CSS, fuente pixel OFL local, bordes 9-slice). Fase P2b.
+- **R67:** todas las sesiones trabajan por tramos de ≤ 20 min y paran a informar. **R68:** las críticas del usuario se anotan siempre en `requisitos-usuario.md`.
