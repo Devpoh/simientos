@@ -1,6 +1,6 @@
 # Estilo: pixel art propio (R49, R56)
 
-> Sustituye a `gdd/arte.md` (comparativa 3D/pixel, borrada en el pivote del 20-10). Base técnica completa: `.claude/docs/pivote-pixel-art.md` §2–§3. Fuente del estilo: `prototypes/imperium-muestra/` (prototipo cerrado el 20-10, veredicto **SEGUIR**) y, de `docs/prompts/direccion-artistica.md` (texto del usuario, 19-10), solo lo que sigue valiendo en 2D: ver §1.
+> Sustituye a `gdd/arte.md` (comparativa 3D/pixel, borrada en el pivote del 20-10). Base técnica completa: `.claude/docs/pivote-pixel-art.md` §2–§3. Fuente del estilo: `prototypes/imperium-muestra/` (prototipo cerrado el 20-10, veredicto **SEGUIR**) y, de `docs/prompts/direccion-artistica.md` (apartado en `D:/Recursos GC/3d/docs-sedimento/prompts/`, R58; texto del usuario, 19-10), solo lo que sigue valiendo en 2D: ver §1.
 
 ## 1. Normas de estilo aprobadas (no se discuten sin permiso del usuario)
 
