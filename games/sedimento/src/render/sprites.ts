@@ -1,9 +1,11 @@
 // Colocación de sprites del atlas por su ancla. Presentación: aquí sí se usa Phaser.
 import Phaser from 'phaser';
-import type { AtlasPixel, Orientacion } from '../data/atlas';
+import { etapaFinal, type AtlasPixel, type Orientacion } from '../data/atlas';
 import { aPantalla, centroHuella, claveOrden, claveOrdenEstructura } from '../logic/iso';
 
 export const CLAVE_REGISTRO_ATLAS = 'atlas';
+/** Valor de `estado` que pide la última etapa de obra del sprite (la terminada). */
+export const ESTADO_FINAL = '@final';
 
 export interface PedidoSprite {
   id: string;
@@ -27,7 +29,7 @@ export function registrarFotogramas(scene: Phaser.Scene, atlas: AtlasPixel): voi
 function resolver(atlas: AtlasPixel, p: PedidoSprite): string {
   const s = atlas.sprites[p.id];
   if (!s) throw new Error(`sprite desconocido: ${p.id}`);
-  const estado = p.estado ?? Object.keys(s.estados)[0];
+  const estado = p.estado === ESTADO_FINAL ? (etapaFinal(s) ?? Object.keys(s.estados)[0]) : (p.estado ?? Object.keys(s.estados)[0]);
   const orientaciones = s.estados[estado]?.orientaciones;
   if (!orientaciones) throw new Error(`${p.id}: estado desconocido ${estado}`);
   const ori = (p.ori ?? Object.keys(orientaciones)[0]) as Orientacion;

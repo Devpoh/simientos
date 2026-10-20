@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import datos from '../public/recursos/pixel/atlas.json';
-import { fotogramasDe, validarAtlas, type AtlasPixel, type Orientacion } from '../src/data/atlas';
+import { etapaFinal, fotogramasDe, validarAtlas, type AtlasPixel, type Orientacion } from '../src/data/atlas';
 
 const atlas = datos as unknown as AtlasPixel;
 const CUATRO: Orientacion[] = ['ne', 'nw', 'se', 'sw'];
@@ -108,16 +108,36 @@ describe('atlas de pixel art: contenido reutilizado de la muestra', () => {
     expect(fotogramasDe(atlas, 'ciudadano_sacerdote_m', 'rezar', 'se')?.length).toBe(2);
   });
 
-  it('las viviendas y el templo traen sus etapas de obra y las dos orientaciones de la cumbrera', () => {
-    expect(atlas.sprites.templo_jupiter.etapas).toEqual(['etapa1', 'etapa2', 'etapa3']);
-    expect(atlas.sprites.casa_2x2_a.etapas).toEqual(['etapa1', 'etapa2', 'etapa3']);
-    expect(Object.keys(atlas.sprites.casa_2x2_a.estados.etapa3.orientaciones).sort()).toEqual(['u', 'v']);
+  it('las etapas van en orden creciente (etapaK) y la final existe como estado', () => {
+    const conEtapas = Object.entries(atlas.sprites).filter(([, s]) => s.etapas);
+    expect(conEtapas.map(([id]) => id)).toEqual(expect.arrayContaining(['templo_jupiter', 'casa_2x2_a']));
+    for (const [id, s] of conEtapas) {
+      const etapas = s.etapas ?? [];
+      const numeros = etapas.map((e) => Number(/^etapa(\d+)$/.exec(e)?.[1]));
+      expect(numeros.every((n) => Number.isInteger(n) && n >= 1), `${id}: nombres etapaK`).toBe(true);
+      expect(numeros, `${id}: orden creciente`).toEqual([...numeros].sort((x, y) => x - y));
+      expect(etapaFinal(s), id).toBe(etapas[etapas.length - 1]);
+      expect(s.estados[etapaFinal(s) as string], `${id}: la etapa final existe`).toBeDefined();
+    }
+  });
+
+  it('el templo y la vivienda con obra traen la secuencia completa etapa1..N (N ≥ 3)', () => {
+    for (const id of ['templo_jupiter', 'casa_2x2_a']) {
+      const etapas = atlas.sprites[id].etapas ?? [];
+      expect(etapas.length, id).toBeGreaterThanOrEqual(3);
+      expect(etapas, id).toEqual(etapas.map((_, i) => `etapa${i + 1}`));
+    }
+  });
+
+  it('la vivienda terminada trae las dos orientaciones de la cumbrera; el templo y las huellas son las esperadas', () => {
+    const casa = atlas.sprites.casa_2x2_a;
+    expect(Object.keys(casa.estados[etapaFinal(casa) as string].orientaciones).sort()).toEqual(['u', 'v']);
     expect(atlas.sprites.templo_jupiter.huella).toEqual({ w: 5, d: 5 });
     expect(atlas.sprites.casa_3x2_a.huella).toEqual({ w: 3, d: 2 });
   });
 
   it('las casas dan el punto de la chimenea para el humo', () => {
-    const [f] = fotogramasDe(atlas, 'casa_2x2_a', 'etapa3', 'u') ?? [];
+    const [f] = fotogramasDe(atlas, 'casa_2x2_a', etapaFinal(atlas.sprites.casa_2x2_a) as string, 'u') ?? [];
     expect(f.puntos?.chimenea).toBeDefined();
   });
 

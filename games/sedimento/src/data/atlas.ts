@@ -174,6 +174,11 @@ export function validarAtlas(datos: unknown): string[] {
   return err;
 }
 
+/** Última etapa de obra de un sprite (la terminada), o `undefined` si no tiene etapas. No dependas de un nombre fijo. */
+export function etapaFinal(s: SpritePixel): string | undefined {
+  return s.etapas?.[s.etapas.length - 1];
+}
+
 /** Fotogramas de un estado y orientación, o `undefined` si no existen. */
 export function fotogramasDe(atlas: AtlasPixel, id: string, estado: string, ori: Orientacion): FramePixel[] | undefined {
   const claves = atlas.sprites[id]?.estados[estado]?.orientaciones[ori];

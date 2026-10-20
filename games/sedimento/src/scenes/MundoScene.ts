@@ -5,15 +5,15 @@ import { exponer, marcarListo } from '../core/test-hooks';
 import { medidor } from '../core/metricas';
 import { aPantalla } from '../logic/iso';
 import { ControlCamara } from '../render/controlCamara';
-import { CLAVE_REGISTRO_ATLAS, colocar, type PedidoSprite } from '../render/sprites';
+import { CLAVE_REGISTRO_ATLAS, ESTADO_FINAL, colocar, type PedidoSprite } from '../render/sprites';
 import { PanelRendimiento } from '../ui/panelRendimiento';
 
 /** Aldea provisional para comprobar el atlas, las anclas y el orden de dibujo (hasta que haya terreno y simulación). */
 const ALDEA: PedidoSprite[] = [
-  { id: 'templo_jupiter', estado: 'etapa3', u: 30, v: 24 },
-  { id: 'casa_2x2_b', estado: 'etapa3', ori: 'u', u: 23, v: 24 },
-  { id: 'casa_2x2_c', estado: 'etapa3', ori: 'v', u: 23, v: 28 },
-  { id: 'casa_3x2_a', estado: 'etapa3', ori: 'u', u: 22, v: 32 },
+  { id: 'templo_jupiter', estado: ESTADO_FINAL, u: 30, v: 24 },
+  { id: 'casa_2x2_b', estado: ESTADO_FINAL, ori: 'u', u: 23, v: 24 },
+  { id: 'casa_2x2_c', estado: ESTADO_FINAL, ori: 'v', u: 23, v: 28 },
+  { id: 'casa_3x2_a', estado: ESTADO_FINAL, ori: 'u', u: 22, v: 32 },
   { id: 'puesto_fruta', u: 31, v: 31 },
   { id: 'puesto_telas', u: 34, v: 31 },
   { id: 'prop_pozo', u: 29, v: 33 },
