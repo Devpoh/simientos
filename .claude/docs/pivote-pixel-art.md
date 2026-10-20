@@ -30,7 +30,7 @@ Regla permanente: **no volver a descargar ni a documentar arte 3D**.
 ## 2. Stack objetivo
 
 - **Phaser 4 + TypeScript estricto + Vite + Vitest** (plantilla verificada `templates/phaser-ts`). Para las APIs de Phaser 4, comprobar con context7; no suponer.
-- **Lienzo lógico 960×540** (resolución base de la muestra), `pixelArt: true`, filtro *nearest*, `roundPixels`, escalado **solo por enteros** (×2 = 1080p, ×4 = 4K). Nada de píxeles de distinto tamaño ni zoom no entero.
+- **Lienzo que llena la ventana (R83, D032)**: alto lógico ≈ 540 (resolución base de la muestra) y ancho según la ventana, `pixelArt: true`, filtro *nearest*, `roundPixels`, escalado **solo por enteros** (×2 = 1080p, ×4 = 4K). Nada de píxeles de distinto tamaño ni zoom no entero.
 - Vista **isométrica 2:1**, tile **32×16**. Cámara con arrastrar/desplazar y zoom por pasos enteros. **LOD por zoom** (idea del usuario): cerca = detalle completo; medio = sprites simplificados a la mitad (tile 16×8, ciudadanos como puntos de 2–3 px); lejos = mapa estratégico de iconos. Los generadores producen las versiones simples automáticamente.
 - **Pipeline de arte:** los generadores Python se copian a `tools/arte-pixel/` (Pillow + numpy + scipy) y un script (`npm run arte`) escribe en `games/sedimento/public/recursos/pixel/`: **atlas PNG + JSON** con, por sprite, `ancla de pies`, `huella en tiles (w×d)`, `altura (para sombra)`, `frames/etapas/orientaciones`, `puertas`. El juego **no genera arte en ejecución**: carga atlas.
 - **Terreno:** el mapa se hornea en trozos PNG a partir del *heightfield* (relief mapping de `terreno.py`/`render.py`) y se exportan **máscaras** (altura, material, agua, pendiente) que alimentan la rejilla de ocupación. El agua se anima con 4 fotogramas.
