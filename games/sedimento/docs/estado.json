@@ -13,6 +13,291 @@
   },
   "fases": [
     {
+      "id": "P0",
+      "estado": "en-curso",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Limpieza y pivote a pixel art",
+      "objetivo": "Tag pre-pixel-art, borrado de todo lo 3D (R57), docs más cortos y roadmap pixel en el panel",
+      "criterios": [
+        "Existe el tag pre-pixel-art y el borrado va en un commit aparte",
+        "Sin three, modelos, texturas, HDRI ni docs 3D: el grep no encuentra referencias vivas",
+        "CLAUDE.md del juego, versiones.md y traspaso.md reescritos y más cortos",
+        "Panel sin secciones 3D, con «Pixel art propio»; npm run panel:probar en verde",
+        "npm run check en verde tras el borrado"
+      ],
+      "sesion": "A+C",
+      "version": "0.0",
+      "tramo": "alfa",
+      "inicio": "2026-10-20T05:19:45.177Z"
+    },
+    {
+      "id": "P1",
+      "estado": "hecha",
+      "hecho": [
+        "tools/arte-pixel con los generadores de la muestra, catalogo.py (84 sprites, 1192 fotogramas) y exportador determinista a atlas-0.png (2048x672) + atlas.json",
+        "JSON por sprite: ancla (pies o centro de huella), huella w×d, bloquea, altura, puertas, etapas, estados y orientaciones; tipos y validador en src/data/atlas.ts",
+        "npm run arte:verificar = validar.py: paleta, alfa limpio, ampliación x2/x4 exacta, píxeles sueltos, flotantes/hundidos, solapes y referencias; hoja de contacto x4",
+        "skill sprite-qa; revisión visual a x6-x8 de ciudadanos (4 orientaciones, caminar, trabajo, cargas, rezar), animales y criaturas sin defectos bloqueantes"
+      ],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Pipeline de arte pixel",
+      "objetivo": "tools/arte-pixel con los generadores de la muestra; npm run arte y arte:verificar escriben atlas PNG + JSON en public/recursos/pixel",
+      "criterios": [
+        "npm run arte regenera atlas y JSON de forma determinista (dos ejecuciones = mismo resultado)",
+        "JSON por sprite: ancla de pies, huella en tiles, altura, frames/etapas/orientaciones y puertas; test Vitest que lo valida",
+        "npm run arte:verificar: 0 colores fuera de la paleta de 59 y ampliación exacta",
+        "El atlas trae todo lo reutilizable de la muestra (10 ciudadanos, casas, templo, puestos, árboles, props, animales, criaturas, barcos)",
+        "Hoja del atlas revisada en captura a ×1 y ×4 (R12)"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa",
+      "inicio": "2026-10-20T05:02:12.975Z",
+      "verificacion": {
+        "tests": "atlas 16/16; check 157/157",
+        "resultado": "arte determinista (2 ejecuciones = mismos sha256); validar.py TODO CORRECTO; 0 colores fuera de los 59",
+        "captura": ""
+      },
+      "commit": "8ce54f7",
+      "fin": "2026-10-20T05:26:26.249Z"
+    },
+    {
+      "id": "P2",
+      "estado": "en-curso",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Phaser 4: mundo isométrico y cámara",
+      "objetivo": "El juego arranca en Phaser 4 a 960×540 con escalado entero, terreno horneado y edificios del atlas; cámara 2D; medición de fps",
+      "criterios": [
+        "Lienzo 960×540 con pixelArt y escalado solo entero al cambiar la ventana",
+        "Terreno procedural horneado en trozos PNG una vez al cargar desde la semilla (R59); solo se dibujan los trozos visibles",
+        "Cámara 2D sin giro ni inclinación (R61): botón central, WASD y bordes; zoom por pasos enteros (R60)",
+        "exponer() publica fps, msFotoP95, msFotoMax y nSprites; F2 los muestra",
+        "shot de 20 s con la escena de prueba: p95 ≤ 16,6 ms"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa",
+      "inicio": "2026-10-20T05:27:11.966Z"
+    },
+    {
+      "id": "P2b",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:53:46.366Z",
+      "titulo": "Capa de interfaz HTML/CSS",
+      "objetivo": "Base de la UI en HTML/CSS superpuesta al lienzo (R70), con el aspecto del pixel art, para las fichas, paneles y HUD de P5–P8",
+      "criterios": [
+        "Capa #ui sobre el lienzo que escala con el mismo factor entero y no roba el ratón al juego salvo en los paneles",
+        "Tokens CSS generados desde paleta.txt (59 colores) y fuente pixel libre (OFL) servida en local, sin CDN",
+        "Panel con borde 9-slice de sprite de D, image-rendering: pixelated y retrato del atlas",
+        "HUD mínimo (fecha y recursos) que se redibuja solo cuando cambia (por eventos, sin bucle)",
+        "Captura mirada a ×1 y ×2; fps sin cambios"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P3",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Rejilla de ocupación única",
+      "objetivo": "logic/ocupacion.ts (4×4 subceldas por tile, capas terreno/estructuras/objetos/dinámica) sustituye a las celdas hexagonales; puedeColocar con motivo; F3",
+      "criterios": [
+        "puedeColocar rechaza solapes, agua, pendiente y caminos reservados, y devuelve el motivo (tests)",
+        "Derribar libera la ocupación (test)",
+        "hex.ts y las celdas hexagonales desaparecen de logic/",
+        "F3 pinta huellas, celdas bloqueadas y puertas (captura mirada)",
+        "exponer() publica colisionesViolaciones y check en verde"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P4",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Navegación y ciudadanos que caminan",
+      "objetivo": "A* sobre la rejilla; ciudadanos que caminan y entran y salen por las puertas; y-sort con una sola regla",
+      "criterios": [
+        "Test de propiedad: 200 ciudadanos × 10 000 ticks sin pisar una celda bloqueada",
+        "La ruta rodea edificios y se replanifica al construir o derribar (test)",
+        "Entrar y salir por la puerta (estado dentro) e y-sort determinista (tests)",
+        "shot: colisionesViolaciones = 0 y nadie dibujado encima o debajo de una casa (captura)",
+        "300 ciudadanos caminando con p95 ≤ 16,6 ms"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P5",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Selección múltiple y órdenes",
+      "objetivo": "Seleccionar con clic, caja, Mayús, doble clic y grupos; mover grupos en formación (R51)",
+      "criterios": [
+        "Clic con prioridad unidad > animal > edificio; Mayús/Ctrl suma o quita; caja al arrastrar sobre el vacío (tests)",
+        "Doble clic = mismo tipo visible; Ctrl+1…9 guarda grupo y 1…9 lo recupera; Esc deselecciona",
+        "Anillo bajo los pies, contador y panel de grupo con miniaturas",
+        "Formaciones línea/columna/cuña/cuadro sin solapes ni celdas bloqueadas (test); Mayús encadena puntos",
+        "Captura de la caja con N entidades mirada; ≥ 60 fps"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P6",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Ciudadanos con vida y ficha",
+      "objetivo": "Datos de cada ciudadano (nombre, rasgos, humor, familia), ficha estilo Tropico 6 y coger y soltar (R52)",
+      "criterios": [
+        "ciudadano.ts: nombre, edad, género, aspecto, oficio y habilidad, 3–4 rasgos con efecto, humor con desglose y familia (tests)",
+        "Ficha con retrato 48×48 y pestañas Resumen/Familia/Necesidades/Trabajo/Historial; tooltip al pasar el ratón",
+        "Coger y soltar: pose colgando, destino verde/rojo, ajuste a la celda libre más cercana (nunca en una huella) y asignación al soltar sobre un edificio con vacante (tests)",
+        "Arrastrar una unidad no abre la caja de selección (≥ 250 ms o > 4 px)",
+        "Captura de la ficha mirada; ≥ 60 fps"
+      ],
+      "sesion": "B+D",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P7",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Estructuras con durabilidad y producción",
+      "objetivo": "Modelo común de estructura (docs/gdd/estructuras.md §1) con durabilidad, producción, servicio y niveles, y su ficha (R53, R74)",
+      "criterios": [
+        "edificio.ts + data/edificios.json: durabilidad 0–100 con degradación y reparación; efectos por debajo del 50 % y del 20 % (tests)",
+        "Producción entradas → salidas por día, eficiencia y bloqueos con motivo (tests)",
+        "Ficha con trabajadores, almacén, consumo, efectos y estado de obra; acciones reparar, demoler, pausar y prioridad",
+        "Barra flotante al pasar el ratón, fija por debajo del 50 %",
+        "Captura de la ficha mirada; ≥ 60 fps"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P8",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Construcción libre en 6 etapas",
+      "objetivo": "Colocar edificios con validación y verlos levantarse en 6 etapas (R21, R22)",
+      "criterios": [
+        "Vista previa verde/roja con el motivo de puedeColocar y giro en 4 orientaciones",
+        "6 etapas de obra dibujadas para casa, almacén y templo (lista §10 del pivote)",
+        "La obra avanza con trabajadores, materiales y tiempo, y muestra el motivo del retraso",
+        "Construir o derribar actualiza la rejilla y replanifica las rutas (test)",
+        "Captura de las 6 etapas mirada; ≥ 60 fps"
+      ],
+      "sesion": "B+D",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P9",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "Ambiente vivo",
+      "objetivo": "Agua, humo, banderas, animales y barcos animados en bucle, y luz del día",
+      "criterios": [
+        "Mar como el de pixel-cimientos (olas y espuma de costa) y río como el de la muestra (R65), en bucles de 4 fotogramas",
+        "Humo, banderas, llamas, gaviotas y sombras de nubes en movimiento (R69) en bucle con pools (sin asignaciones en el bucle)",
+        "Animales que pastan y barcos que solo navegan por agua válida (test)",
+        "Luz del día por tinte sin salirse de la paleta",
+        "Ciudad de referencia a ≥ 60 fps"
+      ],
+      "sesion": "B",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "P10",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T05:01:34.270Z",
+      "titulo": "LOD por zoom y 60 fps con la ciudad grande",
+      "objetivo": "Tres niveles de detalle por zoom y la ciudad de referencia a 60 fps (R56)",
+      "criterios": [
+        "Cerca (tile 32×16), medio (16×8 y ciudadanos como puntos) y lejos (iconos)",
+        "Ciudad de referencia: ≥ 300 ciudadanos, ≥ 150 edificios, ≥ 600 árboles, agua y humo",
+        "shot de 20 s: p95 ≤ 16,6 ms y máximo ≤ 33 ms",
+        "F2 muestra fps, ms p95, sprites y llamadas de dibujo",
+        "Bucle sin asignaciones (perfil documentado)"
+      ],
+      "sesion": "B+A",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "S1",
+      "estado": "hecha",
+      "hecho": [
+        "Roadmap reiniciado desde los textos del 19-10; la bitácora anterior está en docs/archivo/estado-2026-10-18-hexagonal.json",
+        "Iconos 🆕 nuevo · 🔄 actualizado · ● sin leer · ✓ leído en fases, decisiones, errores, faltas, recomendaciones y conceptos, persistentes en el navegador",
+        "Resumen de novedades con «marcar todo como leído»; «Ahora mismo» con la sesión que lleva cada fase; roadmap por bloques con avance; pestañas con contadores",
+        "npm run panel:probar: 34 comprobaciones en escritorio y móvil"
+      ],
+      "creada": "2026-10-19T05:02:27.484Z",
+      "titulo": "Panel del estudio claro, con «nuevo» y «leído»",
+      "objetivo": "Panel limpio y mejor organizado, con iconos de nuevo, no leído y leído, y probado a fondo (R32 y R33)",
+      "criterios": [
+        "Roadmap limpio desde cero (lo viejo, archivado en docs/archivo/)",
+        "Iconos de nuevo, no leído y leído en fases, decisiones, notas y capturas, que persisten y se marcan al abrir",
+        "Organización clara: resumen arriba, roadmap por bloques, decisiones y aprendizajes en pestañas",
+        "Playwright: todas las vistas sin errores y en móvil, con la marca de leído comprobada"
+      ],
+      "sesion": "A",
+      "verificacion": {
+        "tests": "34/34 panel:probar",
+        "resultado": "sin errores de consola ni scroll horizontal en escritorio y móvil"
+      },
+      "fin": "2026-10-19T06:05:12.614Z",
+      "version": "0.0",
+      "tramo": "alfa"
+    },
+    {
+      "id": "S2",
+      "estado": "hecha",
+      "hecho": [
+        "121 fases de la v0.0 a la v1.0 con version y tramo (alfa/beta), sacadas de prompts/maestro.md y de los textos del 19-10",
+        "El panel agrupa por versión, plegable, con tramos ALFA/BETA, rango de fases y avance; recuerda qué versiones abriste",
+        "versiones.md con la tabla de rangos por versión"
+      ],
+      "creada": "2026-10-19T06:05:12.822Z",
+      "titulo": "Roadmap completo por versiones en el panel",
+      "objetivo": "Todas las fases del juego hasta la 1.0, organizadas por versión con tramo alfa y beta (R38), visibles y agrupadas en el panel",
+      "criterios": [
+        "versiones.md con cada versión partida en alfa y beta y su rango de fases",
+        "estado.json con todas las fases (≤ 5 criterios cada una) y el campo version",
+        "El panel agrupa por versión con su avance (p. ej., 0.1 alfa: F101–F112)",
+        "Cada fase respeta los textos de docs/prompts/ y las decisiones R35–R38",
+        "panel:probar en verde"
+      ],
+      "sesion": "A",
+      "version": "0.0",
+      "tramo": "alfa",
+      "verificacion": {
+        "tests": "34/34 panel:probar",
+        "resultado": "121/121 fases visibles y marcadas; sin errores en escritorio ni en móvil"
+      },
+      "fin": "2026-10-19T06:09:25.798Z"
+    },
+    {
       "id": "F102",
       "estado": "pendiente",
       "hecho": [],
@@ -1580,291 +1865,6 @@
       ],
       "version": "1.0",
       "tramo": "beta"
-    },
-    {
-      "id": "P0",
-      "estado": "en-curso",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Limpieza y pivote a pixel art",
-      "objetivo": "Tag pre-pixel-art, borrado de todo lo 3D (R57), docs más cortos y roadmap pixel en el panel",
-      "criterios": [
-        "Existe el tag pre-pixel-art y el borrado va en un commit aparte",
-        "Sin three, modelos, texturas, HDRI ni docs 3D: el grep no encuentra referencias vivas",
-        "CLAUDE.md del juego, versiones.md y traspaso.md reescritos y más cortos",
-        "Panel sin secciones 3D, con «Pixel art propio»; npm run panel:probar en verde",
-        "npm run check en verde tras el borrado"
-      ],
-      "sesion": "A+C",
-      "version": "0.0",
-      "tramo": "alfa",
-      "inicio": "2026-10-20T05:19:45.177Z"
-    },
-    {
-      "id": "P1",
-      "estado": "hecha",
-      "hecho": [
-        "tools/arte-pixel con los generadores de la muestra, catalogo.py (84 sprites, 1192 fotogramas) y exportador determinista a atlas-0.png (2048x672) + atlas.json",
-        "JSON por sprite: ancla (pies o centro de huella), huella w×d, bloquea, altura, puertas, etapas, estados y orientaciones; tipos y validador en src/data/atlas.ts",
-        "npm run arte:verificar = validar.py: paleta, alfa limpio, ampliación x2/x4 exacta, píxeles sueltos, flotantes/hundidos, solapes y referencias; hoja de contacto x4",
-        "skill sprite-qa; revisión visual a x6-x8 de ciudadanos (4 orientaciones, caminar, trabajo, cargas, rezar), animales y criaturas sin defectos bloqueantes"
-      ],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Pipeline de arte pixel",
-      "objetivo": "tools/arte-pixel con los generadores de la muestra; npm run arte y arte:verificar escriben atlas PNG + JSON en public/recursos/pixel",
-      "criterios": [
-        "npm run arte regenera atlas y JSON de forma determinista (dos ejecuciones = mismo resultado)",
-        "JSON por sprite: ancla de pies, huella en tiles, altura, frames/etapas/orientaciones y puertas; test Vitest que lo valida",
-        "npm run arte:verificar: 0 colores fuera de la paleta de 59 y ampliación exacta",
-        "El atlas trae todo lo reutilizable de la muestra (10 ciudadanos, casas, templo, puestos, árboles, props, animales, criaturas, barcos)",
-        "Hoja del atlas revisada en captura a ×1 y ×4 (R12)"
-      ],
-      "sesion": "B",
-      "version": "0.0",
-      "tramo": "alfa",
-      "inicio": "2026-10-20T05:02:12.975Z",
-      "verificacion": {
-        "tests": "atlas 16/16; check 157/157",
-        "resultado": "arte determinista (2 ejecuciones = mismos sha256); validar.py TODO CORRECTO; 0 colores fuera de los 59",
-        "captura": ""
-      },
-      "commit": "8ce54f7",
-      "fin": "2026-10-20T05:26:26.249Z"
-    },
-    {
-      "id": "P2",
-      "estado": "en-curso",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Phaser 4: mundo isométrico y cámara",
-      "objetivo": "El juego arranca en Phaser 4 a 960×540 con escalado entero, terreno horneado y edificios del atlas; cámara 2D; medición de fps",
-      "criterios": [
-        "Lienzo 960×540 con pixelArt y escalado solo entero al cambiar la ventana",
-        "Terreno procedural horneado en trozos PNG una vez al cargar desde la semilla (R59); solo se dibujan los trozos visibles",
-        "Cámara 2D sin giro ni inclinación (R61): botón central, WASD y bordes; zoom por pasos enteros (R60)",
-        "exponer() publica fps, msFotoP95, msFotoMax y nSprites; F2 los muestra",
-        "shot de 20 s con la escena de prueba: p95 ≤ 16,6 ms"
-      ],
-      "sesion": "B",
-      "version": "0.0",
-      "tramo": "alfa",
-      "inicio": "2026-10-20T05:27:11.966Z"
-    },
-    {
-      "id": "P2b",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:53:46.366Z",
-      "titulo": "Capa de interfaz HTML/CSS",
-      "objetivo": "Base de la UI en HTML/CSS superpuesta al lienzo (R70), con el aspecto del pixel art, para las fichas, paneles y HUD de P5–P8",
-      "criterios": [
-        "Capa #ui sobre el lienzo que escala con el mismo factor entero y no roba el ratón al juego salvo en los paneles",
-        "Tokens CSS generados desde paleta.txt (59 colores) y fuente pixel libre (OFL) servida en local, sin CDN",
-        "Panel con borde 9-slice de sprite de D, image-rendering: pixelated y retrato del atlas",
-        "HUD mínimo (fecha y recursos) que se redibuja solo cuando cambia (por eventos, sin bucle)",
-        "Captura mirada a ×1 y ×2; fps sin cambios"
-      ],
-      "sesion": "B",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "P3",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Rejilla de ocupación única",
-      "objetivo": "logic/ocupacion.ts (4×4 subceldas por tile, capas terreno/estructuras/objetos/dinámica) sustituye a las celdas hexagonales; puedeColocar con motivo; F3",
-      "criterios": [
-        "puedeColocar rechaza solapes, agua, pendiente y caminos reservados, y devuelve el motivo (tests)",
-        "Derribar libera la ocupación (test)",
-        "hex.ts y las celdas hexagonales desaparecen de logic/",
-        "F3 pinta huellas, celdas bloqueadas y puertas (captura mirada)",
-        "exponer() publica colisionesViolaciones y check en verde"
-      ],
-      "sesion": "B",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "P4",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Navegación y ciudadanos que caminan",
-      "objetivo": "A* sobre la rejilla; ciudadanos que caminan y entran y salen por las puertas; y-sort con una sola regla",
-      "criterios": [
-        "Test de propiedad: 200 ciudadanos × 10 000 ticks sin pisar una celda bloqueada",
-        "La ruta rodea edificios y se replanifica al construir o derribar (test)",
-        "Entrar y salir por la puerta (estado dentro) e y-sort determinista (tests)",
-        "shot: colisionesViolaciones = 0 y nadie dibujado encima o debajo de una casa (captura)",
-        "300 ciudadanos caminando con p95 ≤ 16,6 ms"
-      ],
-      "sesion": "B",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "P5",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Selección múltiple y órdenes",
-      "objetivo": "Seleccionar con clic, caja, Mayús, doble clic y grupos; mover grupos en formación (R51)",
-      "criterios": [
-        "Clic con prioridad unidad > animal > edificio; Mayús/Ctrl suma o quita; caja al arrastrar sobre el vacío (tests)",
-        "Doble clic = mismo tipo visible; Ctrl+1…9 guarda grupo y 1…9 lo recupera; Esc deselecciona",
-        "Anillo bajo los pies, contador y panel de grupo con miniaturas",
-        "Formaciones línea/columna/cuña/cuadro sin solapes ni celdas bloqueadas (test); Mayús encadena puntos",
-        "Captura de la caja con N entidades mirada; ≥ 60 fps"
-      ],
-      "sesion": "B",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "P6",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Ciudadanos con vida y ficha",
-      "objetivo": "Datos de cada ciudadano (nombre, rasgos, humor, familia), ficha estilo Tropico 6 y coger y soltar (R52)",
-      "criterios": [
-        "ciudadano.ts: nombre, edad, género, aspecto, oficio y habilidad, 3–4 rasgos con efecto, humor con desglose y familia (tests)",
-        "Ficha con retrato 48×48 y pestañas Resumen/Familia/Necesidades/Trabajo/Historial; tooltip al pasar el ratón",
-        "Coger y soltar: pose colgando, destino verde/rojo, ajuste a la celda libre más cercana (nunca en una huella) y asignación al soltar sobre un edificio con vacante (tests)",
-        "Arrastrar una unidad no abre la caja de selección (≥ 250 ms o > 4 px)",
-        "Captura de la ficha mirada; ≥ 60 fps"
-      ],
-      "sesion": "B+D",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "P7",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Estructuras con durabilidad y producción",
-      "objetivo": "Modelo común de estructura (docs/gdd/estructuras.md §1) con durabilidad, producción, servicio y niveles, y su ficha (R53, R74)",
-      "criterios": [
-        "edificio.ts + data/edificios.json: durabilidad 0–100 con degradación y reparación; efectos por debajo del 50 % y del 20 % (tests)",
-        "Producción entradas → salidas por día, eficiencia y bloqueos con motivo (tests)",
-        "Ficha con trabajadores, almacén, consumo, efectos y estado de obra; acciones reparar, demoler, pausar y prioridad",
-        "Barra flotante al pasar el ratón, fija por debajo del 50 %",
-        "Captura de la ficha mirada; ≥ 60 fps"
-      ],
-      "sesion": "B",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "P8",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Construcción libre en 6 etapas",
-      "objetivo": "Colocar edificios con validación y verlos levantarse en 6 etapas (R21, R22)",
-      "criterios": [
-        "Vista previa verde/roja con el motivo de puedeColocar y giro en 4 orientaciones",
-        "6 etapas de obra dibujadas para casa, almacén y templo (lista §10 del pivote)",
-        "La obra avanza con trabajadores, materiales y tiempo, y muestra el motivo del retraso",
-        "Construir o derribar actualiza la rejilla y replanifica las rutas (test)",
-        "Captura de las 6 etapas mirada; ≥ 60 fps"
-      ],
-      "sesion": "B+D",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "P9",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "Ambiente vivo",
-      "objetivo": "Agua, humo, banderas, animales y barcos animados en bucle, y luz del día",
-      "criterios": [
-        "Mar como el de pixel-cimientos (olas y espuma de costa) y río como el de la muestra (R65), en bucles de 4 fotogramas",
-        "Humo, banderas, llamas, gaviotas y sombras de nubes en movimiento (R69) en bucle con pools (sin asignaciones en el bucle)",
-        "Animales que pastan y barcos que solo navegan por agua válida (test)",
-        "Luz del día por tinte sin salirse de la paleta",
-        "Ciudad de referencia a ≥ 60 fps"
-      ],
-      "sesion": "B",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "P10",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-20T05:01:34.270Z",
-      "titulo": "LOD por zoom y 60 fps con la ciudad grande",
-      "objetivo": "Tres niveles de detalle por zoom y la ciudad de referencia a 60 fps (R56)",
-      "criterios": [
-        "Cerca (tile 32×16), medio (16×8 y ciudadanos como puntos) y lejos (iconos)",
-        "Ciudad de referencia: ≥ 300 ciudadanos, ≥ 150 edificios, ≥ 600 árboles, agua y humo",
-        "shot de 20 s: p95 ≤ 16,6 ms y máximo ≤ 33 ms",
-        "F2 muestra fps, ms p95, sprites y llamadas de dibujo",
-        "Bucle sin asignaciones (perfil documentado)"
-      ],
-      "sesion": "B+A",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "S1",
-      "estado": "hecha",
-      "hecho": [
-        "Roadmap reiniciado desde los textos del 19-10; la bitácora anterior está en docs/archivo/estado-2026-10-18-hexagonal.json",
-        "Iconos 🆕 nuevo · 🔄 actualizado · ● sin leer · ✓ leído en fases, decisiones, errores, faltas, recomendaciones y conceptos, persistentes en el navegador",
-        "Resumen de novedades con «marcar todo como leído»; «Ahora mismo» con la sesión que lleva cada fase; roadmap por bloques con avance; pestañas con contadores",
-        "npm run panel:probar: 34 comprobaciones en escritorio y móvil"
-      ],
-      "creada": "2026-10-19T05:02:27.484Z",
-      "titulo": "Panel del estudio claro, con «nuevo» y «leído»",
-      "objetivo": "Panel limpio y mejor organizado, con iconos de nuevo, no leído y leído, y probado a fondo (R32 y R33)",
-      "criterios": [
-        "Roadmap limpio desde cero (lo viejo, archivado en docs/archivo/)",
-        "Iconos de nuevo, no leído y leído en fases, decisiones, notas y capturas, que persisten y se marcan al abrir",
-        "Organización clara: resumen arriba, roadmap por bloques, decisiones y aprendizajes en pestañas",
-        "Playwright: todas las vistas sin errores y en móvil, con la marca de leído comprobada"
-      ],
-      "sesion": "A",
-      "verificacion": {
-        "tests": "34/34 panel:probar",
-        "resultado": "sin errores de consola ni scroll horizontal en escritorio y móvil"
-      },
-      "fin": "2026-10-19T06:05:12.614Z",
-      "version": "0.0",
-      "tramo": "alfa"
-    },
-    {
-      "id": "S2",
-      "estado": "hecha",
-      "hecho": [
-        "121 fases de la v0.0 a la v1.0 con version y tramo (alfa/beta), sacadas de prompts/maestro.md y de los textos del 19-10",
-        "El panel agrupa por versión, plegable, con tramos ALFA/BETA, rango de fases y avance; recuerda qué versiones abriste",
-        "versiones.md con la tabla de rangos por versión"
-      ],
-      "creada": "2026-10-19T06:05:12.822Z",
-      "titulo": "Roadmap completo por versiones en el panel",
-      "objetivo": "Todas las fases del juego hasta la 1.0, organizadas por versión con tramo alfa y beta (R38), visibles y agrupadas en el panel",
-      "criterios": [
-        "versiones.md con cada versión partida en alfa y beta y su rango de fases",
-        "estado.json con todas las fases (≤ 5 criterios cada una) y el campo version",
-        "El panel agrupa por versión con su avance (p. ej., 0.1 alfa: F101–F112)",
-        "Cada fase respeta los textos de docs/prompts/ y las decisiones R35–R38",
-        "panel:probar en verde"
-      ],
-      "sesion": "A",
-      "version": "0.0",
-      "tramo": "alfa",
-      "verificacion": {
-        "tests": "34/34 panel:probar",
-        "resultado": "121/121 fases visibles y marcadas; sin errores en escritorio ni en móvil"
-      },
-      "fin": "2026-10-19T06:09:25.798Z"
     }
   ],
   "errores": [
@@ -1895,6 +1895,15 @@
       "causa": "Probablemente el paso «borrar → vuelve a vacío» de studio/panel/probar.mjs actuaba sobre la carpeta real del juego",
       "solucion": "Atlas recreado con git show HEAD:<ruta>; C hace que el panel lea la carpeta de PANEL_PIXEL_DIR y que la prueba use una carpeta temporal propia",
       "cerradoEn": "2026-10-20T06:05:35.651Z"
+    },
+    {
+      "id": "E004",
+      "t": "2026-10-20T06:13:23.924Z",
+      "estado": "resuelto",
+      "fase": "P0",
+      "sintoma": "Tras cualquier comando fase, P0–P10 pasaban al final y estado daba F102 como siguiente",
+      "causa": "studio/bitacora.mjs ordenaba las fases solo por id (F < P < S)",
+      "solucion": "Ordenar por versión (0.0 < 0.1 < … < 1.0) y después por id"
     }
   ],
   "faltantes": [
@@ -2252,6 +2261,14 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-20T06:13:23.925Z",
+      "texto": "Error E004 (resuelto): Tras cualquier comando fase, P0–P10 pasaban al final y estado daba F102 como siguiente"
+    },
+    {
+      "t": "2026-10-20T06:11:53.716Z",
+      "texto": "Fase P0 actualizada: Limpieza y pivote a pixel art"
+    },
+    {
       "t": "2026-10-20T06:07:19.455Z",
       "texto": "Concepto: Radio de servicio (cobertura)"
     },
@@ -2536,5 +2553,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T06:07:19.455Z"
+  "actualizado": "2026-10-20T06:13:23.925Z"
 }

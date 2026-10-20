@@ -142,7 +142,9 @@ switch (cmd) {
     if (hecho) f.hecho = [...(f.hecho ?? []), ...[].concat(hecho)];
     if (f.estado === 'en-curso' && antes !== 'en-curso') f.inicio = ahora();
     if (f.estado === 'hecha' && antes !== 'hecha') f.fin = ahora();
-    est.fases.sort((a, b) => a.id.localeCompare(b.id, 'es', { numeric: true }));
+    // Orden del roadmap: primero por versión (0.0 < 0.1 < … < 1.0) y dentro de ella por id
+    const ver = (x) => (x.version ? parseFloat(x.version) : 99);
+    est.fases.sort((a, b) => ver(a) - ver(b) || a.id.localeCompare(b.id, 'es', { numeric: true }));
     const verbo = !antes ? 'creada' : antes !== f.estado ? `→ ${f.estado}` : 'actualizada';
     guardar(slug, est, `Fase ${f.id} ${verbo}: ${f.titulo ?? ''}`);
     console.log(`ok fase ${f.id} (${f.estado})`); break;
