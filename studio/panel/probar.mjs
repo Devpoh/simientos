@@ -4,7 +4,7 @@
 // Arranca su propio servidor en un puerto libre: no toca el panel que tengas abierto en :4400.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { mkdirSync, copyFileSync, rmSync, mkdtempSync } from 'node:fs';
+import { mkdirSync, copyFileSync, rmSync, mkdtempSync, utimesSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
@@ -31,7 +31,10 @@ const { servidor, base } = await arrancar();
 // (nunca a games/sedimento/public/recursos/pixel) para poder probar el estado vacío y el de con archivos
 // sin tocar lo que haya generado B de verdad.
 const dirPixelTmp = mkdtempSync(join(tmpdir(), 'panel-pixel-'));
-const { servidor: servidorPixel, base: basePixel } = await arrancar({ PANEL_PIXEL_DIR: dirPixelTmp });
+// Lo mismo para la galería de avances (R64): nunca docs/evidencia ni tools/arte-pixel/bocetos reales.
+const dirEvidenciaTmp = mkdtempSync(join(tmpdir(), 'panel-evidencia-'));
+const dirBocetosTmp = mkdtempSync(join(tmpdir(), 'panel-bocetos-'));
+const { servidor: servidorPixel, base: basePixel } = await arrancar({ PANEL_PIXEL_DIR: dirPixelTmp, PANEL_EVIDENCIA_DIR: dirEvidenciaTmp, PANEL_BOCETOS_DIR: dirBocetosTmp });
 
 const resultados = [];
 const errores = [];
@@ -133,6 +136,57 @@ try {
     await pPixel.click('#v-modelos');
     await pPixel.waitForFunction(() => document.querySelector('#app')?.textContent.includes('Todavía no hay nada'), null, { timeout: 15000 });
     comprobar(`${nombreVista}/pixel art: vuelve al estado vacío tras borrar los archivos de prueba`, true);
+
+    // Avances (R64): mismo servidor temporal (dirEvidenciaTmp/dirBocetosTmp), nunca las carpetas reales.
+    await pPixel.click('.lab-nav2 [data-s="avances"]');
+    await esperarCuerpo();
+    comprobar(`${nombreVista}/avances: estado vacío cuando no hay archivos`, (await pPixel.textContent('#app')).includes('Todavía no hay capturas'));
+    await sinScrollPixel('avances-vacio');
+    await pPixel.screenshot({ path: join(carpeta, `${nombreVista}-avances-vacio.png`) });
+
+    // Tres archivos con fechas de modificación forzadas, para comprobar el orden (más nueva primero).
+    copyFileSync(join(origenMuestra, 'hoja_sprites.png'), join(dirEvidenciaTmp, 'vieja.png'));
+    utimesSync(join(dirEvidenciaTmp, 'vieja.png'), new Date('2020-01-01'), new Date('2020-01-01'));
+    copyFileSync(join(origenMuestra, 'paleta.png'), join(dirBocetosTmp, 'media.png'));
+    utimesSync(join(dirBocetosTmp, 'media.png'), new Date('2022-06-15'), new Date('2022-06-15'));
+    copyFileSync(join(origenMuestra, 'hoja_sprites.png'), join(dirEvidenciaTmp, 'nueva.png'));
+    utimesSync(join(dirEvidenciaTmp, 'nueva.png'), new Date('2024-12-01'), new Date('2024-12-01'));
+
+    await pPixel.reload();
+    await pPixel.click('#v-modelos');
+    await pPixel.click('.lab-nav2 [data-s="avances"]');
+    await pPixel.waitForSelector('.pa-card', { timeout: 15000 });
+    await pPixel.waitForFunction(() => [...document.querySelectorAll('.pa-mini img')].every((im) => im.complete), null, { timeout: 15000 }).catch(() => {});
+    const nombresGaleria = await pPixel.$$eval('.pa-nombre', (e) => e.map((x) => x.textContent));
+    comprobar(`${nombreVista}/avances: tres tarjetas`, nombresGaleria.length === 3, `${nombresGaleria.length}`);
+    comprobar(`${nombreVista}/avances: orden de más nueva a más vieja`, nombresGaleria[0] === 'nueva.png' && nombresGaleria[1] === 'media.png' && nombresGaleria[2] === 'vieja.png', nombresGaleria.join(','));
+    comprobar(`${nombreVista}/avances: origen evidencia/boceto correcto`, await pPixel.$$eval('.pa-card', (e) => {
+      const por = (n) => e.find((c) => c.querySelector('.pa-nombre').textContent === n)?.querySelector('.mod-tags .tag')?.textContent ?? '';
+      return por('vieja.png').includes('evidencia') && por('nueva.png').includes('evidencia') && por('media.png').includes('boceto');
+    }));
+    comprobar(`${nombreVista}/avances: todo marcado 🆕 en la primera visita`, (await pPixel.$$eval('.pa-marca', (e) => e.length)) === 3);
+    comprobar(`${nombreVista}/avances: imágenes sin romper`, (await imagenesRotas(pPixel)) === 0);
+    await sinScrollPixel('avances-con-archivos');
+    await pPixel.screenshot({ path: join(carpeta, `${nombreVista}-avances.png`) });
+
+    // Ampliar una tarjeta la marca leída y abre el visor con pixelado.
+    await pPixel.click('.pa-mini');
+    await pPixel.waitForSelector('.pa-visor', { timeout: 10000 });
+    comprobar(`${nombreVista}/avances: el visor abre con la imagen`, await pPixel.$eval('.pa-visor img', (im) => im.src.length > 0));
+    await pPixel.screenshot({ path: join(carpeta, `${nombreVista}-avances-visor.png`) });
+    await pPixel.keyboard.press('Escape');
+    comprobar(`${nombreVista}/avances: Esc cierra el visor`, (await pPixel.$$eval('.pa-visor', (e) => e.length)) === 0);
+    comprobar(`${nombreVista}/avances: ampliar la marca como leída (✓)`, await pPixel.$('.pa-card .pa-marca:has-text("✓")'));
+
+    rmSync(join(dirEvidenciaTmp, 'vieja.png'), { force: true });
+    rmSync(join(dirEvidenciaTmp, 'nueva.png'), { force: true });
+    rmSync(join(dirBocetosTmp, 'media.png'), { force: true });
+    await pPixel.reload();
+    await pPixel.click('#v-modelos');
+    await pPixel.click('.lab-nav2 [data-s="avances"]');
+    await pPixel.waitForFunction(() => document.querySelector('#app')?.textContent.includes('Todavía no hay capturas'), null, { timeout: 15000 });
+    comprobar(`${nombreVista}/avances: vuelve al estado vacío tras borrar los archivos de prueba`, true);
+
     await ctxPixel.close();
   }
 } catch (e) {
@@ -142,6 +196,8 @@ try {
   servidor.kill();
   servidorPixel.kill();
   rmSync(dirPixelTmp, { recursive: true, force: true });
+  rmSync(dirEvidenciaTmp, { recursive: true, force: true });
+  rmSync(dirBocetosTmp, { recursive: true, force: true });
 }
 
 const fallos = resultados.filter((r) => !r.ok);
