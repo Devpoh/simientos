@@ -4,7 +4,7 @@
 > R40: déjalo todo documentado. Antes de cerrar una sesión, actualiza este archivo y deja una `nota` en la bitácora.
 
 ## Quién es quién
-Las sesiones del 20-10 (A `proyectos-gc-d5`, B `-ca`, C `-9c`, D `-0f`) se relevan por contexto lleno. La A nueva registra los nombres nuevos en `studio/sesiones.json` con `ListAgents`. Prompts de arranque: `.claude/docs/prompts-relevo-pixel-art.md`.
+Sesiones del 21-10: A `proyectos-gc-1b`, B `-c3`, C `-a7`, D `-81` (`studio/sesiones.json`). Se relevan por contexto lleno; la A nueva registra los nombres nuevos con `ListAgents`. Prompts de arranque: `.claude/docs/prompts-relevo-pixel-art.md`.
 
 ## Estado del juego (CIMIENTOS, slug `sedimento`)
 - **Pixel art 2D isométrico con Phaser 4**. Tag de seguridad `pre-pixel-art`. Todo lo 3D está fuera del proyecto, en `D:\Recursos GC\3d\` (R58).

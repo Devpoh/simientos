@@ -16,7 +16,7 @@ Desde el 20-10 manda **`.claude/docs/pivote-pixel-art.md`** (stack, colisiones, 
 
 ## Lo que manda
 
-- `docs/requisitos-usuario.md`: todo lo que pidió el usuario (R1–R66). Léelo antes de cambiar algo visible. Vigentes clave: R49 (pixel art), R50 (colisiones), R51 (selección), R52 (ficha de ciudadano), R53 (ficha de estructuras), R56 (≥ 60 fps), R59 (terreno procedural), R60 (ratón RTS), R61 (cámara sin giro), R65 (agua), R66 (cultivos por etapas).
+- `docs/requisitos-usuario.md`: todo lo que pidió el usuario (R1–R81). Léelo antes de cambiar algo visible. Vigentes clave: R49 (pixel art), R50 (colisiones), R51 (selección), R52 (ficha de ciudadano), R53 (ficha de estructuras), R56 (≥ 60 fps), R59 (terreno procedural), R60 (ratón RTS), R61 (cámara sin giro), R65 (agua), R66 (cultivos por etapas), R67 (tramos ≤ 20 min), R70 (UI híbrida HTML/CSS), R77 (progresión desde cero, `gdd/progresion.md`), R80 (era 0–1 humilde: paja, ramas, troncos, barro), R81 (`docs/prompts/maestro.md` como guía jugable).
 - `docs/prompts/maestro.md` (visión del juego) y `camara.md`; `espertativas/` (meta de ambiente y composición, R39); GDD en `docs/gdd/`.
 - Arte: la muestra aprobada (`prototypes/imperium-muestra/`) y sus errores (README) son la lista de aceptación. El mar de referencia está en `prototypes/pixel-cimientos/` (R65).
 - Prioridades (R27): diversión > construcción y simulación coherentes > estilo > rendimiento > efectos.
@@ -24,7 +24,7 @@ Desde el 20-10 manda **`.claude/docs/pivote-pixel-art.md`** (stack, colisiones, 
 ## Arquitectura
 
 - `src/logic/` reglas puras sin motor, con tests en `tests/`. `src/data/tuning.json` todos los números de diseño.
-- `src/main.ts` arranque (provisional hasta P2). `src/core/test-hooks.ts` `exponer()` y `marcarListo()` para `shot.mjs`.
+- `src/main.ts` arranque real (`BootScene` + `MundoScene`). `src/core/test-hooks.ts` `exponer()` y `marcarListo()` para `shot.mjs`.
 - Una **rejilla de ocupación** única (P3) manda en colocación, navegación y orden de dibujo. Hasta P3, `logic/mapa.ts` sigue con celdas hexagonales de datos.
 - `tools/arte-pixel/` (raíz del repo) genera el arte en Python; el juego **solo carga atlas**, no genera sprites en ejecución.
 
