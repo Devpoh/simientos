@@ -2282,6 +2282,13 @@
       "fase": "P2",
       "texto": "Yacimientos (R73) como datos en mapa.yacimientos: lista {tipo, celda, riqueza 1-3} con generador propio por semilla, grupos de celdas contiguas; metales en montaña (oro y plata en la mitad más alta), piedra y mármol en colinas, carbón en cuencas (llanura baja a 1-3 saltos del relieve); una celda, un yacimiento",
       "porque": "son datos de diseño para la economía (minería, comercio) y se testean con 10 semillas; el render los usará después como iconos o sprites"
+    },
+    {
+      "id": "D030",
+      "t": "2026-10-20T14:48:59.414Z",
+      "fase": "P2",
+      "texto": "Relevo del 21-10: A = proyectos-gc-1b, B = proyectos-gc-c3, C = proyectos-gc-a7, D = proyectos-gc-81 (se presentó como B; pasa a D porque es Sonnet 5.5 alto, el modelo de D, y no había ninguna D)",
+      "porque": "dos sesiones abrieron con el prompt de B y la cola de arte (montañas, era 0) necesita a D ya"
     }
   ],
   "conceptos": [
@@ -2431,6 +2438,10 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T14:48:59.416Z",
+      "texto": "Decisión: Relevo del 21-10: A = proyectos-gc-1b, B = proyectos-gc-c3, C = proyectos-gc-a7, D = proyectos-gc-81 (se presentó como B; pasa a D porque es Sonnet 5.5 alto, el modelo de D, y no había ninguna D)"
+    },
     {
       "t": "2026-10-20T14:41:55.922Z",
       "texto": "Traspaso A (21-10): relevo de A, B, C y D por contexto lleno. Estado, reglas del usuario (R1–R81) y siguiente paso en .claude/docs/traspaso.md; prompts nuevos en .claude/docs/prompts-relevo-pixel-art.md. Pendiente del usuario: aprobar el boceto del almacén de era 1 y elegir la vía de las montañas (reco R003). El servidor dev de :5173 está parado (el sistema lo cerró por memoria)."
@@ -2832,5 +2843,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T14:41:55.922Z"
+  "actualizado": "2026-10-20T14:48:59.416Z"
 }
