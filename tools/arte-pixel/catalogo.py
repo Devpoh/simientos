@@ -26,6 +26,7 @@ import props as PR
 import barcos as BA
 import edificios as ED
 import edificios2 as E2
+import obra_casa as OB
 import templo as TP
 from iso import Spr
 
@@ -51,6 +52,7 @@ class Entrada:
     recortar: bool = False              # recortar al contenido (estructuras, props, barcos)
     puertas: list = field(default_factory=list)
     etapas: list = field(default_factory=list)  # nombres de estado en orden de obra
+    huella_obra: dict = field(default_factory=dict)  # etapa -> {u0,v0,u1,v1} en subceldas: huella + lo que sobresale (andamio, material)
     puntos: dict = field(default_factory=dict)  # nombre de punto -> función(Spr) -> (x, y)
 
 
@@ -219,6 +221,9 @@ CASAS_3X2 = {
 }
 
 
+CON_OBRA = {(2, 2, "a")}      # variantes con las 6 etapas de obra (obra_casa.py)
+
+
 def _casa(w, d, eje, kw):
     return ED.casa(w, d, eje=eje, **kw)
 
@@ -231,19 +236,25 @@ def _punto_chimenea(spr) -> tuple:
 
 def estructuras() -> list:
     out = []
-    # Viviendas: solo la variante «a» lleva las tres etapas de obra; las demás, la casa terminada.
+    # Viviendas: las variantes con obra (R22) llevan 6 etapas: 1 replanteo, 2 preparación, 3 cimientos, 4 estructura,
+    # 5 cubierta, 6 terminada. Las demás solo la casa terminada (etapa3, pendiente de unificar nombres).
     for w, d, tabla in ((2, 2, CASAS_2X2), (3, 2, CASAS_3X2)):
         for var, kw in tabla.items():
             est = {}
             etapas = []
-            if w == 2 and var == "a":
-                est["etapa1"] = Estado(0, {"u": [E2.solar_casa(w, d).recortar()], "v": "u"})
-                est["etapa2"] = Estado(0, {"u": [E2.casa_obra(w, d).recortar()], "v": "u"})
-                etapas += ["etapa1", "etapa2"]
-            est["etapa3"] = Estado(0, {"u": [_casa(w, d, "u", kw)], "v": [_casa(w, d, "v", kw)]})
-            etapas.append("etapa3")
+            huella_obra = {}
+            if (w, d, var) in CON_OBRA:
+                for n, o in OB.etapas_casa(w, d, kw).items():
+                    est[f"etapa{n}"] = Estado(0, o["orient"])
+                    huella_obra[f"etapa{n}"] = o["huella"]
+                    etapas.append(f"etapa{n}")
+                final = "etapa6"
+            else:
+                final = "etapa3"
+            est[final] = Estado(0, {"u": [_casa(w, d, "u", kw)], "v": [_casa(w, d, "v", kw)]})
+            etapas.append(final)
             out.append(Entrada(f"casa_{w}x{d}_{var}", "estructura", (w, d), est, bloquea=True,
-                               centro=(w * 8, d * 8), recortar=True, etapas=etapas,
+                               centro=(w * 8, d * 8), recortar=True, etapas=etapas, huella_obra=huella_obra,
                                puertas=[{"i": 0, "j": d, "lado": "v+"}], puntos={"chimenea": _punto_chimenea}))
     # Templo de Júpiter: tres etapas (solar / obra / terminado).
     out.append(Entrada("templo_jupiter", "estructura", (5, 5),

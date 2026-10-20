@@ -5,11 +5,16 @@ Uso:  python exportar.py [--salida <carpeta>] [--vista <carpeta>]
   --vista   además escribe hojas de revisión (x1 y x4, con el ancla marcada) fuera del repositorio
 
 Es determinista: dos ejecuciones producen los mismos bytes.
+Escritura atómica: todo se escribe en una carpeta temporal dentro de la salida y luego cada archivo sustituye al
+anterior con os.replace (atómico en el mismo volumen), el JSON el último: quien lea el atlas nunca ve un archivo a medias.
 """
 import hashlib
 import json
 import os
+import shutil
 import sys
+import tempfile
+import time
 
 import numpy as np
 from PIL import Image
@@ -24,6 +29,17 @@ SALIDA = os.path.join(RAIZ, "games", "sedimento", "public", "recursos", "pixel")
 MAX_LADO = 2048
 PAD = 1
 VERSION = 1
+
+
+def reemplazar(origen, destino):
+    """os.replace con reintentos: en Windows falla si otro proceso (el servidor de desarrollo) tiene el destino abierto."""
+    for intento in range(40):
+        try:
+            os.replace(origen, destino)
+            return
+        except PermissionError:
+            time.sleep(0.05)
+    os.replace(origen, destino)
 
 
 def arg(nombre, defecto=None):
@@ -149,6 +165,14 @@ def main():
     salida = os.path.abspath(arg("--salida", SALIDA))
     vista = arg("--vista")
     os.makedirs(salida, exist_ok=True)
+    tmp = tempfile.mkdtemp(prefix=".tmp-arte-", dir=salida)
+    try:
+        exportar(salida, tmp, vista)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def exportar(salida, tmp, vista):
     entradas = CAT.todo()
     unicas, frames, sprites = recoger(entradas)
     rects, tam = empaquetar(unicas)
@@ -160,7 +184,7 @@ def main():
     nombres = []
     for n, lz in enumerate(lienzos):
         nom = f"atlas-{n}.png"
-        guardar_png(a_rgba(lz), os.path.join(salida, nom))
+        guardar_png(a_rgba(lz), os.path.join(tmp, nom))
         nombres.append(nom)
     # JSON
     frames_json = {}
@@ -195,6 +219,8 @@ def main():
         }
         if e.etapas:
             sj["etapas"] = e.etapas
+        if e.huella_obra:
+            sj["huellaObra"] = e.huella_obra
         sprites_json[sid] = sj
     doc = {
         "version": VERSION,
@@ -205,12 +231,15 @@ def main():
         "sprites": sprites_json,
         "frames": frames_json,
     }
-    with open(os.path.join(salida, "atlas.json"), "w", encoding="utf-8", newline="\n") as fh:
+    with open(os.path.join(tmp, "atlas.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(doc, fh, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
         fh.write("\n")
-    guardar_png(a_rgba(paleta_png()), os.path.join(salida, "paleta.png"))
-    with open(os.path.join(salida, "paleta.txt"), "w", encoding="utf-8", newline="\n") as fh:
+    guardar_png(a_rgba(paleta_png()), os.path.join(tmp, "paleta.png"))
+    with open(os.path.join(tmp, "paleta.txt"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(paleta_texto())
+    # sustitución atómica: imágenes y paleta primero, el JSON (que las referencia) el último
+    for nombre in nombres + ["paleta.png", "paleta.txt", "atlas.json"]:
+        reemplazar(os.path.join(tmp, nombre), os.path.join(salida, nombre))
     area = sum(d["px"].size for d in unicas.values())
     print(f"{len(sprites_json)} sprites · {len(frames_json)} fotogramas ({len(unicas)} únicos, {area // 1000}k px) · "
           f"atlas {', '.join(f'{a}x{b}' for a, b in tam)} → {salida}")

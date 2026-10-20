@@ -12,6 +12,7 @@ Los sprites se dibujan con código (Python + Pillow + numpy + scipy) y se export
 
 - `paleta.py`: paleta cerrada de 59 colores (máx. 64). Todo se dibuja con `c(rampa, tono)`. **No añadir colores sin permiso de A.**
 - `iso.py`, `util.py`, `tablas.py`: motor de sprites isométricos (caras con mapeo afín, contorno selectivo) y utilidades.
+- `obra_casa.py`: las **etapas de obra de las casas** (R22): 1 replanteo, 2 preparación, 3 cimientos, 4 estructura, 5 cubierta (la 6 es `edificios.casa()`). Parametrizado por tamaño; la cubierta de la 5 usa las mismas tejas que la casa terminada. `campos.py`: campo de cebada en 6 etapas (boceto aprobado, aún fuera del catálogo).
 - Generadores: `edificios.py`, `edificios2.py`, `templo.py`, `personajes.py`, `personajes_extra.py`, `mitologicos.py`, `animales.py`, `caballo.py`, `arboles.py`, `barcos.py`, `props.py`, `fuente.py` (fuente 4×5).
 - `catalogo.py`: **qué se exporta y con qué metadatos** (huella, bloqueo, puertas, etapas, orientaciones, fps). Para añadir un sprite, se añade una `Entrada` aquí.
 - `exportar.py` (empaquetado y JSON), `verificar.py`, `vista.py`.
@@ -23,6 +24,20 @@ Los sprites se dibujan con código (Python + Pillow + numpy + scipy) y se export
 - `frames[clave]`: `atlas`, `x`, `y`, `w`, `h`, `ancla` (propia de cada fotograma) y, si procede, `puntos` (p. ej. `chimenea`).
 - Orientaciones: ciudadanos `se` (frente), `sw` (frente volteado), `ne` (espaldas), `nw` (espaldas volteado); animales y criaturas solo `se` (mira a la derecha) y `sw`; `u`/`v` = eje del sprite en la rejilla (cumbrera, eslora, valla); `unica` = sin variantes. Una orientación puede repetir los fotogramas de otra.
 - **Ancla:** pies en lo puntual; centro de la huella en lo que ocupa tiles. En estructuras, colocar el ancla en el centro de la huella reproduce la colocación de la muestra (esquina trasera de la huella = origen del sprite).
+
+## Obras: `etapas` y `huellaObra`
+
+- `etapas` lista los estados de obra en orden; **la última es la estructura terminada**. Las casas con obra (hoy `casa_2x2_a`) tienen `etapa1…etapa6`; el resto, solo `etapa3` (terminada) hasta que lleguen sus etapas.
+- `huellaObra[etapa]` = `{u0, v0, u1, v1}` en **subceldas** (1 tile = 4 subceldas = 16 px de suelo), relativo a la esquina trasera de la huella: la huella + lo que sobresale (andamio, material). Para casas 2×2 la huella pura es `{0, 0, 8, 8}`. La **bloqueada** durante la obra es `huellaObra`; la huella pura sigue siendo la de la casa terminada. Los márgenes se calculan al dibujar (cada pieza que sobresale se registra) y el exportador falla si algo sobresale más de 1 subcelda.
+- La etapa 5 existe en orientación `u` y `v` (cumbrera); las etapas 1-4 son iguales en ambas (alias).
+
+## Escritura atómica
+
+`exportar.py` escribe todo en `.tmp-arte-*` dentro de la salida y sustituye cada archivo con `os.replace` (con reintentos por Windows), el `atlas.json` el último: quien lea el atlas mientras se regenera nunca ve un JSON a medias.
+
+## Revisión de obras
+
+`python bocetos/render_obra_casa.py [w d [u|v [variante]]]` escribe en `bocetos/` la fila de las 6 etapas (x1 y x4) y comprueba paleta y ampliación exacta. Mira siempre la hoja x4 y la etapa 5 en `u` y en `v`.
 
 ## Reglas de estilo (ver `.claude/docs/pivote-pixel-art.md` §3 y §10)
 
