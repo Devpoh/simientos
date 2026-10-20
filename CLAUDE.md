@@ -66,3 +66,14 @@ Algunos comandos tienen la invocación automática desactivada para ahorrar cont
 - Expón el estado clave con `exponer()` para que `shot.mjs` pueda verificarlo.
 - TypeScript estricto, sin `any`. Si la API de Phaser cambió, comprueba con context7 en vez de suponer.
 - Los identificadores propios van en español, como en las plantillas. Las APIs del motor mantienen su nombre. Docs y bitácora en español.
+
+## Modo nube (sesiones cloud de Claude Code)
+
+Si `CLAUDE_CODE_REMOTE=true` estás en una VM de Anthropic, sin supervisión y sin el PC del usuario. Aquí **sustituye** a "nunca hagas push" y a las sesiones A/B/C/D:
+
+- **Una sola sesión**, que encadena fases con `/autopiloto`. No hay `SendMessage` ni roles A/B/C/D.
+- **Rama única `claude/nube`**: trabaja y empuja solo ahí (`git push origin claude/nube`) tras cerrar cada fase. Nunca `main`/`master`, nunca `--force`. El usuario la fusiona al revisar.
+- `studio/activo.txt` no viaja (está en .gitignore): ejecuta `node studio/bitacora.mjs usar <slug>` al empezar.
+- No existen `CLAUDE.local.md`, la memoria de usuario ni `D:/Recursos GC`. Lo que necesites debe estar en el repo; si falta arte o un recurso externo, regístralo con `falta` y pasa a otra fase.
+- `shot.mjs` usa el Chromium de Playwright (`studio/nube/setup.sh`); `bench-60fps` no es fiable aquí (sin GPU real): sáltalo y regístralo.
+- El cupo puede agotarse en cualquier momento: empuja tras cada fase. La rutina programada (`studio/nube/rutina-prompt.md`) reanuda desde la bitácora.
