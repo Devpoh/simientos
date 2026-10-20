@@ -5,6 +5,7 @@ Uso:  python exportar.py [--salida <carpeta>] [--vista <carpeta>]
   --vista   además escribe hojas de revisión (x1 y x4, con el ancla marcada) fuera del repositorio
 
 Es determinista: dos ejecuciones producen los mismos bytes.
+Marcos 9-slice de los paneles HTML (ui.py): ui/marco-*.png + entrada `ui` del atlas.json.
 Escritura atómica: todo se escribe en una carpeta temporal dentro de la salida y luego cada archivo sustituye al
 anterior con os.replace (atómico en el mismo volumen), el JSON el último: quien lea el atlas nunca ve un archivo a medias.
 """
@@ -21,6 +22,7 @@ from PIL import Image
 
 import catalogo as CAT
 import fuente as FU
+import ui as UI
 from paleta import PALETA_RGB, N_COLORES, RAMPAS, RAMPA_IDX, TRANSP, c
 
 AQUI = os.path.dirname(os.path.abspath(__file__))
@@ -222,6 +224,13 @@ def exportar(salida, tmp, vista):
         if e.huella_obra:
             sj["huellaObra"] = e.huella_obra
         sprites_json[sid] = sj
+    marcos = UI.marcos()
+    os.makedirs(os.path.join(tmp, "ui"), exist_ok=True)
+    archivos_ui = []
+    for datos in marcos.values():
+        for est, ruta in datos["archivos"].items():
+            guardar_png(a_rgba(datos["pixeles"][est]), os.path.join(tmp, ruta))
+            archivos_ui.append(ruta)
     doc = {
         "version": VERSION,
         "origen": "propio (generado por código, tools/arte-pixel)",
@@ -230,6 +239,7 @@ def exportar(salida, tmp, vista):
         "atlas": [{"imagen": nombres[i], "ancho": tam[i][0], "alto": tam[i][1]} for i in range(len(tam))],
         "sprites": sprites_json,
         "frames": frames_json,
+        "ui": UI.json_ui(marcos),
     }
     with open(os.path.join(tmp, "atlas.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(doc, fh, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
@@ -238,7 +248,8 @@ def exportar(salida, tmp, vista):
     with open(os.path.join(tmp, "paleta.txt"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(paleta_texto())
     # sustitución atómica: imágenes y paleta primero, el JSON (que las referencia) el último
-    for nombre in nombres + ["paleta.png", "paleta.txt", "atlas.json"]:
+    os.makedirs(os.path.join(salida, "ui"), exist_ok=True)
+    for nombre in nombres + archivos_ui + ["paleta.png", "paleta.txt", "atlas.json"]:
         reemplazar(os.path.join(tmp, nombre), os.path.join(salida, nombre))
     area = sum(d["px"].size for d in unicas.values())
     print(f"{len(sprites_json)} sprites · {len(frames_json)} fotogramas ({len(unicas)} únicos, {area // 1000}k px) · "

@@ -12,7 +12,7 @@ Los sprites se dibujan con código (Python + Pillow + numpy + scipy) y se export
 
 - `paleta.py`: paleta cerrada de 59 colores (máx. 64). Todo se dibuja con `c(rampa, tono)`. **No añadir colores sin permiso de A.**
 - `iso.py`, `util.py`, `tablas.py`: motor de sprites isométricos (caras con mapeo afín, contorno selectivo) y utilidades.
-- `obra_casa.py`: las **etapas de obra de las casas** (R22): 1 replanteo, 2 preparación, 3 cimientos, 4 estructura, 5 cubierta (la 6 es `edificios.casa()`). Parametrizado por tamaño; la cubierta de la 5 usa las mismas tejas que la casa terminada. `campos.py`: campo de cebada en 6 etapas (boceto aprobado, aún fuera del catálogo).
+- `ui.py`: marcos 9-slice de los paneles HTML (R70). `obra_casa.py`: las **etapas de obra de las casas** (R22): 1 replanteo, 2 preparación, 3 cimientos, 4 estructura, 5 cubierta (la 6 es `edificios.casa()`). Parametrizado por tamaño; la cubierta de la 5 usa las mismas tejas que la casa terminada. `campos.py`: campo de cebada en 6 etapas (boceto aprobado, aún fuera del catálogo).
 - Generadores: `edificios.py`, `edificios2.py`, `templo.py`, `personajes.py`, `personajes_extra.py`, `mitologicos.py`, `animales.py`, `caballo.py`, `arboles.py`, `barcos.py`, `props.py`, `fuente.py` (fuente 4×5).
 - `catalogo.py`: **qué se exporta y con qué metadatos** (huella, bloqueo, puertas, etapas, orientaciones, fps). Para añadir un sprite, se añade una `Entrada` aquí.
 - `exportar.py` (empaquetado y JSON), `verificar.py`, `vista.py`.
@@ -30,6 +30,15 @@ Los sprites se dibujan con código (Python + Pillow + numpy + scipy) y se export
 - `etapas` lista los estados de obra en orden; **la última es la estructura terminada**. Las casas con obra (hoy `casa_2x2_a`) tienen `etapa1…etapa6`; el resto, solo `etapa3` (terminada) hasta que lleguen sus etapas.
 - `huellaObra[etapa]` = `{u0, v0, u1, v1}` en **subceldas** (1 tile = 4 subceldas = 16 px de suelo), relativo a la esquina trasera de la huella: la huella + lo que sobresale (andamio, material). Para casas 2×2 la huella pura es `{0, 0, 8, 8}`. La **bloqueada** durante la obra es `huellaObra`; la huella pura sigue siendo la de la casa terminada. Los márgenes se calculan al dibujar (cada pieza que sobresale se registra) y el exportador falla si algo sobresale más de 1 subcelda.
 - La etapa 5 existe en orientación `u` y `v` (cumbrera); las etapas 1-4 son iguales en ambas (alias).
+
+## Marcos de paneles HTML (9-slice, `ui.py`)
+
+`ui/marco-madera.png`, `ui/marco-piedra.png` y sus variantes `-resaltado.png` (hover/selección): 16×16 px, esquinas de 6×6 con remache (oro en madera, lapislázuli en piedra; el resaltado pasa a oro), lados que repiten cada 4 px y centro de un solo color (el fondo del panel). Entrada `ui` del `atlas.json`: `ancho`, `alto`, `corte {arriba,derecha,abajo,izquierda}`, `repetir: "round"`, `relleno: true` y `estados {normal, resaltado}` con la ruta de cada PNG. CSS (k = 2, 3, 4…, siempre entero):
+
+    .panel { border: calc(6px * 2) solid transparent; border-image: url(/recursos/pixel/ui/marco-madera.png) 6 fill / calc(6px * 2) / 0 round; image-rendering: pixelated; }
+    .panel:hover, .panel.sel { border-image-source: url(/recursos/pixel/ui/marco-madera-resaltado.png); }
+
+Revisión: `python bocetos/render_ui.py` (los marcos a ×16 y aplicados como panel a ×4). `validar.py` comprueba cada PNG de `ui/` (paleta, alfa, centro de un solo color), que coincida con su entrada del JSON y que no haya PNG huérfanos.
 
 ## Escritura atómica
 

@@ -155,6 +155,38 @@ def validar_atlas(carpeta, inf):
 
 
 # ------------------------------------------------------------------ hoja de contacto
+def validar_ui(carpeta, doc, inf):
+    """Marcos 9-slice: cada PNG de `ui/` cumple las reglas de sprite y coincide con su entrada `ui` del JSON."""
+    ui = doc.get("ui", {})
+    carpeta_ui = os.path.join(carpeta, "ui")
+    en_json = set()
+    for nombre, m in sorted(ui.items()):
+        corte = m.get("corte", {})
+        c_h, c_v = corte.get("izquierda", 0) + corte.get("derecha", 0), corte.get("arriba", 0) + corte.get("abajo", 0)
+        inf.ok(c_h <= m.get("ancho", 0) - 4 and c_v <= m.get("alto", 0) - 4,
+               f"ui/{nombre}: el centro que repite debe medir al menos 4 px (corte {corte}, tamaño {m.get('ancho')}x{m.get('alto')})")
+        inf.ok(m.get("repetir") in ("round", "repeat", "stretch", "space"), f"ui/{nombre}: `repetir` no es un valor de border-image-repeat")
+        medio = m.get("ancho", 0) - c_h
+        inf.ok(m.get("repetir") != "round" or medio > 0, f"ui/{nombre}: no hay zona central que repetir")
+        for estado, ruta in m.get("estados", {}).items():
+            en_json.add(os.path.normpath(ruta))
+            ruta_abs = os.path.join(carpeta, ruta)
+            if not inf.ok(os.path.isfile(ruta_abs), f"ui/{nombre}/{estado}: falta {ruta}"):
+                continue
+            im = Image.open(ruta_abs)
+            inf.ok(im.size == (m["ancho"], m["alto"]), f"ui/{nombre}/{estado}: mide {im.size} y el JSON dice {m['ancho']}x{m['alto']}")
+            rgba = validar_png(ruta_abs, inf)
+            # el centro debe ser un solo color opaco (se estira) y las cuatro esquinas deben ser iguales en tamaño
+            cen = rgba[corte["arriba"]:m["alto"] - corte["abajo"], corte["izquierda"]:m["ancho"] - corte["derecha"]]
+            inf.ok(len({tuple(p) for p in cen.reshape(-1, 4)}) == 1 and cen[0, 0, 3] == 255,
+                   f"ui/{nombre}/{estado}: el centro no es de un solo color opaco")
+    if os.path.isdir(carpeta_ui):
+        for f in sorted(os.listdir(carpeta_ui)):
+            if f.endswith(".png"):
+                inf.ok(os.path.normpath(os.path.join("ui", f)) in en_json, f"ui/{f}: PNG sin entrada `ui` en atlas.json")
+    inf.info(f"ui: {len(ui)} marcos 9-slice con {sum(len(m.get('estados', {})) for m in ui.values())} estados")
+
+
 def _pegar(base, sub, x, y):
     m = sub[..., 3] == 255
     base[y:y + sub.shape[0], x:x + sub.shape[1]][m] = sub[..., :3][m]
@@ -229,6 +261,7 @@ def main():
         for nombre in sorted(os.listdir(ruta)):
             if nombre.endswith(".png") and not nombre.startswith("atlas-"):
                 validar_png(os.path.join(ruta, nombre), inf)
+        validar_ui(ruta, doc, inf)
         return terminar(inf, contacto_atlas(doc, imgs) if all(i is not None for i in imgs) else None)
     if not inf.ok(os.path.isfile(ruta) and ruta.lower().endswith(".png"), f"{ruta}: no es una carpeta ni un PNG"):
         return terminar(inf, None)
