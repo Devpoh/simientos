@@ -2426,6 +2426,13 @@
       "fase": "P2d",
       "texto": "Se adelanta la parte de agua y humo de P9 a una fase P2d («Agua viva y humo», tras P2c): mar como pixel-cimientos y río como la muestra en bucle de 4 fotogramas sobre el terreno horneado, más el humo de chimeneas y hogueras con pool. P9 se queda con banderas, gaviotas, nubes, animales, barcos y luz del día",
       "porque": "R87: el usuario lo echa en falta al mirar el juego cada día (R64), y el agua ya forma parte del terreno horneado (pivote §2); son 1–2 tramos baratos y no frenan las mecánicas"
+    },
+    {
+      "id": "D038",
+      "t": "2026-10-20T15:09:56.720Z",
+      "fase": "P4",
+      "texto": "Escala del mundo (R90): 1 tile ≈ 2 m. Los edificios aprobados se quedan como están y se ajustan los seres. El adulto mide como la puerta de la casa (≈ 1,7 m), el caballo llega con la cabeza a la altura del adulto, la vaca es más baja y la oveja llega a la cintura. Los niños miden ≈ 0,6 del adulto. Antes de redibujar nada, D hace UN boceto de escala (casa, choza, almacén, adultos, niño, caballo, vaca y oveja, antes y después, a ×1 y ×4) para que lo apruebe el usuario. Va antes de D4 (espaldas) y de niños y ancianos, porque cambia el tamaño del ciudadano",
+      "porque": "el usuario ve a los humanos y a los caballos más grandes de lo lógico al lado de las casas (en la aldea, un adulto es más alto que la puerta); redibujar los seres cuesta mucho menos que redibujar todos los edificios, y hacerlo antes de D4 evita dibujar dos veces"
     }
   ],
   "conceptos": [
@@ -2575,6 +2582,10 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T15:09:56.722Z",
+      "texto": "Decisión: Escala del mundo (R90): 1 tile ≈ 2 m. Los edificios aprobados se quedan como están y se ajustan los seres. El adulto mide como la puerta de la casa (≈ 1,7 m), el caballo llega con la cabeza a la altura del adulto, la vaca es más baja y la oveja llega a la cintura. Los niños miden ≈ 0,6 del adulto. Antes de redibujar nada, D hace UN boceto de escala (casa, choza, almacén, adultos, niño, caballo, vaca y oveja, antes y después, a ×1 y ×4) para que lo apruebe el usuario. Va antes de D4 (espaldas) y de niños y ancianos, porque cambia el tamaño del ciudadano"
+    },
     {
       "t": "2026-10-20T15:08:30.856Z",
       "texto": "Falta: Escala de los animales (R89): el caballo es demasiado grande al lado de la vaca y del ciudadano de 16×24. Reescalar el caballo (cruz ≈ 0,9 de la altura de un adulto) y revisar vaca, oveja, gallina y criaturas con la misma regla de ≈ 7,5 cm por píxel, con una hoja de comparación junto a un ciudadano → Plan: D, tarea ESC1 tras CAM1; B no tiene que tocar nada (el atlas trae las anclas)"
@@ -3040,5 +3051,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T15:08:30.856Z"
+  "actualizado": "2026-10-20T15:09:56.722Z"
 }

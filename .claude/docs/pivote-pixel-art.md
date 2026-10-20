@@ -56,7 +56,7 @@ Todo está en `prototypes/imperium-muestra/` (ejecutar `python generar.py`; entr
 | `escena*.py`, `animacion.py`, `hud.py` | Composición, animación a 30 fps (bucle de 4 s) e interfaz en español | **Solo referencia visual**; el código de producción es TypeScript |
 | `entregables.py` | Hoja de sprites, paleta (PNG + hex) y **verificación automática** (paleta, rejilla, ampliación exacta) | Pasarlo a `npm run arte:verificar` |
 
-**Normas de estilo aprobadas** (no se discuten): resolución base 960×540; tiles 32×16; ciudadanos 16×24; luz única desde la izquierda (caras izquierdas cálidas, derechas frías, sombras hacia la derecha); contorno selectivo del color del vecino oscurecido (no negro); sin antialiasing; dithering solo en degradados (agua profunda, bruma); pixel art «de 2026», no de 1990.
+**Normas de estilo aprobadas** (no se discuten): resolución base 960×540; tiles 32×16; ciudadanos 16×24 (escala en revisión por R90: el adulto mide como la puerta, D038); luz única desde la izquierda (caras izquierdas cálidas, derechas frías, sombras hacia la derecha); contorno selectivo del color del vecino oscurecido (no negro); sin antialiasing; dithering solo en degradados (agua profunda, bruma); pixel art «de 2026», no de 1990.
 Los **errores cometidos y sus reglas** están en `prototypes/imperium-muestra/README.md` (tabla «Fallos cometidos»); son la **lista de aceptación de todo sprite nuevo** (§10).
 
 ## 4. Colisiones (R50) — diseño obligatorio
