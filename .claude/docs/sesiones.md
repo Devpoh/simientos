@@ -30,7 +30,7 @@ Juego: <slug> (lee games/<slug>/CLAUDE.md si no lo leíste en esta sesión)
 Objetivo: <resultado verificable en 1–2 frases>
 Criterios: <lista; cada uno se comprueba con check, con el estado de shot o con una captura>
 Puedes tocar: <rutas> · No toques: <rutas>
-Protocolo: <«/fase F03 completo» | «sin commit» | «solo verificar»>
+Protocolo: <«/fase F03 completo» | «sin commit» | «solo verificar»> · Corte: <HH:MM = envío + 20 min>
 Entrega: SendMessage a <nombre de A> en ≤ 10 líneas.
 ```
 Para una fase del roadmap basta con: `TAREA F03 para B: ejecuta /fase F03 completo (.claude/skills/fase/SKILL.md)`.
