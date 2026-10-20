@@ -44,7 +44,7 @@ El hierro y el carbón solo se pueden explotar en la era 3, aunque el yacimiento
 | Familia | Era 0 | Era 1 | Era 2 | Era 3 |
 |---|---|---|---|---|
 | **Vivienda** | Choza redonda de ramas y paja (1×1) → choza de troncos y barro con techo de paja (2×2) | Casa de barro sin enlucir, esquinas redondeadas y grietas, **techo de paja o de troncos y ramas** a dos aguas | Casa de ladrillo o piedra con teja (los sprites actuales) → casa con patio | Villa de piedra y mármol |
-| **Almacén** | Montón al aire con cestos → cobertizo de postes con techo de paja | Almacén de barro con techo de paja o de troncos + granero | Almacén de ladrillo | Gran almacén y puerto |
+| **Almacén** | Montón al aire con cestos → cobertizo de postes con techo de paja | Almacén de barro con techo de paja o de troncos (boceto aprobado) + granero | Almacén de adobe enlucido con azotea (el diseño anterior, R82) → almacén de ladrillo | Gran almacén y puerto |
 | **Caminos** | Senda (se forma sola al pisar) | Camino de tierra apisonada | Empedrado | Calzada con drenaje |
 | **Herramientas** | Piedra y madera | Cobre (+ rendimiento) | Bronce | Hierro |
 | **Producción** | Recolector, cazador, pescador con red | Campo, adobería, alfar, telar simple | Molino, horno de ladrillo, fundición de bronce, cervecería | Herrería, cantera de mármol, orfebre |

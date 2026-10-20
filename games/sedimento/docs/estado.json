@@ -2289,6 +2289,13 @@
       "fase": "P2",
       "texto": "Relevo del 21-10: A = proyectos-gc-1b, B = proyectos-gc-c3, C = proyectos-gc-a7, D = proyectos-gc-81 (se presentó como B; pasa a D porque es Sonnet 5.5 alto, el modelo de D, y no había ninguna D)",
       "porque": "dos sesiones abrieron con el prompt de B y la cola de arte (montañas, era 0) necesita a D ya"
+    },
+    {
+      "id": "D031",
+      "t": "2026-10-20T14:53:15.759Z",
+      "fase": "F102",
+      "texto": "El boceto anterior del almacén de era 1 (adobe enlucido, azotea de caña y barro con escalera, toldo, commit 149e768) no se borra: pasa a ser el almacén de era 2, el escalón entre el de barro con paja (era 1, aprobado) y el de ladrillo",
+      "porque": "R82: el usuario lo considera un buen diseño y quiere reutilizar lo sustituido; el enlucido liso y la azotea son la señal visual de la era 2 según progresion.md, así que encaja sin cambiar el estilo"
     }
   ],
   "conceptos": [
@@ -2438,6 +2445,10 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T14:53:15.761Z",
+      "texto": "Decisión: El boceto anterior del almacén de era 1 (adobe enlucido, azotea de caña y barro con escalera, toldo, commit 149e768) no se borra: pasa a ser el almacén de era 2, el escalón entre el de barro con paja (era 1, aprobado) y el de ladrillo"
+    },
     {
       "t": "2026-10-20T14:48:59.416Z",
       "texto": "Decisión: Relevo del 21-10: A = proyectos-gc-1b, B = proyectos-gc-c3, C = proyectos-gc-a7, D = proyectos-gc-81 (se presentó como B; pasa a D porque es Sonnet 5.5 alto, el modelo de D, y no había ninguna D)"
@@ -2843,5 +2854,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T14:48:59.416Z"
+  "actualizado": "2026-10-20T14:53:15.761Z"
 }

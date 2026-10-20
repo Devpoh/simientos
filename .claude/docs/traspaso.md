@@ -27,6 +27,7 @@ Sesiones del 21-10: A `proyectos-gc-1b`, B `-c3`, C `-a7`, D `-81` (`studio/sesi
 8. Mínimo **60 fps medidos** (R56) · **cero gasto** (R43) · **nada 3D** (R49, R57) · **sin push** · commit solo de tus rutas.
 9. **Documento maestro = guía de la parte jugable (R81):** `games/sedimento/docs/prompts/maestro.md` (copia literal de `espertativas/IMPERIUM_Prompt_Maestro_y_Vision_Creativa.docx`). Consúltalo al diseñar o planificar cualquier mecánica y salta lo que contradiga R49–R80.
 10. Decisiones del 20-10 que no se reabren: terreno procedural (R59), ratón RTS (R60), cámara sin giro (R61), mar de `pixel-cimientos` y río de la muestra (R65), campos en 6 etapas (R66), UI híbrida HTML/CSS (R70), catálogo de estructuras (R74, `gdd/estructuras.md`).
+11. **Lo que se sustituye no se borra (R82):** se guarda y se le busca otro uso (el almacén anterior pasa a la era 2).
 
 ## Lecciones (no repetir)
 - Los avisos de inactividad de otra sesión pueden ser **viejos**: antes de dar a alguien por parado, mira `ListAgents` (busy/idle) y `git log`.

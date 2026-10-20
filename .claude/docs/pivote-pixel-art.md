@@ -142,6 +142,7 @@ Cada fase: ≤ 5 criterios, `npm run check` + `npm run shot` en verde, captura m
 9. Dejar **espacio entre estructuras**: calles ≥ 2 tiles las principales y ≥ 1,2 las travesías, ≥ 2 tiles entre manzanas (la muestra se vio «pegada»).
 10. Todo lo vivo se anima y **cierra en bucle** (agua, humo, banderas, llamas, ciudadanos, animales).
 11. **El estilo lo valida el usuario con UN boceto pequeño antes de dibujar una familia entera.** Una vez aprobado, no se cambia.
+12. **Lo sustituido no se borra (R82):** si un sprite o un generador se reemplaza, se conserva con su generador y su PNG, con la etiqueta «reserva» y una propuesta de uso en `tools/arte-pixel/README.md`.
 
 ## 11. Sesión D opcional: artista de sprites
 
