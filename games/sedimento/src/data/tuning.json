@@ -482,5 +482,35 @@
     "resolucionSombra": 4,
     "alcanceSombra": 14,
     "minRegion": 28
+  },
+  "aldea": {
+    "etiquetaSemilla": "aldea",
+    "casasTerminadas": 80,
+    "casasEnObra": 28,
+    "campos": 30,
+    "puestos": 14,
+    "torres": 2,
+    "templos": 1,
+    "props": 44,
+    "rocas": 24,
+    "arboles": 640,
+    "ciudadanos": 200,
+    "animales": 130,
+    "probCaminante": 0.4,
+    "recorrido": [
+      2,
+      4
+    ],
+    "velocidadCaminar": 0.8,
+    "calleTiles": 1,
+    "pendienteMax": 0.3,
+    "desnivelHuellaMax": 0.4,
+    "radioCampos": 0.6,
+    "bosquesGrupos": 26,
+    "margenCullingPx": 48,
+    "pendienteMaxArbol": 0.7,
+    "ruidoColocacion": 1.5,
+    "arbolesSueltos": 0.15,
+    "bosqueRuido": 1.5
   }
 }
