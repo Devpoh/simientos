@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import tuning from '../data/tuning.json';
 import type { AtlasPixel } from '../data/atlas';
-import { exponer, marcarListo } from '../core/test-hooks';
+import { exponer, exponerAccion, marcarListo } from '../core/test-hooks';
 import { medidor } from '../core/metricas';
 import { aPantalla } from '../logic/iso';
 import type { Aldea } from '../logic/aldeaReferencia';
@@ -64,6 +64,7 @@ export class MundoScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.panel?.destruir());
 
     const r1 = (v: number): number => Math.round(v * 10) / 10;
+    exponerAccion('reiniciarMedidas', () => medidor.reiniciar());
     exponer('fps', () => r1(medidor.fps()));
     exponer('msFotoP95', () => r1(medidor.p95()));
     exponer('msFotoMax', () => r1(medidor.max()));

@@ -1,0 +1,158 @@
+{
+ "ok": false,
+ "zoom": 2,
+ "segundos": 20,
+ "sinVsync": false,
+ "renderer": "ANGLE (AMD, AMD Radeon(TM) Graphics (0x0000164C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+ "fps": 60.1,
+ "msFotoP95": 17.6,
+ "msFotoMax": 18.7,
+ "nSprites": 181,
+ "presupuestoP95Ms": 16.6,
+ "limiteMaxMs": 33,
+ "muestras": [
+  {
+   "fps": 60.1,
+   "p95": 17.5,
+   "max": 18.3,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60,
+   "p95": 17.5,
+   "max": 18.3,
+   "sprites": 180,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.6,
+   "max": 18.3,
+   "sprites": 180,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.5,
+   "max": 18.3,
+   "sprites": 180,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.4,
+   "max": 18.3,
+   "sprites": 180,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.4,
+   "max": 18.3,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 18.1,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.1,
+   "max": 18.7,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 18.7,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 18.7,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 18.7,
+   "sprites": 180,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 18.7,
+   "sprites": 180,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 17.6,
+   "sprites": 180,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.3,
+   "max": 17.5,
+   "sprites": 181,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.3,
+   "max": 17.5,
+   "sprites": 180,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.3,
+   "max": 17.5,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 17.5,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.3,
+   "max": 17.5,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 17.7,
+   "sprites": 179,
+   "zoom": 2
+  },
+  {
+   "fps": 60.1,
+   "p95": 17.2,
+   "max": 17.8,
+   "sprites": 179,
+   "zoom": 2
+  }
+ ],
+ "errores": [],
+ "fpsMin": 60,
+ "zoomReal": 2
+}

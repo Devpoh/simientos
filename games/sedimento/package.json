@@ -11,6 +11,8 @@
     "test": "vitest run --reporter=dot",
     "check": "tsc --noEmit && vitest run --reporter=dot",
     "shot": "node scripts/shot.mjs",
+    "bench": "node scripts/bench.mjs",
+    "tokens-css": "node scripts/tokens-css.mjs",
     "arte": "python ../../tools/arte-pixel/exportar.py",
     "arte:verificar": "python ../../tools/arte-pixel/validar.py"
   },

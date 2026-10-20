@@ -4,8 +4,12 @@
 
 const proveedores = new Map<string, () => unknown>();
 
+const acciones = new Map<string, () => void>();
+
 const api = {
   listo: false,
+  /** Ejecuta una acción registrada con `exponerAccion` (p. ej. reiniciar las medidas antes de un bench). */
+  accion: (clave: string): void => acciones.get(clave)?.(),
   snapshot: (): Record<string, unknown> =>
     Object.fromEntries([...proveedores].map(([clave, leer]) => [clave, leer()])),
 };
@@ -23,6 +27,11 @@ export const params = new URLSearchParams(location.search);
 /** Registra un valor del juego que shot.mjs incluirá en `estado`. */
 export function exponer(clave: string, leer: () => unknown): void {
   proveedores.set(clave, leer);
+}
+
+/** Registra una acción que los scripts de navegador pueden lanzar con `__GAME__.accion(clave)`. */
+export function exponerAccion(clave: string, hacer: () => void): void {
+  acciones.set(clave, hacer);
 }
 
 /** Avisa a shot.mjs de que la escena ya es jugable. */
