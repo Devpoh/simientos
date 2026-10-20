@@ -116,3 +116,7 @@ Los textos largos del usuario están literales en `docs/prompts/` y mandan sobre
 | R68 | 20-10 | **Anotar siempre las críticas constructivas del usuario** para que nunca se olviden (aquí, con fecha). | ✅ | este archivo |
 | R69 | 20-10 | **Gaviotas y sombras de nubes que se mueven**, como en `prototypes/pixel-cimientos` (:5180). | ⏳ | P9 (sprites de D) |
 | R70 | 20-10 | **Interfaz en HTML/CSS superpuesto al juego** (fichas de ciudadano, paneles de estructuras y de grupo, HUD, menús), decidido desde el principio. | ✅ decidido | P2b, `pivote-pixel-art.md` §13 |
+| R71 | 20-10 | **Edificios de producción y mercados por tipo para mover la economía:** minas, leñadores, molinos, etc., y mercados distintos (comida, minerales, etc.) que abastecen a los ciudadanos. | ⏳ | F109, F203, cola de arte D8 |
+| R72 | 20-10 | **Sistema militar con varios tipos de soldado** (arqueros, etc.), no solo el lancero de la muestra. | ⏳ | F501–F511 (v0.5), P5 (formaciones), cola de arte D9 |
+| R73 | 20-10 | **Minerales y materiales:** oro, hierro, carbón, plata, mármol, etc., como yacimientos del mapa que se explotan con minas y canteras. | ⏳ | P2 t3 (datos del mapa), F109, F401, cola de arte D10 |
+| R74 | 20-10 | **Sistema de estructuras completo para las ciudades:** no solo casa, templo y mercado. Delegado en A («te lo dejo a ti todo»). | ✅ diseñado | `docs/gdd/estructuras.md`, P7, faltante L008 |

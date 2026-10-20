@@ -131,6 +131,7 @@
         "test: si falla un eslabón, se detiene la cadena y se propaga",
         "Las hoces se gastan y bajan el rendimiento de los campos",
         "Inspector: de dónde viene y adónde va cada bien",
+        "Las minas y canteras solo se construyen sobre un yacimiento del mapa y extraen su material (R73)",
         "Mina, leñador y molino con su sprite y sus 6 etapas de obra (D, R71); trabajadores visibles trabajando"
       ],
       "version": "0.1",
@@ -717,7 +718,7 @@
       "objetivo": "Mapa grande con biomas por latitud (de la tundra a la selva) y regiones con identidad",
       "criterios": [
         "Todos los biomas reales en orden lógico (R10)",
-        "Recursos repartidos de forma desigual",
+        "Recursos repartidos de forma desigual: oro, plata, cobre, estaño, hierro, carbón, piedra y mármol según la geología (R73)",
         "La cámara pasa de la ciudad a la región sin cortes"
       ],
       "version": "0.4",
@@ -879,7 +880,7 @@
       "hecho": [],
       "creada": "2026-10-19T06:08:08.989Z",
       "titulo": "Reclutamiento",
-      "objetivo": "Milicia y levas que restan mano de obra; equipo y entrenamiento",
+      "objetivo": "Milicia y levas que restan mano de obra; cuarteles por tipo de soldado (R72), equipo y entrenamiento",
       "criterios": [
         "test: reclutar baja la producción",
         "Coste en armas y comida",
@@ -924,11 +925,13 @@
       "hecho": [],
       "creada": "2026-10-19T06:08:08.989Z",
       "titulo": "Unidades y combate",
-      "objetivo": "Infantería, lanceros, arqueros, honderos y carros; moral, formación, terreno y flanqueo",
+      "objetivo": "Tipos de soldado (R72): lanceros, infantería pesada, arqueros, honderos, caballería y carros, cada uno con su papel (piedra-papel-tijera); moral, formación, terreno y flanqueo",
       "criterios": [
         "test: el resultado depende de varios factores, no solo del número",
+        "test: cada tipo tiene ventaja y desventaja clara (arqueros frente a infantería, caballería frente a arqueros…)",
         "Ruptura por moral",
-        "Bonus de terreno justificados"
+        "Bonus de terreno justificados",
+        "Sprites de cada tipo con marchar, atacar y caer (D, R72)"
       ],
       "version": "0.5",
       "tramo": "alfa"
@@ -1743,7 +1746,7 @@
       "hecho": [],
       "creada": "2026-10-20T05:01:34.270Z",
       "titulo": "Estructuras con durabilidad y producción",
-      "objetivo": "Cada edificio muestra durabilidad, producción, trabajadores, almacén y estado de obra (R53)",
+      "objetivo": "Modelo común de estructura (docs/gdd/estructuras.md §1) con durabilidad, producción, servicio y niveles, y su ficha (R53, R74)",
       "criterios": [
         "edificio.ts + data/edificios.json: durabilidad 0–100 con degradación y reparación; efectos por debajo del 50 % y del 20 % (tests)",
         "Producción entradas → salidas por día, eficiencia y bloqueos con motivo (tests)",
@@ -1886,11 +1889,12 @@
     {
       "id": "E003",
       "t": "2026-10-20T05:36:15.050Z",
-      "estado": "abierto",
+      "estado": "resuelto",
       "fase": "P0",
       "sintoma": "Desaparece games/sedimento/public/recursos/pixel/ (atlas de P1) y el typecheck falla en tests/atlas.test.ts",
       "causa": "Probablemente el paso «borrar → vuelve a vacío» de studio/panel/probar.mjs actuaba sobre la carpeta real del juego",
-      "solucion": "Atlas recreado con git show HEAD:<ruta>; C hace que el panel lea la carpeta de PANEL_PIXEL_DIR y que la prueba use una carpeta temporal propia"
+      "solucion": "Atlas recreado con git show HEAD:<ruta>; C hace que el panel lea la carpeta de PANEL_PIXEL_DIR y que la prueba use una carpeta temporal propia",
+      "cerradoEn": "2026-10-20T06:05:35.651Z"
     }
   ],
   "faltantes": [
@@ -1933,6 +1937,30 @@
       "cerrado": false,
       "area": "arte",
       "texto": "Edificios de producción (mina, leñador, molino, cantera) y mercados por tipo (comida, minerales y metales, telas, cerámica) con sus 6 etapas de obra (R71) → Plan: D, cola D8 (antes de F109 y F203); boceto antes de la familia"
+    },
+    {
+      "id": "L006",
+      "t": "2026-10-20T06:05:45.612Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Tipos de soldado (R72): lancero (ya existe), infantería pesada, arquero, hondero, jinete y carro, con marchar, atacar y caer en 4 orientaciones → Plan: D, cola D9 (boceto antes; los necesita F504, y P5 puede probar formaciones con lanceros y arqueros)"
+    },
+    {
+      "id": "L007",
+      "t": "2026-10-20T06:05:45.612Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Yacimientos visibles en el terreno (vetas de oro, plata, cobre, hierro y carbón; canteras de piedra y mármol) e iconos de cada bien para la UI (R73) → Plan: D, cola D10 (antes de F109)"
+    },
+    {
+      "id": "L008",
+      "t": "2026-10-20T06:07:19.143Z",
+      "prioridad": "media",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Familias de estructuras del catálogo (docs/gdd/estructuras.md, R74): primero el núcleo de la v0.1 (choza, granero, almacén, pozo, acequia, pesquero, leñador, pozo de arcilla, adobería, alfar, altar, mercado de comida) → Plan: D, cola D11, por familias con boceto, antes de F102"
     }
   ],
   "recomendaciones": [
@@ -2078,6 +2106,20 @@
       "fase": "P2",
       "texto": "Cámara: lógica pura en logic/camara.ts (arrastre, desplazamiento a velocidad constante en pantalla, bordes, zoom entero hacia cursor, límites del rombo + 64 px); control Phaser en render/controlCamara.ts. Zoom pasos [1,2,3,4], sin zoom-out por debajo de ×1 (la vista lejana será el LOD, P10)",
       "porque": "zoom fraccionario rompería el pixel art; los números van en tuning.json (camara)"
+    },
+    {
+      "id": "D021",
+      "t": "2026-10-20T06:05:45.754Z",
+      "fase": "F109",
+      "texto": "Minerales como yacimientos de mapa.ts según la geología (montaña: cobre, estaño, hierro, plata, oro; colinas: piedra y mármol; carbón en cuencas), visibles en el terreno; el hierro y el carbón se desbloquean con el árbol tecnológico (F601) para que el bronce sea la primera era; las minas y canteras solo se colocan sobre su yacimiento",
+      "porque": "R73 del usuario, manteniendo una progresión histórica creíble: Sumer empieza en la Edad del Bronce"
+    },
+    {
+      "id": "D022",
+      "t": "2026-10-20T06:07:19.292Z",
+      "fase": "P7",
+      "texto": "Catálogo de estructuras en docs/gdd/estructuras.md: un modelo común (huella, etapas, requisitos, trabajadores, producción, almacén, radio de servicio, durabilidad, niveles, efectos) y 12 categorías (vivienda, agricultura, materias primas, talleres, almacenes, comercio, agua, religión, salud y ocio, gobierno, militar, prestigio) repartidas por fases; la v0.1 usa solo el núcleo de la aldea",
+      "porque": "R74: el usuario delegó en A el sistema de estructuras; con un modelo común, una sola ficha y un solo sistema sirven para cualquier edificio nuevo"
     }
   ],
   "conceptos": [
@@ -2200,9 +2242,31 @@
       "t": "2026-10-20T06:05:34.131Z",
       "concepto": "Zoom hacia el cursor",
       "explicacion": "Al acercar con la rueda, el punto del mapa que está bajo el ratón debe quedarse bajo el ratón: se calcula ese punto en coordenadas de mundo antes y se recoloca el centro de la cámara después del cambio de zoom. Así el jugador acerca donde mira. Los pasos son enteros (×1…×4) para que cada píxel del arte siga siendo un cuadrado perfecto."
+    },
+    {
+      "id": "C021",
+      "t": "2026-10-20T06:07:19.454Z",
+      "concepto": "Radio de servicio (cobertura)",
+      "explicacion": "En los city-builders, muchos edificios no producen bienes sino que cubren una necesidad en un área: un pozo da agua a las casas que están a menos de N tiles, un templo da fe, un mercado reparte comida. La casa mira qué servicios le llegan y con eso sube o baja de nivel. Así la forma de la ciudad importa: no basta con tener un templo, tiene que estar cerca de la gente (Caesar III, Pharaoh)."
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T06:07:19.455Z",
+      "texto": "Concepto: Radio de servicio (cobertura)"
+    },
+    {
+      "t": "2026-10-20T06:07:19.293Z",
+      "texto": "Decisión: Catálogo de estructuras en docs/gdd/estructuras.md: un modelo común (huella, etapas, requisitos, trabajadores, producción, almacén, radio de servicio, durabilidad, niveles, efectos) y 12 categorías (vivienda, agricultura, materias primas, talleres, almacenes, comercio, agua, religión, salud y ocio, gobierno, militar, prestigio) repartidas por fases; la v0.1 usa solo el núcleo de la aldea"
+    },
+    {
+      "t": "2026-10-20T06:05:45.756Z",
+      "texto": "Decisión: Minerales como yacimientos de mapa.ts según la geología (montaña: cobre, estaño, hierro, plata, oro; colinas: piedra y mármol; carbón en cuencas), visibles en el terreno; el hierro y el carbón se desbloquean con el árbol tecnológico (F601) para que el bronce sea la primera era; las minas y canteras solo se colocan sobre su yacimiento"
+    },
+    {
+      "t": "2026-10-20T06:05:35.653Z",
+      "texto": "Cerrado E003"
+    },
     {
       "t": "2026-10-20T06:05:34.288Z",
       "texto": "Decisión: Cámara: lógica pura en logic/camara.ts (arrastre, desplazamiento a velocidad constante en pantalla, bordes, zoom entero hacia cursor, límites del rombo + 64 px); control Phaser en render/controlCamara.ts. Zoom pasos [1,2,3,4], sin zoom-out por debajo de ×1 (la vista lejana será el LOD, P10)"
@@ -2472,5 +2536,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T06:05:34.288Z"
+  "actualizado": "2026-10-20T06:07:19.455Z"
 }
