@@ -43,8 +43,8 @@ El hierro y el carbón solo se pueden explotar en la era 3, aunque el yacimiento
 
 | Familia | Era 0 | Era 1 | Era 2 | Era 3 |
 |---|---|---|---|---|
-| **Vivienda** | Choza de ramas y paja (1×1) → choza de madera y paja (2×2) | Casa de adobe, techo plano de caña y barro | Casa de ladrillo o piedra con teja (los sprites actuales) → casa con patio | Villa de piedra y mármol |
-| **Almacén** | Montón al aire con cestos → cobertizo de madera | Almacén de adobe + granero | Almacén de ladrillo | Gran almacén y puerto |
+| **Vivienda** | Choza redonda de ramas y paja (1×1) → choza de troncos y barro con techo de paja (2×2) | Casa de barro sin enlucir, esquinas redondeadas y grietas, **techo de paja o de troncos y ramas** a dos aguas | Casa de ladrillo o piedra con teja (los sprites actuales) → casa con patio | Villa de piedra y mármol |
+| **Almacén** | Montón al aire con cestos → cobertizo de postes con techo de paja | Almacén de barro con techo de paja o de troncos + granero | Almacén de ladrillo | Gran almacén y puerto |
 | **Caminos** | Senda (se forma sola al pisar) | Camino de tierra apisonada | Empedrado | Calzada con drenaje |
 | **Herramientas** | Piedra y madera | Cobre (+ rendimiento) | Bronce | Hierro |
 | **Producción** | Recolector, cazador, pescador con red | Campo, adobería, alfar, telar simple | Molino, horno de ladrillo, fundición de bronce, cervecería | Herrería, cantera de mármol, orfebre |
@@ -57,6 +57,8 @@ El hierro y el carbón solo se pueden explotar en la era 3, aunque el yacimiento
 | **Transporte** | A hombros | Cestos y yugos, balsa de cañas | Carro de bueyes u onagros, barca de vela | Barco mercante, caravana |
 
 Un soldado sube de nivel como una casa: necesita su **material** (armas de la herrería), su **conocimiento**, un **cuartel del nivel** y **tiempo de entrenamiento**. Los veteranos ganan experiencia, pero no cambian de equipo sin material nuevo.
+
+**Cómo se ve cada era (R80):** era 0–1 = materiales del entorno, sin acabar. Paja, ramas, troncos sin escuadrar, barro a mano, cuerdas, pieles; formas irregulares y redondeadas; **nunca teja, sillar, enlucido liso, ventanas con marco ni puertas de tablas**. La teja y el muro recto y limpio son la señal visual de la era 2: si una casa de era 1 se parece a la de era 2 con otro color, está mal.
 
 ## 5. Datos y comprobación
 
