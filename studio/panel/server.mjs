@@ -74,6 +74,28 @@ function expectativas(slug) {
   return readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f)).map((f) => ({ nombre: f.replace(/\.[^.]+$/, ''), url: `/espertativas/${slug}/${encodeURIComponent(f)}`, bytes: statSync(join(dir, f)).size }));
 }
 
+// PANEL_EVIDENCIA_DIR / PANEL_BOCETOS_DIR (solo pruebas, igual que PANEL_PIXEL_DIR): carpetas temporales
+// en vez de las reales, para que probar.mjs no toque nunca docs/evidencia ni tools/arte-pixel/bocetos.
+const evidenciaBase = (slug) => process.env.PANEL_EVIDENCIA_DIR || join(GAMES, slug, 'docs', 'evidencia');
+const bocetosBase = () => process.env.PANEL_BOCETOS_DIR || join(ROOT, 'tools', 'arte-pixel', 'bocetos');
+
+/** Galería de avances (R64): evidencia de fase + bocetos de arte, de más nueva a más vieja. Solo lectura. */
+function galeria(slug) {
+  const leerCarpeta = (dir, origen, urlBase) => {
+    if (!existsSync(dir)) return [];
+    return readdirSync(dir).filter((f) => /\.(png|jpe?g|webp)$/i.test(f)).map((f) => {
+      const st = statSync(join(dir, f));
+      return { nombre: f, origen, fecha: st.mtime.toISOString(), bytes: st.size, url: `${urlBase}/${encodeURIComponent(f)}` };
+    });
+  };
+  const lista = [
+    ...leerCarpeta(evidenciaBase(slug), 'evidencia de fase', `/evidencia/${slug}`),
+    ...leerCarpeta(bocetosBase(), 'boceto de arte', '/bocetos'),
+  ];
+  lista.sort((a, b) => b.fecha.localeCompare(a.fecha));
+  return lista;
+}
+
 createServer((req, res) => {
   const url = new URL(req.url, 'http://x');
   const p = decodeURIComponent(url.pathname);
@@ -86,14 +108,16 @@ createServer((req, res) => {
     if (p === '/api/juegos') return json(res, juegos());
     const m = p.match(/^\/api\/estado\/([\w-]+)$/);
     if (m) { const e = leerEstado(m[1]); return e ? json(res, e) : json(res, { error: 'sin estado' }, 404); }
-    const am = p.match(/^\/api\/(pixel|expectativas)\/([\w-]+)$/);
-    if (am) return json(res, { pixel: pixelArt, expectativas }[am[1]](am[2]));
+    const am = p.match(/^\/api\/(pixel|expectativas|galeria)\/([\w-]+)$/);
+    if (am) return json(res, { pixel: pixelArt, expectativas, galeria }[am[1]](am[2]));
+    const bz = p.match(/^\/bocetos\/(.+)$/);
+    if (bz) return servir(res, bocetosBase(), bz[1]);
     // Rutas de solo lectura: cada una sirve una carpeta concreta del juego y nada fuera de ella.
     const rutas = [
       [/^\/recursos\/([\w-]+)\/(.+)$/, (s) => join(GAMES, s, 'public', 'recursos')],
       [/^\/pixel\/([\w-]+)\/(.+)$/, (s) => pixelBase(s)],
       [/^\/espertativas\/([\w-]+)\/(.+)$/, (s) => join(GAMES, s, 'espertativas')],
-      [/^\/evidencia\/([\w-]+)\/(.+)$/, (s) => join(GAMES, s, 'docs', 'evidencia')],
+      [/^\/evidencia\/([\w-]+)\/(.+)$/, (s) => evidenciaBase(s)],
     ];
     for (const [re, carpeta] of rutas) {
       const r = p.match(re);
