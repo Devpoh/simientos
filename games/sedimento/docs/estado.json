@@ -2076,6 +2076,15 @@
       "texto": "El llano se ve como un verde casi uniforme y las bases de la montaña dejan manchas grises sueltas: dar al suelo la variación de la muestra (matas, tierra pisada, tonos por humedad) y limpiar los islotes de roca al pie del acantilado → Plan: B en P2 tramo 3d (R78)",
       "porque": "En P2-t3a-vista.png el 70 % de la pantalla es hierba plana; la muestra aprobada tenía más textura y el usuario lee la calidad mirando el suelo",
       "cerradoEn": "2026-10-20T06:29:28.607Z"
+    },
+    {
+      "id": "R003",
+      "t": "2026-10-20T14:38:20.732Z",
+      "prioridad": "alta",
+      "cerrado": false,
+      "area": "arte",
+      "texto": "Las montañas siguen sin convencer tras el tramo 3d (manchas y bandas sin volumen legible). Probar otra vía: macizos y acantilados como piezas de sprite dibujadas por D (estilo de la muestra, luz desde la izquierda) colocadas sobre el heightfield, con el sombreado procedural solo para las laderas suaves. Antes, UN boceto comparativo (procedural actual frente a piezas de D) para que el usuario elija → Plan: A nueva lo encarga a D (boceto) y a B (prueba en el juego) antes del tramo 4 de P2",
+      "porque": "R78/R79: el usuario repite que las montañas son feas; tres pasadas de sombreado procedural no han llegado al nivel de la muestra, y en los juegos isométricos de pixel art las montañas suelen ser piezas dibujadas, no relieve sombreado"
     }
   ],
   "decisiones": [
@@ -2422,6 +2431,22 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T14:41:55.922Z",
+      "texto": "Traspaso A (21-10): relevo de A, B, C y D por contexto lleno. Estado, reglas del usuario (R1–R81) y siguiente paso en .claude/docs/traspaso.md; prompts nuevos en .claude/docs/prompts-relevo-pixel-art.md. Pendiente del usuario: aprobar el boceto del almacén de era 1 y elegir la vía de las montañas (reco R003). El servidor dev de :5173 está parado (el sistema lo cerró por memoria)."
+    },
+    {
+      "t": "2026-10-20T14:41:29.864Z",
+      "texto": "Traspaso D (21-10): catalogo con casas 2x2 a-d y 3x2 a-b en etapa1..etapa6 (huellaObra en subceldas), campo_cebada (cultivo), marcos ui 9-slice y escritura atomica del atlas. Boceto del almacen de era 1 (R80, barro y paja) en tools/arte-pixel/almacen.py con relieve.py, sin catalogo: falta pulir puerta, sacos y muro derecho y hacer sus etapas. Cola: etapas almacen, era 0 (choza redonda 1x1 y choza 2x2), D4 espaldas, era 1 (casa de barro, santuario, cuartel), ninos y ancianos, gaviotas y nubes, LOD, templo 6 etapas. Detalle en tools/arte-pixel/README.md seccion Estado y cola."
+    },
+    {
+      "t": "2026-10-20T14:41:04.805Z",
+      "texto": "Traspaso C (21-10): C3 completa (tramo 1 backend 2b36b77, tramo 2 UI cbd16e1) - seccion Lo que pediste en el panel, parsea requisitos-usuario.md (81 req), filtros todas/pendientes/de hoy, marcas propias, panel:probar 90/90 verde, panel reiniciado en :4400. Tambien quedo hecho el detalle pendiente de C2 (tarjeta unica x1/x4, commit 141b74c). Nada a medias. Siguiente paso: A decide la proxima tarea para C."
+    },
+    {
+      "t": "2026-10-20T14:38:20.733Z",
+      "texto": "Recomendación (arte): Las montañas siguen sin convencer tras el tramo 3d (manchas y bandas sin volumen legible). Probar otra vía: macizos y acantilados como piezas de sprite dibujadas por D (estilo de la muestra, luz desde la izquierda) colocadas sobre el heightfield, con el sombreado procedural solo para las laderas suaves. Antes, UN boceto comparativo (procedural actual frente a piezas de D) para que el usuario elija → Plan: A nueva lo encarga a D (boceto) y a B (prueba en el juego) antes del tramo 4 de P2"
+    },
     {
       "t": "2026-10-20T14:38:00.235Z",
       "texto": "Traspaso B (21-10): HECHO y aceptado P1, P2 t1 (Phaser 4, 960x540, escalado entero), t2 (camara), t3a-3c (terreno horneado voxel-space, costa en mapa.ts R001, yacimientos R73) y t3d parcial (sombras proyectadas, tono minimo roca/nieve, curvatura, fertilidad suave, limpieza morfologica, relieve ridged). A MEDIAS: 3d de calidad del terreno: horneado tarda ~3,5 s (CPU) y la montana aun es manchas planas frente a la muestra; falta comparar lado a lado con prototypes/imperium-muestra/salida/escena_base_960x540.png y pulir (tuning.horneado y logic/horneado.ts). SIGUIENTE exacto: tramo 4 de P2 = aldea de referencia animada (>=300 ciudadanos y animales con animaciones del atlas, >=150 edificios, >=600 arboles en huecos libres sobre el terreno) + skill .claude/skills/bench-60fps + shot de 20 s con GPU real (p95<=16,6 ms, max<=33 ms); considerar Web Worker para el horneado. Despues P2b (capa HTML/CSS), P3 (ocupacion; declarar huellaObra y categoria cultivo en atlas.ts). TRAMPAS: no regenerar public/recursos/pixel mientras corre shot (D escribe atomico); tests de rutas/mapa necesitan costa y yacimientos en el Mapa de prueba; no tocar el dev :5173 de A; usuario ve arena solo en costa de mar, rios y lagos con ribera de hierba; sin tramado en roca/nieve."
@@ -2807,5 +2832,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T14:38:00.235Z"
+  "actualizado": "2026-10-20T14:41:55.922Z"
 }
