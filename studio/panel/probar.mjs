@@ -4,8 +4,9 @@
 // Arranca su propio servidor en un puerto libre: no toca el panel que tengas abierto en :4400.
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, copyFileSync, rmSync, mkdtempSync } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 const RAIZ = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -18,10 +19,19 @@ const i = argv.indexOf('--capturas');
 const carpeta = i === -1 ? join(RAIZ, 'studio', 'panel', 'pruebas') : argv[i + 1];
 mkdirSync(carpeta, { recursive: true });
 
-const puerto = 4500 + Math.floor(Math.random() * 400);
-const servidor = spawn(process.execPath, [join(RAIZ, 'studio', 'panel', 'server.mjs')], { env: { ...process.env, PANEL_PORT: String(puerto) }, stdio: 'pipe' });
-await new Promise((ok, mal) => { servidor.stdout.on('data', (d) => String(d).includes('http://') && ok()); servidor.on('exit', mal); setTimeout(() => mal(new Error('el servidor no arrancó')), 8000); });
-const base = `http://localhost:${puerto}/`;
+async function arrancar(envExtra = {}) {
+  const puerto = 4500 + Math.floor(Math.random() * 400);
+  const servidor = spawn(process.execPath, [join(RAIZ, 'studio', 'panel', 'server.mjs')], { env: { ...process.env, PANEL_PORT: String(puerto), ...envExtra }, stdio: 'pipe' });
+  await new Promise((ok, mal) => { servidor.stdout.on('data', (d) => String(d).includes('http://') && ok()); servidor.on('exit', mal); setTimeout(() => mal(new Error('el servidor no arrancó')), 8000); });
+  return { servidor, base: `http://localhost:${puerto}/` };
+}
+
+const { servidor, base } = await arrancar();
+// Servidor aparte para la sección «Pixel art propio»: PANEL_PIXEL_DIR lo apunta a una carpeta temporal
+// (nunca a games/sedimento/public/recursos/pixel) para poder probar el estado vacío y el de con archivos
+// sin tocar lo que haya generado B de verdad.
+const dirPixelTmp = mkdtempSync(join(tmpdir(), 'panel-pixel-'));
+const { servidor: servidorPixel, base: basePixel } = await arrancar({ PANEL_PIXEL_DIR: dirPixelTmp });
 
 const resultados = [];
 const errores = [];
@@ -34,11 +44,16 @@ try {
     const p = await ctx.newPage();
     p.on('pageerror', (e) => errores.push(`${nombreVista}: ${e.message}`));
     p.on('console', (m) => { if (m.type() === 'error') errores.push(`${nombreVista}: ${m.text().slice(0, 200)}`); });
-    const cargar = async () => { await p.goto(base); await p.waitForSelector('details.phase', { timeout: 10000 }); };
+    // Con varias versiones en el roadmap, solo la activa (o la que ya se abrió) muestra sus fases: una
+    // «details.phase» de una versión cerrada existe en el DOM pero no es visible.
+    const cargar = async () => { await p.goto(base); await p.waitForSelector('details.version[open] details.phase', { timeout: 10000 }); };
     const sinScrollHorizontal = async (vista) => comprobar(`${nombreVista}/${vista}: sin scroll horizontal`, await p.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
 
     // 1. Primera visita: todo es nuevo.
+    // Hay que esperar a que la primera carga termine de pintar (y de escribir panel.vistos) antes de
+    // limpiar: si no, esa escritura asíncrona puede llegar después del clear() y dejar todo «sinleer».
     await p.goto(base);
+    await p.waitForSelector('details.version[open] details.phase', { timeout: 10000 }).catch(() => {});
     await p.evaluate(() => { localStorage.clear(); localStorage.setItem('panel.vista', 'progreso'); });
     await cargar();
     const nuevos = await p.$$eval('.phase .m-nuevo', (e) => e.length);
@@ -49,7 +64,8 @@ try {
     await p.screenshot({ path: join(carpeta, `${nombreVista}-progreso.png`), fullPage: true });
 
     // 2. Abrir una fase la marca como leída, y sigue leída al recargar; las demás pasan a «sin leer».
-    const id = await p.$eval('details.phase', (d) => d.dataset.id);
+    // Tiene que ser una fase visible (de una versión abierta): el summary de una cerrada no se puede pulsar.
+    const id = await p.$eval('details.version[open] details.phase', (d) => d.dataset.id);
     await p.click(`details.phase[data-id="${id}"] summary`);
     comprobar(`${nombreVista}: abrir ${id} la marca ✓`, await p.$(`details.phase[data-id="${id}"] .m-leido`));
     await cargar();
@@ -74,83 +90,58 @@ try {
     await p.waitForSelector('.guide');
     await sinScrollHorizontal('comandos');
     await p.screenshot({ path: join(carpeta, `${nombreVista}-comandos.png`), fullPage: true });
-    // Laboratorio de arte: portada, modelos, materiales y paquetes.
-    const imagenesRotas = () => p.evaluate(async () => {
+    await ctx.close();
+
+    // Pixel art propio: en su propio servidor/contexto (carpeta temporal dirPixelTmp), para no tocar
+    // nunca games/sedimento/public/recursos/pixel (lo real que genera B).
+    const imagenesRotas = (pagina) => pagina.evaluate(async () => {
       const imgs = [...document.querySelectorAll('img[src^="/"]')];
       imgs.forEach((i) => { i.loading = 'eager'; });
       await Promise.all(imgs.map((i) => (i.complete ? 0 : new Promise((ok) => { i.onload = i.onerror = ok; setTimeout(ok, 20000); }))));
       return imgs.filter((i) => !i.naturalWidth).length;
     });
-    const irA = async (s) => { await p.click(`.lab-nav [data-s="${s}"]`); await p.waitForFunction((k) => document.querySelector(`.lab-nav [data-s="${k}"]`)?.getAttribute('aria-selected') === 'true', s); };
-    await p.click('#v-modelos');
-    await p.waitForSelector('.lab-nav', { timeout: 15000 });
-    await irA('portada');
-    await p.waitForSelector('.lab-hero', { timeout: 15000 });
-    comprobar(`${nombreVista}/portada: título y propósito`, (await p.textContent('.lab-hero h2')).includes('Art Direction Lab'));
-    comprobar(`${nombreVista}/portada: 3 accesos activos y el de A4 desactivado`, (await p.$$eval('.lab-acceso:not(:disabled)', (e) => e.length)) === 3 && (await p.$$eval('.lab-acceso:disabled', (e) => e.length)) === 1);
-    comprobar(`${nombreVista}/portada: los 4 estilos, con B marcado`, (await p.$$eval('.lab-estilos tbody tr', (e) => e.length)) === 4 && (await p.$$eval('.lab-estilos tr.elegido', (e) => e.length)) === 1);
-    comprobar(`${nombreVista}/portada: imágenes sin romper`, (await imagenesRotas()) === 0);
-    await sinScrollHorizontal('portada');
-    await p.screenshot({ path: join(carpeta, `${nombreVista}-lab-portada.png`), fullPage: true });
+    const origenMuestra = join(RAIZ, 'prototypes', 'imperium-muestra', 'salida');
+    const ctxPixel = await navegador.newContext({ viewport });
+    const pPixel = await ctxPixel.newPage();
+    pPixel.on('pageerror', (e) => errores.push(`${nombreVista}/pixel: ${e.message}`));
+    pPixel.on('console', (m) => { if (m.type() === 'error') errores.push(`${nombreVista}/pixel: ${m.text().slice(0, 200)}`); });
+    const sinScrollPixel = async (vista) => comprobar(`${nombreVista}/${vista}: sin scroll horizontal`, await pPixel.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
+    const esperarCuerpo = () => pPixel.waitForFunction(() => { const t = document.querySelector('#app')?.textContent || ''; return t.length > 0 && !t.includes('Cargando'); }, null, { timeout: 15000 });
 
-    await irA('modelos');
-    await p.waitForSelector('.mod-card', { timeout: 15000 });
-    await p.waitForFunction(() => [...document.querySelectorAll('.mod-mini img')].slice(0, 4).every((im) => im.src.startsWith('data:image')), null, { timeout: 60000 }).catch(() => {});
-    const tarjetas = await p.$$eval('.mod-card', (e) => e.length);
-    const miniaturas = await p.$$eval('.mod-mini img', (e) => e.filter((im) => im.src.startsWith('data:image')).length);
-    comprobar(`${nombreVista}/modelos: tarjetas y miniaturas`, tarjetas > 0 && miniaturas > 0, `${tarjetas} tarjetas, ${miniaturas} miniaturas listas`);
-    comprobar(`${nombreVista}/modelos: aparecen los kits Kenney descargados`, (await p.$$eval('[data-paquete^="kenney-"]', (e) => e.length)) >= 4);
-    await sinScrollHorizontal('modelos');
-    await p.screenshot({ path: join(carpeta, `${nombreVista}-laboratorio.png`) });
+    await pPixel.goto(basePixel);
+    await pPixel.click('#v-modelos');
+    await esperarCuerpo();
+    comprobar(`${nombreVista}/pixel art: estado vacío cuando no hay archivos`, (await pPixel.textContent('#app')).includes('Todavía no hay nada'));
+    await sinScrollPixel('pixel-art-vacio');
+    await pPixel.screenshot({ path: join(carpeta, `${nombreVista}-lab-portada.png`) });
 
-    await irA('materiales');
-    await p.waitForSelector('.mat-card', { timeout: 15000 });
-    await p.waitForFunction(() => [...document.querySelectorAll('.mat-mini img')].slice(0, 2).every((im) => im.src.startsWith('data:image')), null, { timeout: 60000 }).catch(() => {});
-    const nMat = await p.$$eval('.mat-card', (e) => e.length);
-    comprobar(`${nombreVista}/materiales: una tarjeta por material (terreno, edificios y agua)`, nMat >= 12, `${nMat} tarjetas`);
-    comprobar(`${nombreVista}/materiales: miniaturas 3D renderizadas y ninguna rota`, (await p.$$eval('.mat-mini img', (e) => e.filter((im) => im.src.startsWith('data:image')).length)) > 0 && (await p.$$eval('.mat-mini.roto', (e) => e.length)) === 0);
-    comprobar(`${nombreVista}/materiales: mapas de textura sin romper`, (await imagenesRotas()) === 0);
-    await sinScrollHorizontal('materiales');
-    await p.screenshot({ path: join(carpeta, `${nombreVista}-lab-materiales.png`) });
-    await p.click('.mat-mini');
-    await p.waitForSelector('.lv canvas', { timeout: 15000 });
-    comprobar(`${nombreVista}/materiales: el visor 3D abre con los mapas como interruptores`, (await p.$$eval('.lv [data-mapa]', (e) => e.length)) >= 3);
-    await p.waitForTimeout(800);
-    await p.screenshot({ path: join(carpeta, `${nombreVista}-lab-material-visor.png`) });
-    await p.keyboard.press('Escape');
-    comprobar(`${nombreVista}/materiales: Esc cierra el visor`, (await p.$$eval('.lv', (e) => e.length)) === 0);
+    copyFileSync(join(origenMuestra, 'hoja_sprites.png'), join(dirPixelTmp, 'hoja_sprites.png'));
+    copyFileSync(join(origenMuestra, 'paleta.png'), join(dirPixelTmp, 'paleta.png'));
+    await pPixel.reload();
+    await pPixel.click('#v-modelos');
+    await pPixel.waitForSelector('.pa-card', { timeout: 15000 });
+    await pPixel.waitForFunction(() => [...document.querySelectorAll('.pa-mini img')].every((im) => im.complete), null, { timeout: 15000 }).catch(() => {});
+    comprobar(`${nombreVista}/pixel art: una tarjeta por archivo de prueba`, (await pPixel.$$eval('.pa-card', (e) => e.length)) === 2);
+    comprobar(`${nombreVista}/pixel art: origen «propio»`, await pPixel.$$eval('.pa-origen', (e) => e.every((n) => n.textContent.includes('propio'))));
+    comprobar(`${nombreVista}/pixel art: imágenes sin romper`, (await imagenesRotas(pPixel)) === 0);
+    await sinScrollPixel('pixel-art-con-archivos');
+    await pPixel.screenshot({ path: join(carpeta, `${nombreVista}-laboratorio.png`) });
 
-    await irA('paquetes');
-    await p.waitForSelector('.pq-card', { timeout: 15000 });
-    const totalPaq = await p.evaluate(() => fetch('/api/paquetes/sedimento').then((r) => r.json()).then((j) => j.length));
-    comprobar(`${nombreVista}/paquetes: una tarjeta por cada paquete del catálogo`, totalPaq >= 17 && (await p.$$eval('.pq-card', (e) => e.length)) === totalPaq, `${totalPaq} paquetes`);
-    comprobar(`${nombreVista}/paquetes: los de pago salen descartados con aviso (R43)`, (await p.$$eval('.pq-card .tag.descartado', (e) => e.length)) === 2 && (await p.$$eval('.pq-aviso', (e) => e.length)) === 2);
-    comprobar(`${nombreVista}/paquetes: hay sin revisar, descargados e integrados`, (await Promise.all(['sin-revisar', 'descargado', 'integrado'].map((k) => p.$$eval(`.pq-card .tag.${k}`, (e) => e.length)))).every((n) => n > 0));
-    await p.waitForFunction(() => [...document.querySelectorAll('.pq-mini img[alt^="Miniatura"]')].slice(0, 3).every((im) => im.src.startsWith('data:image')), null, { timeout: 60000 }).catch(() => {});
-    comprobar(`${nombreVista}/paquetes: imágenes de muestra sin romper`, (await imagenesRotas()) === 0);
-    await sinScrollHorizontal('paquetes');
-    await p.screenshot({ path: join(carpeta, `${nombreVista}-lab-paquetes.png`), fullPage: nombreVista === 'escritorio' });
-    await p.click('.chip[data-estudio="descartado"]');
-    comprobar(`${nombreVista}/paquetes: el filtro por estado funciona`, (await p.$$eval('.pq-card', (e) => e.length)) === 2);
-    await p.click('.chip[data-estudio="todos"]');
-    await p.fill('#pq-texto', 'zzzz-no-existe');
-    await p.waitForSelector('.pq-grid .empty', { timeout: 3000 }).catch(() => {});
-    comprobar(`${nombreVista}/paquetes: sin resultados muestra el estado vacío`, (await p.$$eval('.pq-grid .empty', (e) => e.length)) === 1);
-    await p.fill('#pq-texto', '');
-    await p.waitForFunction((n) => document.querySelectorAll('.pq-card').length === n, totalPaq);
-    await p.click('.pq-card [data-modelos="kenney-castle-kit"]');
-    await p.waitForSelector('.mod-card', { timeout: 15000 });
-    const soloCastillo = await p.$$eval('.mod-card .tag', (e) => e.filter((t) => t.textContent === 'kenney-castle-kit').length);
-    comprobar(`${nombreVista}/paquetes: «Ver modelos» abre Modelos filtrado por ese paquete`, soloCastillo > 0 && (await p.$$eval('.mod-card', (e) => e.length)) === soloCastillo, `${soloCastillo} modelos`);
-    await p.click('#v-progreso');
-    await p.waitForSelector('details.phase');
-    await ctx.close();
+    rmSync(join(dirPixelTmp, 'hoja_sprites.png'), { force: true });
+    rmSync(join(dirPixelTmp, 'paleta.png'), { force: true });
+    await pPixel.reload();
+    await pPixel.click('#v-modelos');
+    await pPixel.waitForFunction(() => document.querySelector('#app')?.textContent.includes('Todavía no hay nada'), null, { timeout: 15000 });
+    comprobar(`${nombreVista}/pixel art: vuelve al estado vacío tras borrar los archivos de prueba`, true);
+    await ctxPixel.close();
   }
 } catch (e) {
   errores.push(`probar.mjs: ${e.message.split('\n')[0]}`);
 } finally {
   await navegador.close();
   servidor.kill();
+  servidorPixel.kill();
+  rmSync(dirPixelTmp, { recursive: true, force: true });
 }
 
 const fallos = resultados.filter((r) => !r.ok);
