@@ -568,5 +568,14 @@
     "costePendiente": 0.8,
     "diagonal": true,
     "pasoMaxTiles": 48
+  },
+  "orden": {
+    "margenHuellas": 1.5
+  },
+  "ciudadano": {
+    "velocidad": 0.04,
+    "esperaIdle": 40,
+    "ticksDentro": 60,
+    "esperaBloqueado": 100
   }
 }

@@ -21,6 +21,13 @@ import { params } from '../core/test-hooks';
 import { ControlCamara } from '../render/controlCamara';
 import { CLAVE_REGISTRO_ATLAS } from '../render/sprites';
 import { AldeaVista } from '../render/aldeaVista';
+import { CiudadanosVista } from '../render/ciudadanosVista';
+import { huellasDe } from '../logic/orden';
+import {
+  avanzarCiudadano, casasDeAldea, contarEstados, longitudRutas, poblarCiudadanos, violacionesCiudadanos,
+  type Casa, type Ciudadano, type SemillaCiudadano,
+} from '../logic/ciudadano';
+import { crearRng, derivarSemilla, type Rng } from '../logic/azar';
 import { PanelRendimiento } from '../ui/panelRendimiento';
 import { crearCapaUi, type CapaUi } from '../ui/capa';
 import { crearHud, type DatosHud, type Hud } from '../ui/hud';
@@ -66,6 +73,14 @@ export class MundoScene extends Phaser.Scene {
   private medidas: Record<string, number> = {};
   private aldea?: Aldea;
   private vista?: AldeaVista;
+  private ciudadanosVista?: CiudadanosVista;
+  private ciudadanos: Ciudadano[] = [];
+  private casas: Casa[] = [];
+  private rngCiudadanos?: Rng;
+  /** Milisegundos de la lógica de ciudadanos por fotograma (ventana corta, para el presupuesto de §6). */
+  private readonly msCiudadanosBuf = new Float64Array(120);
+  private msCiudadanosN = 0;
+  private msCiudadanosI = 0;
   private agua?: AguaVista;
   private montanasVista?: MontanasVista;
   private ocupacion?: Ocupacion;
@@ -126,6 +141,14 @@ export class MundoScene extends Phaser.Scene {
     this.poblado = poblarOcupacion(this.ocupacion, atlas, aldea);
     this.medidas.msOcupacion = Math.round(performance.now() - t4);
 
+    // Ciudadanos que caminan (P4b, §4): las unidades de la aldea se separan en ciudadanos (máquina de estados
+    // sobre la rejilla) y animales (movimiento decorativo de ida y vuelta). Solo los primeros cambian la vista.
+    const t4b = performance.now();
+    this.ciudadanos = this.crearCiudadanos(aldea);
+    this.ciudadanosVista = new CiudadanosVista(this, atlas, this.ciudadanos, elevacion, huellasDe([...aldea.edificios, ...aldea.props, ...aldea.arboles]));
+    this.medidas.msCiudadanos = Math.round(performance.now() - t4b);
+    this.medidas.nCiudadanos = this.ciudadanos.length;
+
     // Montañas (P2c3, R84): las piezas que colocó logic/montanas.ts, dibujadas con y-sort y culling.
     const t5a = performance.now();
     this.montanasVista = new MontanasVista(this, atlas, montanas.piezas, elevacion);
@@ -177,6 +200,20 @@ export class MundoScene extends Phaser.Scene {
     exponer('nArboles', () => aldea.arboles.length);
     exponer('nProps', () => aldea.props.length);
     exponer('nUnidades', () => aldea.unidades.length);
+    // Ciudadanos que caminan (P4b, §4): estados, rutas vivas y violaciones de rejilla (debe ser 0).
+    exponer('ciudadanos', () => {
+      const estados = contarEstados(this.ciudadanos);
+      return {
+        n: this.ciudadanos.length,
+        casas: this.casas.length,
+        estados,
+        rutas: longitudRutas(this.ciudadanos),
+        violaciones: this.ocupacion ? violacionesCiudadanos(this.ciudadanos, this.ocupacion) : -1,
+        visibles: this.ciudadanosVista?.activos ?? 0,
+        msCarga: this.medidas.msCiudadanos ?? 0,
+        msP95: this.p95Ciudadanos(),
+      };
+    });
     exponer('solapesAldea', () => this.vista?.solapes ?? -1);
     // Navegación (P4, R50.4): ruta de ejemplo desde el centro de la aldea hasta la puerta de una casa.
     // Publica el motivo cuando no hay camino (la unidad quedaría en estado `bloqueado`, con su icono).
@@ -252,6 +289,60 @@ export class MundoScene extends Phaser.Scene {
       };
     });
     this.events.once(Phaser.Scenes.Events.UPDATE, marcarListo);
+  }
+
+  /**
+   * Prepara los ciudadanos que caminan (P4b): toma las unidades ciudadanas de la aldea, arma el catálogo de
+   * casas (tile de puerta + centro de huella, en coordenadas absolutas) y los reparte con ruta A*.
+   */
+  private crearCiudadanos(aldea: Aldea): Ciudadano[] {
+    const oc = this.ocupacion;
+    if (!oc) return [];
+    const casas = casasDeAldea(oc, aldea.edificios);
+    this.casas = casas;
+
+    const semillas: SemillaCiudadano[] = [];
+    for (const u of aldea.unidades) {
+      if (u.clase !== 'ciudadano') continue;
+      semillas.push({ sprite: u.id, actividad: u.estado, u: Math.round(u.u), v: Math.round(u.v), fase: u.fase });
+    }
+    // Modo de estrés (`?estres=N`): replica y dispersa ciudadanos hasta N para medir el p95 con la ciudad
+    // «grande» de referencia (§6). Solo para `shot`; el juego normal no lo usa.
+    const estres = Math.floor(Number(params.get('estres')) || 0);
+    if (estres > semillas.length) {
+      const base = semillas.slice();
+      for (let i = semillas.length; i < estres; i++) {
+        const s = base[i % base.length];
+        const j = Math.floor(i / base.length);
+        semillas.push({ ...s, u: s.u + (j % 7) - 3, v: s.v + (j % 5) - 2, fase: ((s.fase + i * 0.137) % 1) });
+      }
+    }
+    this.rngCiudadanos = crearRng(derivarSemilla(aldea.semilla, 'ciudadanos'));
+    return poblarCiudadanos(semillas, oc, casas);
+  }
+
+  /** Un tick de simulación de todos los ciudadanos, con azar determinista derivado de la semilla. */
+  private pasoCiudadanos(): void {
+    const oc = this.ocupacion;
+    const rng = this.rngCiudadanos;
+    if (!oc || !rng) return;
+    for (const ci of this.ciudadanos) avanzarCiudadano(ci, oc, this.casas, rng);
+  }
+
+  /** Registra los ms de lógica de ciudadanos de este fotograma en la ventana corta. */
+  private anotarMsCiudadanos(ms: number): void {
+    this.msCiudadanosBuf[this.msCiudadanosI] = ms;
+    this.msCiudadanosI = (this.msCiudadanosI + 1) % this.msCiudadanosBuf.length;
+    if (this.msCiudadanosN < this.msCiudadanosBuf.length) this.msCiudadanosN++;
+  }
+
+  /** p95 de la lógica de ciudadanos en la ventana: debe caber de sobra en los 16,6 ms de §6. */
+  private p95Ciudadanos(): number {
+    if (this.msCiudadanosN === 0) return 0;
+    const copia = Array.prototype.slice.call(this.msCiudadanosBuf, 0, this.msCiudadanosN) as number[];
+    copia.sort((a, b) => a - b);
+    const i = Math.min(copia.length - 1, Math.floor(copia.length * 0.95));
+    return Math.round(copia[i] * 1000) / 1000;
   }
 
   /** Monta la capa #ui, el HUD y los atajos del reloj; todo se desmonta en shutdown. */
@@ -401,7 +492,15 @@ export class MundoScene extends Phaser.Scene {
     this.montanasVista?.actualizar();
     this.humo?.actualizar(delta);
     if (this.partida) {
-      avanzarPartida(this.partida, delta);
+      // Los ciudadanos avanzan a paso fijo, un tick por tick del reloj (P4b): el mismo número de ticks da
+      // siempre la misma posición, y así el y-sort es determinista aunque el fotograma tarde más o menos.
+      const ticks = avanzarPartida(this.partida, delta);
+      if (ticks > 0) {
+        const t0 = performance.now();
+        for (let i = 0; i < ticks; i++) this.pasoCiudadanos();
+        this.anotarMsCiudadanos(performance.now() - t0);
+      }
+      this.ciudadanosVista?.actualizar(tiempo);
       this.pintarHud();
     }
   }

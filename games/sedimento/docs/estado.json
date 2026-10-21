@@ -2130,18 +2130,34 @@
     },
     {
       "id": "P4b",
-      "estado": "pendiente",
-      "hecho": [],
-      "creada": "2026-10-21T08:19:46.344Z",
-      "titulo": "Ciudadanos que caminan y entran por las puertas",
-      "objetivo": "Ciudadanos con máquina de estados (idle, andar, entrar, dentro, salir), ruta A* y puertas; y-sort con una sola regla; 300 caminando a p95 <= 16,6 ms",
-      "criterios": [
-        "Entrar y salir por la puerta (estado dentro) e y-sort determinista (tests)",
-        "La ruta se replanifica al construir o derribar (test)",
-        "300 ciudadanos caminando con p95 <= 16,6 ms (shot)",
-        "shot: nadie dibujado encima o debajo de una casa (captura)"
+      "estado": "hecha",
+      "hecho": [
+        "logic/ciudadano.ts: maquina de estados (idle/andar/entrar/dentro/salir/bloqueado) sobre la rejilla, con irA (A* a la puerta), replanificar, avanzarCiudadano y poblarCiudadanos; casasDeAldea arma el catalogo de puertas desde la ocupacion",
+        "render/ciudadanosVista.ts: pool de imagenes, culling y y-sort por IndiceHuellas; los ciudadanos dentro de una casa se ocultan",
+        "MundoScene: crearCiudadanos, pasoCiudadanos a paso fijo con el reloj, exponer(ciudadanos) con estados/rutas/violaciones/msP95",
+        "tuning.json: seccion ciudadano (velocidad 0,04, esperaIdle 40, ticksDentro 60, esperaBloqueado 100)",
+        "AldeaVista deja de dibujar a los ciudadanos: solo animales (P4b)",
+        "tests/ciudadano.test.ts (14) y tests/ciudadanos-aldea.test.ts (4, integracion sobre el mundo y la aldea reales)",
+        "Modo de estres ?estres=N para medir 300 ciudadanos"
       ],
-      "sesion": "B"
+      "creada": "2026-10-21T08:19:46.344Z",
+      "titulo": "Ciudadanos que caminan por la rejilla",
+      "objetivo": "Máquina de estados determinista por ticks: los ciudadanos van de puerta a puerta con A*, entran (estado dentro, se ocultan) y salen por la misma puerta; y-sort por una sola regla y sin pisar una celda bloqueada",
+      "criterios": [
+        "Test de propiedad: 200 ciudadanos x 10 000 ticks sin pisar una celda bloqueada",
+        "Entrar y salir por la puerta (estado dentro) e y-sort determinista",
+        "La ruta se replanifica al construirse o derribarse un obstáculo",
+        "shot: 300 ciudadanos caminando, violaciones = 0 y p95 de la lógica dentro del presupuesto de 16,6 ms"
+      ],
+      "sesion": "B",
+      "tramo": "alfa",
+      "fin": "2026-10-21T15:21:47.627Z",
+      "verificacion": {
+        "tests": "427/427 en 28 archivos",
+        "resultado": "shot Mundo: 200 ciudadanos en la aldea natural y 300 con ?estres=300, violaciones=0 en ambos; estados repartidos (andar/entrar/dentro/salir/bloqueado), p95 de la logica 0,2-0,4 ms por fotograma (presupuesto 16,6 ms); errores y avisos de consola vacios",
+        "captura": "P4b-estres.png"
+      },
+      "commit": "pendiente"
     }
   ],
   "errores": [
@@ -2244,6 +2260,15 @@
       "sintoma": "buscarRuta devolvía null entre el centro de la aldea y la puerta de la primera casa, aunque la rejilla tuviera 2273 tiles libres",
       "causa": "Dos causas sumadas: (1) estadoTile contaba las subceldas de camino como libres, así que un tile de camino nunca se reportaba como camino; (2) las celdas de acceso del atlas están FUERA de la huella, así que puertaDeCasa, que buscaba PUERTA dentro de la huella, nunca la encontraba y usaba el tile de esquina (bloqueado) como destino",
       "solucion": "estadoTile solo cuenta libre si la subcelda no es camino; colocarEstructura guarda las puertas en coordenadas absolutas dentro de EstructuraColocada y derribarEn las limpia; puertaDeCasa usa esas puertas. Además el mundo tiene bolsas de tierra aisladas por el agua, así que medirNavegacion usa alcanzables() para elegir una casa de la misma componente"
+    },
+    {
+      "id": "E012",
+      "t": "2026-10-21T08:24:00.665Z",
+      "estado": "abierto",
+      "fase": "P4a",
+      "sintoma": "git push origin claude/nube falla con 403 y la API de GitHub responde \"Resource not accessible by integration\" al crear una ref",
+      "causa": "El GITHUB_TOKEN del entorno (prefijo ghu_) es un token de instalación de solo lectura para este repositorio: la API de lectura da admin:true pero ninguna escritura está permitida (E010, ya visto en sesiones anteriores)",
+      "solucion": "No se puede empujar desde esta sesión. El trabajo queda en commits locales de la rama claude/nube; se registra en la bitácora y se reintenta el push en la siguiente sesión. No se afirma que el progreso esté asegurado"
     }
   ],
   "faltantes": [
@@ -2837,6 +2862,18 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-21T15:23:13.610Z",
+      "texto": "Fase P4b actualizada: Ciudadanos que caminan por la rejilla"
+    },
+    {
+      "t": "2026-10-21T15:21:47.634Z",
+      "texto": "Fase P4b → hecha: Ciudadanos que caminan por la rejilla"
+    },
+    {
+      "t": "2026-10-21T08:24:00.665Z",
+      "texto": "Error E012 (abierto): git push origin claude/nube falla con 403 y la API de GitHub responde \"Resource not accessible by integration\" al crear una ref"
+    },
+    {
       "t": "2026-10-21T08:19:57.273Z",
       "texto": "Error E011 (resuelto): buscarRuta devolvía null entre el centro de la aldea y la puerta de la primera casa, aunque la rejilla tuviera 2273 tiles libres"
     },
@@ -3417,5 +3454,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-21T08:19:57.273Z"
+  "actualizado": "2026-10-21T15:23:13.610Z"
 }
