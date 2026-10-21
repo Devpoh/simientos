@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import tuning from '../src/data/tuning.json';
+import { claveOrdenEstructura } from '../src/logic/iso';
 import { crearMundo, type Mundo } from '../src/logic/mundo';
 import type { Superficie } from '../src/logic/horneado';
 import {
@@ -220,5 +221,22 @@ describe('rejilla de ocupación sobre el mundo real (P3, R50)', () => {
     expect(colocadas).toBeGreaterThan(0);
     expect(colisionesViolaciones(o2)).toBe(0);
     expect(nEstructuras(o2)).toBe(colocadas);
+  });
+
+  it('el y-sort es determinista: la clave de una estructura no depende del orden de colocación (R50.5)', () => {
+    const a = crearOcupacion(mundo.superficie, mundo.tilesU, mundo.tilesV);
+    const b = crearOcupacion(mundo.superficie, mundo.tilesU, mundo.tilesV);
+    const sitios: [number, number][] = [];
+    for (let k = 0; k < 60; k++) {
+      const u = (k * 7) % mundo.tilesU;
+      const v = (k * 13) % mundo.tilesV;
+      sitios.push([u, v]);
+    }
+    for (const [u, v] of sitios) colocarEstructura(a, 'x', huella(2, 2), u, v);
+    for (const [u, v] of [...sitios].reverse()) colocarEstructura(b, 'x', huella(2, 2), u, v);
+    const claves = (oc: Ocupacion): number[] =>
+      [...oc.estructuras.values()].map((e) => claveOrdenEstructura(e.u, e.v, huellaGirada(e.huella, e.giro))).sort((x, y) => x - y);
+    expect(claves(a)).toEqual(claves(b));
+    expect(claves(a).length).toBe(nEstructuras(a));
   });
 });

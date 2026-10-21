@@ -201,7 +201,7 @@
     },
     {
       "id": "P3",
-      "estado": "en-curso",
+      "estado": "hecha",
       "hecho": [
         "logic/ocupacion.ts creado (SUBCELDAS=4, capas terreno/estructuras/objetos/dinamica, terrenoMotivo)",
         "puedeColocar con los 7 motivos; puertaGirada (rotación 90° del grupo cíclico)",
@@ -210,7 +210,8 @@
         "render/ocupacionVista.ts (F3) + tecla F3, ?depurar=1 y acción depurarOcupacion",
         "poblarOcupacion() registra la aldea real: 155 estructuras, 708 objetos, 0 rechazados, 0 violaciones",
         "tests/ocupacion.test.ts: 22 tests; suite 378 en verde",
-        "shot.mjs admite accion:<clave>[:<arg>]"
+        "shot.mjs admite accion:<clave>[:<arg>]",
+        "y-sort determinista comprobado (claves iguales sin importar el orden de colocación)"
       ],
       "creada": "2026-10-20T05:01:34.270Z",
       "titulo": "Rejilla de ocupación única",
@@ -225,7 +226,8 @@
       "sesion": "B",
       "version": "0.0",
       "tramo": "alfa",
-      "inicio": "2026-10-21T07:58:11.714Z"
+      "inicio": "2026-10-21T07:58:11.714Z",
+      "fin": "2026-10-21T08:02:50.944Z"
     },
     {
       "id": "P3b",
@@ -2609,6 +2611,13 @@
       "fase": "P3b",
       "texto": "Caminos, complemento de D035: el pintor del boceto CAM1 (distancia con signo de la máscara de subceldas + ruido; roca con cantos de Voronoi, tierra con tramado y rodadas) se porta a TS como el horneado y repinta solo los trozos de suelo que cambian al trazar. Las piezas de marching squares quedan como alternativa si repintar un trozo cuesta más de 8 ms",
       "porque": "el pintor por distancia da curvas, cruces y bordes continuos que las piezas no igualan, y repintar un trozo al construir es un coste puntual, no por fotograma (R56)"
+    },
+    {
+      "id": "D040",
+      "t": "2026-10-21T08:02:50.910Z",
+      "texto": "P3 cierra con la rejilla de ocupación como fuente de verdad de colocación/navegación/F3. hex.ts NO se retira todavía: su Rejilla y su geometría axial sostienen la generación del terreno aprobado (R59); sustituirla por una rejilla cuadrada cambiaría el relieve validado sin ganar nada de juego",
+      "porque": "R27 (juego antes que estilo) y el riesgo de regresión visual; la hoja de ruta (§8) acota P3 a ocupacion.ts + puedeColocar + F3 + tests de §4, no a reescribir el generador de terreno",
+      "fase": "P3"
     }
   ],
   "conceptos": [
@@ -2764,6 +2773,14 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-21T08:02:50.952Z",
+      "texto": "Fase P3 → hecha: Rejilla de ocupación única"
+    },
+    {
+      "t": "2026-10-21T08:02:50.910Z",
+      "texto": "Decisión: P3 cierra con la rejilla de ocupación como fuente de verdad de colocación/navegación/F3. hex.ts NO se retira todavía: su Rejilla y su geometría axial sostienen la generación del terreno aprobado (R59); sustituirla por una rejilla cuadrada cambiaría el relieve validado sin ganar nada de juego"
+    },
     {
       "t": "2026-10-21T07:58:11.721Z",
       "texto": "Fase P3 → en-curso: Rejilla de ocupación única"
@@ -3313,5 +3330,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-21T07:58:11.721Z"
+  "actualizado": "2026-10-21T08:02:50.952Z"
 }
