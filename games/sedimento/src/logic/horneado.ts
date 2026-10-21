@@ -54,9 +54,15 @@ export interface ImagenIndices {
   origenY: number;
   /** Índice de paleta por píxel; `VACIO` = transparente (fuera del mapa). */
   datos: Uint8Array;
+  /** Por píxel: 0 sin agua, 1 mar, 2 agua dulce (río o lago). Lo usa la animación del agua (R87). */
+  agua?: Uint8Array;
 }
 
 export const VACIO = 255;
+/** Valores de `ImagenIndices.agua`. */
+export const SIN_AGUA = 0;
+export const AGUA_MAR = 1;
+export const AGUA_DULCE = 2;
 
 /** Materiales (una clase por rampa): la limpieza morfológica opera sobre ellos. */
 const CLASE = { agua: 0, hierba: 1, tierra: 2, roca: 3, piedra: 4 } as const;
@@ -99,6 +105,8 @@ interface Muestra {
   tono: number;
   /** Sombreado en bandas duras, sin tramado: roca y nieve (con tramado se lee como difuminado). */
   duro?: boolean;
+  /** Si es agua: mar o dulce (para la animación, R87). */
+  agua?: 1 | 2;
 }
 
 /** Agua a menos de `r` tiles: el mar (lámina al nivel del mar), el agua dulce (río o lago, por encima), o ninguna. */
@@ -178,7 +186,7 @@ function muestrear(sup: Superficie, cfg: ConfigHorneado, sombras: Sombras | null
     // Agua: más clara cerca de la orilla, más oscura con la profundidad; espuma en la orilla.
     const prof = agua - h;
     const tono = prof < 0.07 ? 6 : 5.2 - Math.min(5.2, prof * 3.4);
-    return { altura: agua, clase: 'agua', tono };
+    return { altura: agua, clase: 'agua', tono, agua: agua <= cfg.nivelMar + 0.04 ? 1 : 2 };
   }
   const e = 0.35;
   const gu = (sup.suelo(u + e, v) - sup.suelo(u - e, v)) / (2 * e);
@@ -236,6 +244,7 @@ export function hornear(sup: Superficie, cfg: ConfigHorneado): ImagenIndices {
   const dim = dimensionesImagen(cfg);
   const datos = new Uint8Array(dim.ancho * dim.alto).fill(VACIO);
   const clases = new Uint8Array(dim.ancho * dim.alto).fill(VACIO);
+  const agua = new Uint8Array(dim.ancho * dim.alto);
   const sombras = cfg.resolucionSombra > 0 ? new Sombras(sup, cfg) : null;
   const medioAncho = cfg.tileAncho / 2;
   const medioAlto = cfg.tileAlto / 2;
@@ -257,17 +266,20 @@ export function hornear(sup: Superficie, cfg: ConfigHorneado): ImagenIndices {
       const lo = TONO_MIN[m.clase];
       const hi = TONO_MAX[m.clase];
       const clase = CLASE[m.clase];
+      const marca = m.agua ?? 0;
       for (let j = Math.max(0, y); j < ymin; j++) {
         const t = duro ? Math.round(m.tono) : cuantizar(m.tono, i, j);
-        datos[j * dim.ancho + i] = tonoDe(m.clase, limitar(t, lo, hi));
-        clases[j * dim.ancho + i] = clase;
+        const p = j * dim.ancho + i;
+        datos[p] = tonoDe(m.clase, limitar(t, lo, hi));
+        clases[p] = clase;
+        agua[p] = marca;
       }
       ymin = Math.max(0, y);
       if (ymin === 0) break;
     }
   }
   if (cfg.minRegion > 1) limpiarRegiones(datos, clases, dim.ancho, dim.alto, cfg.minRegion);
-  return { ...dim, datos };
+  return { ...dim, datos, agua };
 }
 
 /**

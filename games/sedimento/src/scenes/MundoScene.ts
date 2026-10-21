@@ -9,6 +9,9 @@ import { escalaFisica } from '../logic/pantalla';
 import { alturaPx, crearMundo, hornearMundo } from '../logic/mundo';
 import { generarAldea } from '../logic/aldeaReferencia';
 import { crearTrozos } from '../render/terrenoHorneado';
+import { AguaVista } from '../render/aguaVista';
+import { HumoVista } from '../render/humoVista';
+import { focosDeAldea } from '../logic/humo';
 import { params } from '../core/test-hooks';
 import { ControlCamara } from '../render/controlCamara';
 import { CLAVE_REGISTRO_ATLAS } from '../render/sprites';
@@ -29,6 +32,8 @@ export class MundoScene extends Phaser.Scene {
   private medidas: Record<string, number> = {};
   private aldea?: Aldea;
   private vista?: AldeaVista;
+  private agua?: AguaVista;
+  private humo?: HumoVista;
   private partida?: Partida;
   private hud?: Hud;
   private quitarAtajos?: () => void;
@@ -51,10 +56,14 @@ export class MundoScene extends Phaser.Scene {
     const t2 = performance.now();
     const trozos = crearTrozos(this, imagen, tuning.mundo.lado);
     const t3 = performance.now();
+    // Agua viva (R65, R87): 4 texturas por trozo con agua, horneadas una vez; en el bucle solo cambia la textura.
+    this.agua = new AguaVista(this, imagen, tuning.mundo.lado, semilla);
+    const t3b = performance.now();
 
     this.medidas = {
       semilla, tilesU: mundo.tilesU, tilesV: mundo.tilesV, pxAncho: imagen.ancho, pxAlto: imagen.alto, trozos: trozos.length,
       msGenerar: Math.round(t1 - t0), msHornear: Math.round(t2 - t1), msTexturas: Math.round(t3 - t2),
+      msAgua: Math.round(t3b - t3), trozosAgua: this.agua.nTrozos,
     };
 
     // Aldea de referencia: la escena por defecto y la que usa el bench de 60 fps (P2 tramo 4).
@@ -64,6 +73,14 @@ export class MundoScene extends Phaser.Scene {
     this.aldea = aldea;
     this.vista = new AldeaVista(this, atlas, aldea, elevacion);
     this.medidas.msAldea = Math.round(performance.now() - t4);
+
+    // Humo (R87, D037): una bocanada por chimenea de casa terminada y por brasero; sube y se recicla.
+    const t5 = performance.now();
+    this.humo = new HumoVista(this, atlas);
+    const focos = focosDeAldea([...aldea.edificios, ...aldea.props], atlas, elevacion);
+    this.humo.enfocar(focos);
+    this.medidas.msHumo = Math.round(performance.now() - t5);
+    this.medidas.focosHumo = focos.length;
 
     const c = aPantalla(aldea.centro.u, aldea.centro.v);
     this.camara = new ControlCamara(
@@ -102,6 +119,13 @@ export class MundoScene extends Phaser.Scene {
       return cam ? { x: Math.round(cam.x), y: Math.round(cam.y), zoom: cam.zoom } : null;
     });
     exponer('terreno', () => ({ ...this.medidas, centroAldea: this.aldea?.centro }));
+    // Agua viva y humo (R65, R87): lo que se mueve, para que `shot` lo compruebe sin captura.
+    exponer('agua', () => ({ trozos: this.agua?.nTrozos ?? 0, fotograma: this.agua?.fotogramaActual ?? -1 }));
+    exponer('humo', () => ({
+      bocanadas: this.humo?.nBocanadas ?? 0,
+      visibles: this.humo?.nVisibles ?? 0,
+      subida: this.humo?.subidaMedia ?? 0,
+    }));
     exponer('lienzo', () => ({ ancho: this.scale.gameSize.width, alto: this.scale.gameSize.height, zoom: this.scale.zoom }));
     exponer('escalaEntera', () => escalaFisica(this.scale.zoom, window.devicePixelRatio));
     // Estado de la interfaz y del reloj, para que shot lo compruebe sin captura.
@@ -217,6 +241,8 @@ export class MundoScene extends Phaser.Scene {
   update(tiempo: number, delta: number): void {
     this.camara?.update(delta);
     this.vista?.actualizar(tiempo);
+    this.agua?.actualizar(tiempo);
+    this.humo?.actualizar(delta);
     if (this.partida) {
       avanzarPartida(this.partida, delta);
       this.pintarHud();

@@ -2013,8 +2013,13 @@
     },
     {
       "id": "P2c2",
-      "estado": "en-curso",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "logic/montanas.ts puro y determinista: maximos locales (cumbres) con macizo si la cumbre pasa alturaMacizo y pico si pasa alturaPico; cordillera = cadena de crestas sobre el eje de la cumbre con solape y deriva en v; colinas en las alturas medias; acantilados en laderas fuertes y pies en el borde, todo con cupos (maxAcantilados, maxPies, pasoLadera) para no empedrar el mapa",
+        "Numeros de diseno en tuning.horneado.montanas (alturas, medias, desniveles, radioEncuadre, solapeCadena, maxCadena)",
+        "9 tests de propiedad en tests/montanas.test.ts: 0 solapes, 0 piezas en agua, huellas dentro del mapa, determinismo (misma semilla) y variedad (otra semilla), cumbres altas, crestas pegadas, umbrales por familia y huellas bloqueadas con el pie accesible para P3",
+        "npm run check verde: 21 archivos, 319 tests"
+      ],
       "creada": "2026-10-20T17:53:49.307Z",
       "titulo": "Colocacion determinista de las piezas de montana",
       "objetivo": "logic/montanas.ts (puro y con tests) decide donde van las piezas: macizos en los maximos, cordilleras encadenadas sobre las lineas de cumbre, colinas en alturas medias, acantilados en las laderas fuertes y pie de ladera en el borde; sin solapes, nada en agua y determinista",
@@ -2023,7 +2028,13 @@
         "La huella de cada pieza queda como bloqueada para P3 y los yacimientos de montana quedan al pie, accesibles",
         "Tests de propiedad: 0 solapes, 0 piezas en agua, mismas piezas con la misma semilla"
       ],
-      "inicio": "2026-10-20T17:53:49.308Z"
+      "inicio": "2026-10-20T17:53:49.308Z",
+      "verificacion": {
+        "tests": "319/319",
+        "typecheck": "tsc --noEmit limpio"
+      },
+      "motivo": "push bloqueado por permisos del token; commits en local",
+      "fin": "2026-10-21T05:47:17.398Z"
     },
     {
       "id": "P2c3",
@@ -2122,6 +2133,15 @@
       "sintoma": "npm run arte reventaba con ValueError: bytes must be in range(0, 256) al hashear la forma del sprite",
       "causa": "exportar.py usaba bytes(s.px.shape) para el hash; con piezas grandes (448x411) el lado supera 255 y bytes() lo rechaza",
       "solucion": "hashear str(s.px.shape).encode() en vez de bytes(shape); el hash solo necesita ser estable, no interpretable"
+    },
+    {
+      "id": "E010",
+      "t": "2026-10-21T05:47:17.361Z",
+      "estado": "abierto",
+      "fase": "P2c2",
+      "sintoma": "git push origin claude/nube devuelve 403 (remote: Permission to Devpoh/simientos.git denied to Devpoh)",
+      "causa": "El GITHUB_TOKEN del entorno es un token de instalacion de GitHub App (ghu_...) sin scopes de escritura: x-oauth-scopes viene vacio y la API responde 403 Resource not accessible by integration al crear la ref y al empujar. La API de lectura ve el repo como admin/push=true, pero el token de git no tiene permiso de escritura.",
+      "solucion": "No se puede resolver desde la sesion. Los commits quedan en local en la rama claude/nube. Hace falta un token con permiso contents:write (o repo) o que el usuario empuje."
     }
   ],
   "faltantes": [
@@ -2701,6 +2721,14 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-21T05:47:17.409Z",
+      "texto": "Fase P2c2 → hecha: Colocacion determinista de las piezas de montana"
+    },
+    {
+      "t": "2026-10-21T05:47:17.361Z",
+      "texto": "Error E010 (abierto): git push origin claude/nube devuelve 403 (remote: Permission to Devpoh/simientos.git denied to Devpoh)"
+    },
+    {
       "t": "2026-10-20T17:53:49.357Z",
       "texto": "Fase P2c3 creada: Montanas dibujadas y horneado suave"
     },
@@ -3229,5 +3257,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T17:53:49.357Z"
+  "actualizado": "2026-10-21T05:47:17.409Z"
 }

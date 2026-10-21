@@ -28,6 +28,7 @@ import edificios as ED
 import campos as CA
 import edificios2 as E2
 import montanas as MT
+import humo as HU
 import obra_casa as OB
 import templo as TP
 from iso import Spr
@@ -152,6 +153,11 @@ def animales() -> list:
 def ambiente() -> list:
     return [Entrada("ambiente_gaviota", "ambiente", (1, 1), {
         "volar": Estado(6, _dos(lambda f, v: PX.gaviota(f, v), 2)),
+    }), Entrada("ambiente_humo", "ambiente", (1, 1), {
+        # Bocanada de chimenea (R87): 4 fotogramas en bucle; el juego la coloca desde un pool.
+        "subir": Estado(8, {"unica": [HU.humo(f) for f in range(4)]}),
+    }), Entrada("ambiente_humo_fuego", "ambiente", (1, 1), {
+        "subir": Estado(10, {"unica": [HU.humo_fuego(f) for f in range(4)]}),
     })]
 
 
@@ -215,7 +221,8 @@ def props() -> list:
                        {"agua": Estado(4, {"unica": [PR.fuente(f) for f in range(3)]})},
                        bloquea=True, centro=(17, 17), recortar=True))
     out.append(Entrada("prop_brasero", "prop", (1, 1),
-                       {"fuego": Estado(8, {"unica": [PR.brasero(f) for f in range(3)]})}, bloquea=True, recortar=True))
+                       {"fuego": Estado(8, {"unica": [PR.brasero(f) for f in range(3)]})}, bloquea=True, recortar=True,
+                       puntos={"humo": _punto_brasero}))
     out.append(Entrada("prop_estandarte", "prop", (1, 1),
                        {"ondear": Estado(6, {"unica": [PR.estandarte(f) for f in range(4)]})}, bloquea=True, recortar=True))
     for largo in (16, 32, 48):
@@ -243,10 +250,18 @@ def _casa(w, d, eje, kw):
     return ED.casa(w, d, eje=eje, **kw)
 
 
-def _punto_chimenea(spr) -> tuple:
+def _punto_chimenea(spr) -> Union[tuple, None]:
+    """Boca de la chimenea, o None si el sprite (una etapa sin chimenea) no la tiene."""
+    if not hasattr(spr, "chimenea"):
+        return None
     u, v, z = spr.chimenea
     x, y = spr.P(u, v, z)
     return int(round(x)), int(round(y))
+
+
+def _punto_brasero(spr) -> tuple:
+    """Boca del brasero: la punta de la llama (frame y≈0), no el cuenco, que es de donde sale el humo (R87)."""
+    return int(spr.w // 2), 0
 
 
 def estructuras() -> list:

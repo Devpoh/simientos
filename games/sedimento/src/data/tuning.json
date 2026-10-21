@@ -442,6 +442,21 @@
     "tileMundo": 1,
     "lado": 512
   },
+  "humo": {
+    "semilla": 7717,
+    "fotogramas": 4,
+    "segundosVida": 2.6,
+    "alturaPx": 26,
+    "altoFuego": 0.55,
+    "subidaPx": 26,
+    "derivaPx": 5,
+    "maxFocos": 90,
+    "cadenciaMs": 420
+  },
+  "agua": {
+    "fotogramas": 4,
+    "msPorFotograma": 190
+  },
   "rendimiento": {
     "ventanaFotogramas": 300,
     "refrescoPanelMs": 250,
