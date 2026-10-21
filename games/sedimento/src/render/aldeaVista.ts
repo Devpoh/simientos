@@ -7,6 +7,7 @@ import {
   contarSolapes, orientacionHacia, posicionUnidad, type Aldea, type Elemento, type OrientacionAldea, type Unidad,
 } from '../logic/aldeaReferencia';
 import { aPantalla, centroHuella, claveOrden, claveOrdenEstructura, TILE } from '../logic/iso';
+import { huellasDe, IndiceHuellas } from '../logic/orden';
 
 interface FotogramaVista {
   textura: string;
@@ -71,11 +72,15 @@ export class AldeaVista {
   private vistaZoom = NaN;
   private vistaAncho = NaN;
   private vistaAlto = NaN;
+  /** Índice espacial de huellas (D017): resuelve la profundidad de una unidad contra las casas que la rozan. */
+  private readonly indice: IndiceHuellas;
 
   constructor(private readonly scene: Phaser.Scene, private readonly atlas: AtlasPixel, aldea: Aldea, elevacion: Elevacion) {
     this.solapes = contarSolapes(aldea);
+    this.indice = new IndiceHuellas(huellasDe([...aldea.edificios, ...aldea.props, ...aldea.arboles]));
     for (const e of [...aldea.edificios, ...aldea.props, ...aldea.arboles]) this.añadirFijo(e, elevacion);
-    for (const u of aldea.unidades) this.añadirUnidad(u, elevacion);
+    // Solo animales: los ciudadanos los dibuja CiudadanosVista con su máquina de estados (P4b).
+    for (const u of aldea.unidades) if (u.clase === 'animal') this.añadirUnidad(u, elevacion);
     scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.destruir());
   }
 
@@ -114,7 +119,7 @@ export class AldeaVista {
       if (uni.ruta) elev += (it.elev1 - it.elev0) * (Math.hypot(p.u - uni.u, p.v - uni.v) / it.largo);
       it.x = Math.round(((p.u - p.v) * TILE.ancho) / 2);
       it.y = Math.round(((p.u + p.v) * TILE.alto) / 2 - elev);
-      it.depth = claveOrden(p.u, p.v);
+      it.depth = this.indice.profundidad(p.u, p.v);
       const visible = it.x + it.radio >= x0 && it.x - it.radio <= x1 && it.y + it.radio >= y0 && it.y - it.radio <= y1;
       if (!visible) {
         if (it.sprite) this.soltar(it);

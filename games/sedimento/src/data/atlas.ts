@@ -49,6 +49,8 @@ export interface SpritePixel {
   estados: Record<string, EstadoPixel>;
 }
 
+export type { MarcoPixel } from '../logic/marcos';
+
 export interface AtlasPixel {
   version: 1;
   origen: string;
@@ -57,6 +59,8 @@ export interface AtlasPixel {
   atlas: { imagen: string; ancho: number; alto: number }[];
   sprites: Record<string, SpritePixel>;
   frames: Record<string, FramePixel>;
+  /** Marcos 9-slice para los paneles de la interfaz (opcional: los atlas antiguos no lo traen). */
+  ui?: Record<string, import('../logic/marcos').MarcoPixel>;
 }
 
 const CATEGORIAS: readonly string[] = [
@@ -64,6 +68,7 @@ const CATEGORIAS: readonly string[] = [
 ];
 const ORIENTACIONES: readonly string[] = ['se', 'sw', 'ne', 'nw', 'u', 'v', 'unica'];
 const LADOS: readonly string[] = ['u+', 'u-', 'v+', 'v-'];
+const REPETICIONES: readonly string[] = ['stretch', 'repeat', 'round', 'space'];
 export const MAX_LADO_ATLAS = 2048;
 export const MAX_COLORES = 64;
 
@@ -169,6 +174,29 @@ export function validarAtlas(datos: unknown): string[] {
     if (s.etapas !== undefined) {
       if (!Array.isArray(s.etapas) || s.etapas.length === 0) err.push(`${id}: etapas inválidas`);
       else for (const et of s.etapas) if (typeof et !== 'string' || !(et in estados)) err.push(`${id}: la etapa ${String(et)} no es un estado`);
+    }
+  }
+
+  // Marcos 9-slice de la interfaz (R70): si están, su corte debe caber dentro del sprite.
+  if (datos.ui !== undefined) {
+    if (!esRegistro(datos.ui)) err.push('ui debe ser un objeto');
+    else for (const [nombre, m] of Object.entries(datos.ui)) {
+      if (!esRegistro(m)) { err.push(`ui.${nombre} mal formado`); continue; }
+      if (!esEntero(m.ancho) || !esEntero(m.alto) || m.ancho < 1 || m.alto < 1) { err.push(`ui.${nombre}: tamaño inválido`); continue; }
+      const c = m.corte;
+      if (!esRegistro(c) || ![c.arriba, c.abajo, c.izquierda, c.derecha].every(esEntero)) {
+        err.push(`ui.${nombre}: corte inválido`);
+        continue;
+      }
+      const corte = c as { arriba: number; abajo: number; izquierda: number; derecha: number };
+      if (corte.arriba + corte.abajo > m.alto || corte.izquierda + corte.derecha > m.ancho) {
+        err.push(`ui.${nombre}: el corte no cabe en el sprite ${m.ancho}x${m.alto}`);
+      }
+      if (!esRegistro(m.estados) || Object.keys(m.estados).length === 0) err.push(`ui.${nombre}: sin estados`);
+      else for (const [est, ruta] of Object.entries(m.estados)) {
+        if (typeof ruta !== 'string' || ruta.length === 0) err.push(`ui.${nombre}/${est}: ruta inválida`);
+      }
+      if (m.repetir !== undefined && !REPETICIONES.includes(m.repetir as string)) err.push(`ui.${nombre}: repetir desconocido`);
     }
   }
   return err;

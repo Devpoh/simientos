@@ -4,12 +4,12 @@
 
 const proveedores = new Map<string, () => unknown>();
 
-const acciones = new Map<string, () => void>();
+const acciones = new Map<string, (arg?: unknown) => void>();
 
 const api = {
   listo: false,
   /** Ejecuta una acción registrada con `exponerAccion` (p. ej. reiniciar las medidas antes de un bench). */
-  accion: (clave: string): void => acciones.get(clave)?.(),
+  accion: (clave: string, arg?: unknown): void => acciones.get(clave)?.(arg),
   snapshot: (): Record<string, unknown> =>
     Object.fromEntries([...proveedores].map(([clave, leer]) => [clave, leer()])),
 };
@@ -30,7 +30,7 @@ export function exponer(clave: string, leer: () => unknown): void {
 }
 
 /** Registra una acción que los scripts de navegador pueden lanzar con `__GAME__.accion(clave)`. */
-export function exponerAccion(clave: string, hacer: () => void): void {
+export function exponerAccion(clave: string, hacer: (arg?: unknown) => void): void {
   acciones.set(clave, hacer);
 }
 

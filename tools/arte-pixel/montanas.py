@@ -123,6 +123,32 @@ def campo_acantilado(W, D, alto, seed=21, plano=0.62):
     return np.clip(h, 0, None)
 
 
+def campo_pico(W, D, zmax, seed=41):
+    """Pico suelto: un cono con espolones, mas estrecho que el macizo; roca arriba y nieve en la punta."""
+    v, u = np.mgrid[0:D, 0:W].astype(float) + 0.5
+    h = _cono(u, v, 0.50 * W, 0.50 * D, 0.34 * W, 0.34 * D, zmax, 1.35, 0.0, 0.22, seed, barr=0.35, k=5)
+    h = np.maximum(h, _cono(u, v, 0.34 * W, 0.66 * D, 0.24 * W, 0.22 * D, zmax * 0.52, 1.3, 0.7, 0.18, seed + 2, barr=0.4, k=4))
+    n = fbm(u * 0.05, v * 0.05, 4, seed + 5)
+    rid = 1 - np.abs(2 * n - 1)
+    h = h * (0.74 + 0.5 * rid ** 1.4)
+    vent = suavizar(u, 2, 18) * suavizar(W - u, 2, 18) * suavizar(v, 2, 18) * suavizar(D - v, 2, 18)
+    return ndimage.gaussian_filter(np.clip(h * vent, 0, None), 0.6)
+
+
+def campo_colina(W, D, zmax, seed=51):
+    """Colina: loma baja y redondeada, toda de hierba salvo el canchal de la cima; sin nieve."""
+    v, u = np.mgrid[0:D, 0:W].astype(float) + 0.5
+    nu = (u - W / 2) / (W / 2)
+    nv = (v - D / 2) / (D / 2)
+    r = np.hypot(nu, nv * 1.05)
+    r = r + 0.20 * (fbm(u * 0.07, v * 0.07, 3, seed) - 0.5) * 2
+    h = zmax * np.clip(1 - r, 0, 1) ** 1.25
+    n = fbm(u * 0.11, v * 0.11, 3, seed + 3)
+    h = h * (0.85 + 0.28 * (1 - np.abs(2 * n - 1)))
+    vent = suavizar(u, 1, 12) * suavizar(W - u, 1, 12) * suavizar(v, 1, 12) * suavizar(D - v, 1, 12)
+    return ndimage.gaussian_filter(np.clip(h * vent, 0, None), 0.5)
+
+
 def campo_pie(W, D, seed=31):
     """Pie de ladera: pedrera y canchal bajos, con lomas de mata; se desvanece hacia la hierba."""
     v, u = np.mgrid[0:D, 0:W].astype(float) + 0.5
@@ -399,6 +425,38 @@ def mat_acantilado(ctx):
     return px, clase
 
 
+def mat_pico(ctx):
+    Z = ctx.Z
+    sn = fbm(ctx.U * 0.06, ctx.V * 0.06, 3, ctx.seed + 11)
+    linea = 24 + 9 * (sn - 0.5) * 2
+    exceso = (Z - linea) / 22.0
+    umbral = 0.58 - 0.30 * np.clip(exceso, 0, 1)
+    nieve = (Z > linea) & (ctx.nz > umbral)
+    verde = (Z < 12 + 6 * (sn - 0.5) * 2) & (ctx.nz > 0.80)
+    canchal = (~verde) & (~nieve) & (Z < 26 + 7 * (sn - 0.5) * 2) & (ctx.nz > 0.62)
+    px = _roca_idx(ctx)
+    clase = np.full(px.shape, ROCA)
+    px = np.where(canchal, _tierra_idx(ctx), px)
+    clase = np.where(canchal, CANCHAL, clase)
+    px = np.where(nieve, _nieve_idx(ctx), px)
+    clase = np.where(nieve, NIEVE, clase)
+    px = np.where(verde, _hierba(ctx, 0.2), px)
+    clase = np.where(verde, HIERBA, clase)
+    return px, clase
+
+
+def mat_colina(ctx):
+    Z = ctx.Z
+    suave = ctx.nz > 0.86
+    canchal = (Z > 7) & (ctx.nz > 0.70)
+    px = _hierba(ctx, 0.15)
+    clase = np.full(px.shape, HIERBA)
+    px = np.where(canchal, _tierra_idx(ctx, -0.1), px)
+    clase = np.where(canchal, CANCHAL, clase)
+    px = np.where((Z < 3) | (~suave & (Z < 5)), _hierba(ctx, -0.1), px)
+    return px, clase
+
+
 def mat_pie(ctx):
     cent = np.clip(ctx.h / 9.0, 0, 1)
     borde = 1 - cent                                        # hacia el borde, más cerca del color del suelo
@@ -521,13 +579,23 @@ def fuente_caja(lienzo, x, y, s, fondo, color, sombra):
 
 
 def piezas():
-    return [
-        dibujar_pieza("macizo", campo_macizo(272, 176, 140, seed=3), mat_macizo, 3, margen_arriba=4, ruido_borde=2.2),
-        dibujar_pieza("cresta", campo_cresta(160, 64, 62, seed=11), mat_cresta, 11, ruido_borde=1.6),
-        dibujar_pieza("acantilado_2x2", campo_acantilado(32, 32, 20, seed=21), mat_acantilado, 21, ruido_borde=0.6),
-        dibujar_pieza("acantilado_3x2", campo_acantilado(48, 32, 26, seed=22), mat_acantilado, 22, ruido_borde=0.6),
-        dibujar_pieza("pie_ladera", campo_pie(64, 48, seed=31), mat_pie, 31, ruido_borde=1.0, contorno=False),
+    """Todas las piezas del catalogo: silueta unica por tipo, con semillas fijas (determinista)."""
+    base = [
+        ("macizo", lambda sd: campo_macizo(272, 176, 140, seed=sd), mat_macizo, dict(margen_arriba=4, ruido_borde=2.2), (3, 4, 5)),
+        ("cresta", lambda sd: campo_cresta(160, 64, 62, seed=sd), mat_cresta, dict(ruido_borde=1.6), (11, 12)),
+        ("pico", lambda sd: campo_pico(112, 96, 96, seed=sd), mat_pico, dict(margen_arriba=4, ruido_borde=1.4), (41, 42)),
+        ("colina_4x3", lambda sd: campo_colina(64, 48, 13, seed=sd), mat_colina, dict(ruido_borde=0.9, contorno=False), (51, 53)),
+        ("colina_3x3", lambda sd: campo_colina(48, 48, 11, seed=sd), mat_colina, dict(ruido_borde=0.9, contorno=False), (52, 54)),
+        ("acantilado_2x2", lambda sd: campo_acantilado(32, 32, 20, seed=sd), mat_acantilado, dict(ruido_borde=0.6), (21,)),
+        ("acantilado_3x2", lambda sd: campo_acantilado(48, 32, 26, seed=sd), mat_acantilado, dict(ruido_borde=0.6), (22,)),
+        ("pie_ladera", lambda sd: campo_pie(64, 48, seed=sd), mat_pie, dict(ruido_borde=1.0, contorno=False), (31, 32)),
     ]
+    out = []
+    for nombre, campo, mat, kw, seeds in base:
+        for sd in seeds:
+            sufijo = "" if len(seeds) == 1 else f"_{seeds.index(sd) + 1}"
+            out.append(dibujar_pieza(f"{nombre}{sufijo}", campo(sd), mat, sd, **kw))
+    return out
 
 
 def componer(P):
@@ -535,7 +603,8 @@ def componer(P):
     W_, H_ = 480, 270
     lienzo = suelo(W_, H_)
     rng = np.random.default_rng(7)
-    macizo, cresta, pena_a, pena_b, pie = P
+    por = lambda pre: next(p for p in P if p.nombre.startswith(pre))
+    macizo, cresta, pena_a, pena_b, pie = por("macizo"), por("cresta"), por("acantilado_2x2"), por("acantilado_3x2"), por("pie_ladera")
     cols = []
 
     def poner_p(p, x, y, arboles=None):
@@ -640,3 +709,15 @@ if __name__ == "__main__":
     os.makedirs(SALIDA, exist_ok=True)
     hoja_comparativa(os.path.join(SALIDA, "montanas_comparativa_x2.png"))
     hoja_piezas(os.path.join(SALIDA, "montanas_piezas_x4.png"), piezas_cache())
+
+
+def como_spr(p):
+    """Convierte una Pieza del boceto en Spr del catalogo (misma proyeccion y ancla)."""
+    s = Spr(p.w, p.h, p.ax, p.ay)
+    s.px = p.px.copy()
+    return s
+
+
+def piezas_catalogo():
+    """Piezas de montana listas para el atlas: las mismas del boceto M1, con semillas fijas."""
+    return piezas()

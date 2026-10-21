@@ -83,6 +83,88 @@ describe('atlas de pixel art: validador', () => {
     expect(e.some((m) => m.includes('huella inválida'))).toBe(true);
     expect(e.some((m) => m.includes('un solo fotograma'))).toBe(true);
   });
+
+  it('la sección ui de marcos 9-slice es válida en el atlas exportado (R70)', () => {
+    expect(atlas.ui).toBeDefined();
+    const ui = atlas.ui!;
+    expect(Object.keys(ui).sort()).toEqual(['marco_madera', 'marco_piedra']);
+    for (const [nombre, m] of Object.entries(ui)) {
+      expect(m.estados.normal, nombre).toBeTruthy();
+      expect(m.corte.arriba + m.corte.abajo, nombre).toBeLessThanOrEqual(m.alto);
+      expect(m.corte.izquierda + m.corte.derecha, nombre).toBeLessThanOrEqual(m.ancho);
+    }
+  });
+
+  it('detecta un marco sin estados y un corte que no cabe en el sprite', () => {
+    const a = copia();
+    a.ui!.marco_madera.estados = {};
+    a.ui!.marco_piedra.corte = { arriba: 9, abajo: 9, izquierda: 6, derecha: 6 };
+    const e = validarAtlas(a);
+    expect(e.some((m) => m.includes('ui.marco_madera: sin estados'))).toBe(true);
+    expect(e.some((m) => m.includes('el corte no cabe'))).toBe(true);
+  });
+});
+
+describe('atlas de pixel art: montañas como piezas (R84, D033)', () => {
+  // Huella por familia: el macizo es el mayor, la cresta se encadena en u, el pico es suelto y las colinas y el pie
+  // de ladera son las piezas menores. Cada familia puede traer varias siluetas (semillas fijas) y acantilados de 2x2 y 3x2.
+  const FAMILIAS: [string, number, number][] = [
+    ['montana_macizo_', 17, 11],
+    ['montana_cresta_', 10, 4],
+    ['montana_pico_', 7, 6],
+    ['montana_colina_4x3_', 4, 3],
+    ['montana_colina_3x3_', 3, 3],
+    ['montana_acantilado_2x2', 2, 2],
+    ['montana_acantilado_3x2', 3, 2],
+    ['montana_pie_ladera_', 4, 3],
+  ];
+
+  const porFamilia = (prefijo: string): string[] => Object.keys(atlas.sprites).filter((id) => id.startsWith(prefijo));
+
+  it('cada familia del boceto M1 está en el atlas con su huella, y hay al menos una de cada', () => {
+    for (const [prefijo, w, d] of FAMILIAS) {
+      const ids = porFamilia(prefijo);
+      expect(ids.length, prefijo).toBeGreaterThanOrEqual(1);
+      for (const id of ids) {
+        const s = atlas.sprites[id];
+        expect(s.categoria, id).toBe('roca');
+        expect(s.huella, id).toEqual({ w, d });
+        expect(s.bloquea, id).toBe(true);
+        expect(s.anclaEn, id).toBe('huella');
+        expect(s.altura, id).toBeGreaterThan(0);
+        expect(s.estados.base.orientaciones.unica?.length, id).toBe(1);
+      }
+    }
+  });
+
+  it('hay variedad real de siluetas (varias piezas por familia) y de tamaño entre familias', () => {
+    for (const [prefijo] of FAMILIAS) {
+      if (prefijo === 'montana_acantilado_2x2' || prefijo === 'montana_acantilado_3x2') continue;
+      expect(porFamilia(prefijo).length, prefijo).toBeGreaterThanOrEqual(2);
+    }
+    const area = (prefijo: string): number => {
+      const s = atlas.sprites[porFamilia(prefijo)[0]];
+      return s.huella.w * s.huella.d;
+    };
+    const ladoLargo = (prefijo: string): number => {
+      const s = atlas.sprites[porFamilia(prefijo)[0]];
+      return Math.max(s.huella.w, s.huella.d);
+    };
+    expect(area('montana_macizo_')).toBeGreaterThan(area('montana_cresta_'));
+    expect(area('montana_macizo_')).toBeGreaterThan(area('montana_pico_'));
+    // La cresta es estrecha pero larga (se encadena en u); el pico es compacto: por eso el lado largo manda.
+    expect(ladoLargo('montana_cresta_')).toBeGreaterThan(ladoLargo('montana_pico_'));
+    expect(area('montana_pico_')).toBeGreaterThan(area('montana_colina_4x3_'));
+    expect(area('montana_colina_4x3_')).toBeGreaterThan(area('montana_colina_3x3_'));
+  });
+
+  it('las siluetas de una misma familia no son el mismo dibujo (semillas distintas)', () => {
+    for (const prefijo of ['montana_macizo_', 'montana_cresta_', 'montana_pico_', 'montana_colina_4x3_']) {
+      const ids = porFamilia(prefijo);
+      const fotos = ids.map((id) => atlas.sprites[id].estados.base.orientaciones.unica![0]);
+      expect(new Set(fotos).size, prefijo).toBe(ids.length);
+    }
+  });
 });
 
 describe('atlas de pixel art: contenido reutilizado de la muestra', () => {

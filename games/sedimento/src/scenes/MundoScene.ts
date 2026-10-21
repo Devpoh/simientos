@@ -9,11 +9,70 @@ import { escalaFisica } from '../logic/pantalla';
 import { alturaPx, crearMundo, hornearMundo } from '../logic/mundo';
 import { generarAldea } from '../logic/aldeaReferencia';
 import { crearTrozos } from '../render/terrenoHorneado';
+import { AguaVista } from '../render/aguaVista';
+import { HumoVista } from '../render/humoVista';
+import { focosDeAldea } from '../logic/humo';
+import { cobertura, generarMontanas, reservaAldea } from '../logic/montanas';
+import { MontanasVista } from '../render/montanasVista';
+import { bloqueada, crearOcupacion, colocarEstructura, colocarObjeto, colisionesViolaciones, type Ocupacion } from '../logic/ocupacion';
+import { alcanzables, buscarRuta, longitudRuta, type Tile } from '../logic/navegacion';
+import { OcupacionVista } from '../render/ocupacionVista';
 import { params } from '../core/test-hooks';
 import { ControlCamara } from '../render/controlCamara';
 import { CLAVE_REGISTRO_ATLAS } from '../render/sprites';
 import { AldeaVista } from '../render/aldeaVista';
+import { CiudadanosVista } from '../render/ciudadanosVista';
+import { huellasDe } from '../logic/orden';
+import {
+  avanzarCiudadano, casasDeAldea, contarEstados, longitudRutas, poblarCiudadanos, violacionesCiudadanos,
+  type Casa, type Ciudadano, type SemillaCiudadano,
+} from '../logic/ciudadano';
+import { catalogoEntidades, idsVivos } from '../logic/catalogoEntidades';
+import { ordenDeGrupo } from '../logic/ordenesGrupo';
+import { FORMACIONES, type Formacion } from '../logic/formaciones';
+import { ControlSeleccion } from '../render/controlSeleccion';
+import { SeleccionVista } from '../render/seleccionVista';
+import { crearPanelGrupo, type Miniatura, type PanelGrupo } from '../ui/panelGrupo';
+import { alCaja, type Entidad } from '../logic/seleccion';
+import { crearRng, derivarSemilla, type Rng } from '../logic/azar';
 import { PanelRendimiento } from '../ui/panelRendimiento';
+import { crearCapaUi, type CapaUi, type MarcoUi } from '../ui/capa';
+import { crearHud, type DatosHud, type Hud } from '../ui/hud';
+import { crearAtajosReloj } from '../ui/atajos';
+import { resolverMarcos } from '../logic/marcos';
+import {
+  avanzarPartida, crearPartida, indiceVelocidad, pausarPartida, resumenPartida, velocidadPartida,
+  type Partida,
+} from '../logic/partida';
+
+/** Celda de acceso, en tiles relativos a la esquina trasera de la huella. Mismo dato que el atlas. */
+interface PuertaLocal {
+  i: number;
+  j: number;
+}
+
+/**
+ * Rejilla de ocupación única (P3, R50). La aldea de referencia se registra en la rejilla para que esta sea
+ * la fuente de verdad de colocación, navegación y F3. `rechazados` debería ser 0: si no lo es, el colocador
+ * de la aldea y la rejilla no están de acuerdo y hay que arreglarlo (no se fuerza nada).
+ */
+export function poblarOcupacion(
+  oc: Ocupacion, atlas: AtlasPixel, aldea: Aldea,
+): { estructuras: number; objetos: number; rechazados: string[] } {
+  let estructuras = 0;
+  let objetos = 0;
+  const rechazados: string[] = [];
+  for (const e of aldea.edificios) {
+    const puertas: PuertaLocal[] = atlas.sprites[e.id]?.puertas ?? [];
+    if (colocarEstructura(oc, e.id, { w: e.w, d: e.d }, e.u, e.v, 0, puertas)) estructuras++;
+    else rechazados.push(`${e.id}@${e.u},${e.v}`);
+  }
+  for (const e of [...aldea.props, ...aldea.arboles]) {
+    colocarObjeto(oc, { w: e.w, d: e.d }, e.u, e.v);
+    objetos++;
+  }
+  return { estructuras, objetos, rechazados };
+}
 
 export class MundoScene extends Phaser.Scene {
   private panel?: PanelRendimiento;
@@ -21,6 +80,35 @@ export class MundoScene extends Phaser.Scene {
   private medidas: Record<string, number> = {};
   private aldea?: Aldea;
   private vista?: AldeaVista;
+  private ciudadanosVista?: CiudadanosVista;
+  private ciudadanos: Ciudadano[] = [];
+  private casas: Casa[] = [];
+  private rngCiudadanos?: Rng;
+  /** Milisegundos de la lógica de ciudadanos por fotograma (ventana corta, para el presupuesto de §6). */
+  private readonly msCiudadanosBuf = new Float64Array(120);
+  private msCiudadanosN = 0;
+  private msCiudadanosI = 0;
+  private agua?: AguaVista;
+  private montanasVista?: MontanasVista;
+  private ocupacion?: Ocupacion;
+  private ocupacionVista?: OcupacionVista;
+  private poblado?: { estructuras: number; objetos: number; rechazados: string[] };
+  private elevacion?: (u: number, v: number) => number;
+  private rutaEjemplo?: Tile[];
+  private depurar = false;
+  private humo?: HumoVista;
+  private partida?: Partida;
+  private hud?: Hud;
+  private quitarAtajos?: () => void;
+  private capa?: CapaUi;
+  // Selección múltiple y órdenes (P5, R51): catálogo de lo pinchable, control de ratón, vista de anillos/caja
+  // y panel de grupo.
+  private seleccion?: ControlSeleccion;
+  private seleccionVista?: SeleccionVista;
+  private panelGrupo?: PanelGrupo;
+  private entidades: Entidad[] = [];
+  private formacionActiva: Formacion = 'cuadro';
+  private destinosOrden: { u: number; v: number }[] = [];
 
   constructor() {
     super('Mundo');
@@ -35,23 +123,60 @@ export class MundoScene extends Phaser.Scene {
     const t0 = performance.now();
     const mundo = crearMundo(semilla);
     const t1 = performance.now();
-    const imagen = hornearMundo(mundo);
+    // Aldea de referencia primero (P2 tramo 4): es la que decide dónde puede haber montaña, no al revés.
+    const elevacion = (u: number, v: number): number => alturaPx(mundo.superficie, mundo.cfg, u, v);
+    this.elevacion = elevacion;
+    const aldea = generarAldea(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, semilla);
+    const t1b = performance.now();
+    // Montañas (P2c3, R84): la reserva de la aldea impide que una pieza tape una casa o un prop; su máscara
+    // de cobertura hace que el horneado no pinte nieve ni roca debajo.
+    const montanas = generarMontanas(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, semilla,
+      tuning.horneado.montanas, reservaAldea(aldea, mundo.tilesU, mundo.tilesV));
+    const cubierto = cobertura(montanas, mundo.tilesU, mundo.tilesV);
+    const imagen = hornearMundo(mundo, cubierto);
     const t2 = performance.now();
     const trozos = crearTrozos(this, imagen, tuning.mundo.lado);
     const t3 = performance.now();
+    // Agua viva (R65, R87): 4 texturas por trozo con agua, horneadas una vez; en el bucle solo cambia la textura.
+    this.agua = new AguaVista(this, imagen, tuning.mundo.lado, semilla);
+    const t3b = performance.now();
 
     this.medidas = {
       semilla, tilesU: mundo.tilesU, tilesV: mundo.tilesV, pxAncho: imagen.ancho, pxAlto: imagen.alto, trozos: trozos.length,
-      msGenerar: Math.round(t1 - t0), msHornear: Math.round(t2 - t1), msTexturas: Math.round(t3 - t2),
+      msGenerar: Math.round(t1 - t0), msAldea: Math.round(t1b - t1), msHornear: Math.round(t2 - t1b),
+      msTexturas: Math.round(t3 - t2), msAgua: Math.round(t3b - t3), trozosAgua: this.agua.nTrozos,
     };
 
-    // Aldea de referencia: la escena por defecto y la que usa el bench de 60 fps (P2 tramo 4).
-    const elevacion = (u: number, v: number): number => alturaPx(mundo.superficie, mundo.cfg, u, v);
-    const t4 = performance.now();
-    const aldea = generarAldea(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, semilla);
     this.aldea = aldea;
     this.vista = new AldeaVista(this, atlas, aldea, elevacion);
-    this.medidas.msAldea = Math.round(performance.now() - t4);
+
+    // Rejilla de ocupación única (P3, R50): terreno + huellas de la aldea. `rechazados` debe ser 0.
+    const t4 = performance.now();
+    this.ocupacion = crearOcupacion(mundo.superficie, mundo.tilesU, mundo.tilesV);
+    this.poblado = poblarOcupacion(this.ocupacion, atlas, aldea);
+    this.medidas.msOcupacion = Math.round(performance.now() - t4);
+
+    // Ciudadanos que caminan (P4b, §4): las unidades de la aldea se separan en ciudadanos (máquina de estados
+    // sobre la rejilla) y animales (movimiento decorativo de ida y vuelta). Solo los primeros cambian la vista.
+    const t4b = performance.now();
+    this.ciudadanos = this.crearCiudadanos(aldea);
+    this.ciudadanosVista = new CiudadanosVista(this, atlas, this.ciudadanos, elevacion, huellasDe([...aldea.edificios, ...aldea.props, ...aldea.arboles]));
+    this.medidas.msCiudadanos = Math.round(performance.now() - t4b);
+    this.medidas.nCiudadanos = this.ciudadanos.length;
+
+    // Montañas (P2c3, R84): las piezas que colocó logic/montanas.ts, dibujadas con y-sort y culling.
+    const t5a = performance.now();
+    this.montanasVista = new MontanasVista(this, atlas, montanas.piezas, elevacion);
+    this.medidas.msMontanas = Math.round(performance.now() - t5a);
+    this.medidas.piezasMontana = montanas.piezas.length;
+
+    // Humo (R87, D037): una bocanada por chimenea de casa terminada y por brasero; sube y se recicla.
+    const t5 = performance.now();
+    this.humo = new HumoVista(this, atlas);
+    const focos = focosDeAldea([...aldea.edificios, ...aldea.props], atlas, elevacion);
+    this.humo.enfocar(focos);
+    this.medidas.msHumo = Math.round(performance.now() - t5);
+    this.medidas.focosHumo = focos.length;
 
     const c = aPantalla(aldea.centro.u, aldea.centro.v);
     this.camara = new ControlCamara(
@@ -67,8 +192,21 @@ export class MundoScene extends Phaser.Scene {
     this.panel = new PanelRendimiento(() => ({ sprites: this.vista?.activos ?? 0, escala: escalaFisica(this.scale.zoom, window.devicePixelRatio) }));
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.panel?.destruir());
 
+    // Interfaz HTML/CSS superpuesta (R70, P2b): capa #ui escalada con el mismo factor entero que el lienzo,
+    // HUD con la fecha y los recursos (solo se redibuja cuando cambian) y el reloj (pausa y velocidades).
+    this.partida = crearPartida(semilla);
+    this.crearInterfaz(atlas);
+    // Selección múltiple y órdenes (P5, R51): ratón, anillos, panel de grupo y avisos de destino.
+    this.crearSeleccion(atlas);
+
     const r1 = (v: number): number => Math.round(v * 10) / 10;
     exponerAccion('reiniciarMedidas', () => medidor.reiniciar());
+    // F3: pinta encima la rejilla de ocupación (bloqueadas, puertas, huellas). También se puede forzar por
+    // `?depurar=1` o llamando a la acción `depurarOcupacion` desde `shot`.
+    exponerAccion('depurarOcupacion', (on) => this.alternarDepuracion(typeof on === 'boolean' ? on : undefined));
+    this.input.keyboard?.on('keydown-F3', (ev: KeyboardEvent) => { ev.preventDefault(); this.alternarDepuracion(); });
+    if (params.get('depurar') === '1') this.alternarDepuracion(true);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ocupacionVista?.destruir());
     exponer('fps', () => r1(medidor.fps()));
     exponer('msFotoP95', () => r1(medidor.p95()));
     exponer('msFotoMax', () => r1(medidor.max()));
@@ -79,19 +217,454 @@ export class MundoScene extends Phaser.Scene {
     exponer('nArboles', () => aldea.arboles.length);
     exponer('nProps', () => aldea.props.length);
     exponer('nUnidades', () => aldea.unidades.length);
+    // Ciudadanos que caminan (P4b, §4): estados, rutas vivas y violaciones de rejilla (debe ser 0).
+    exponer('ciudadanos', () => {
+      const estados = contarEstados(this.ciudadanos);
+      return {
+        n: this.ciudadanos.length,
+        casas: this.casas.length,
+        estados,
+        rutas: longitudRutas(this.ciudadanos),
+        violaciones: this.ocupacion ? violacionesCiudadanos(this.ciudadanos, this.ocupacion) : -1,
+        visibles: this.ciudadanosVista?.activos ?? 0,
+        msCarga: this.medidas.msCiudadanos ?? 0,
+        msP95: this.p95Ciudadanos(),
+      };
+    });
     exponer('solapesAldea', () => this.vista?.solapes ?? -1);
+    // Navegación (P4, R50.4): ruta de ejemplo desde el centro de la aldea hasta la puerta de una casa.
+    // Publica el motivo cuando no hay camino (la unidad quedaría en estado `bloqueado`, con su icono).
+    exponer('navegacion', () => this.medirNavegacion());
+    // Rejilla de ocupación (P3, R50): fuente de verdad de colocación y navegación. `colisionesViolaciones`
+    // debe ser 0 siempre; `rechazados` (edificios que la rejilla no acepta donde los puso la aldea) también.
+    exponer('ocupacion', () => ({
+      tiles: { u: this.ocupacion?.tilesU ?? 0, v: this.ocupacion?.tilesV ?? 0 },
+      estructuras: this.ocupacion ? this.ocupacion.estructuras.size : 0,
+      objetos: this.poblado?.objetos ?? 0,
+      rechazados: this.poblado?.rechazados ?? [],
+      violaciones: this.ocupacion ? colisionesViolaciones(this.ocupacion) : -1,
+      ms: this.medidas.msOcupacion ?? 0,
+    }));
     exponer('camara', () => {
-      const c = this.camara?.leer();
-      return c ? { x: Math.round(c.x), y: Math.round(c.y), zoom: c.zoom } : null;
+      const cam = this.camara?.leer();
+      return cam ? { x: Math.round(cam.x), y: Math.round(cam.y), zoom: cam.zoom } : null;
     });
     exponer('terreno', () => ({ ...this.medidas, centroAldea: this.aldea?.centro }));
+    // Agua viva y humo (R65, R87): lo que se mueve, para que `shot` lo compruebe sin captura.
+    exponer('agua', () => ({ trozos: this.agua?.nTrozos ?? 0, fotograma: this.agua?.fotogramaActual ?? -1 }));
+    exponer('montanas', () => ({ piezas: this.montanasVista?.nPiezas ?? 0, visibles: this.montanasVista?.activos ?? 0 }));
+    exponer('humo', () => ({
+      bocanadas: this.humo?.nBocanadas ?? 0,
+      visibles: this.humo?.nVisibles ?? 0,
+      subida: this.humo?.subidaMedia ?? 0,
+    }));
     exponer('lienzo', () => ({ ancho: this.scale.gameSize.width, alto: this.scale.gameSize.height, zoom: this.scale.zoom }));
     exponer('escalaEntera', () => escalaFisica(this.scale.zoom, window.devicePixelRatio));
+    // Selección múltiple y órdenes (P5, R51): lo seleccionado, el grupo guardado y la formación activa.
+    exponer('seleccion', () => ({
+      ids: this.seleccion?.leer().ids ?? [],
+      n: this.seleccion?.leer().ids.length ?? 0,
+      nEntidades: this.entidades.length,
+      formacion: this.formacionActiva,
+      panelVisible: this.panelGrupo?.visible ?? false,
+      miniaturas: this.panelGrupo?.nMiniaturas ?? 0,
+      destinos: this.destinosOrden.length,
+      grupos: [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((s) => this.seleccion?.hayGrupo(s)),
+    }));
+    exponerAccion('seleccionarCaja', (arg) => this.accionSeleccionarCaja(arg));
+    // Estado de la interfaz y del reloj, para que shot lo compruebe sin captura.
+    exponer('reloj', () => {
+      const p = this.partida;
+      if (!p) return null;
+      return {
+        tick: p.reloj.tick, dia: p.sim.dia, pausado: p.reloj.pausado, velocidad: p.reloj.velocidad,
+        indiceVelocidad: indiceVelocidad(p), racion: p.sim.racionObjetivo,
+      };
+    });
+    exponer('hud', () => {
+      const p = this.partida;
+      if (!p) return null;
+      const r = resumenPartida(p);
+      return {
+        texto: this.hud?.texto ?? '',
+        redibujados: this.hud?.redibujados ?? -1,
+        personas: r.personas,
+        alimento: Math.floor(r.alimento),
+        recursos: r.recursos.map(([k, v]) => [k, Math.floor(v)] as const),
+      };
+    });
+    exponer('ui', () => {
+      const capa = this.capa?.raiz;
+      if (!capa) return null;
+      const r = capa.getBoundingClientRect();
+      const m = /^matrix\(([^,]+),/.exec(getComputedStyle(capa).transform);
+      // Elemento bajo el ratón en el centro del lienzo (juego) y sobre un panel: la capa no debe robarlo.
+      const cx = this.scale.gameSize.width / 2;
+      const cy = this.scale.gameSize.height / 2;
+      const enCentro = document.elementFromPoint(cx, cy);
+      const panelFecha = capa.querySelector<HTMLElement>('.panel');
+      const rp = panelFecha?.getBoundingClientRect();
+      const enPanel = rp ? document.elementFromPoint(rp.left + rp.width / 2, rp.top + rp.height / 2) : null;
+      return {
+        existe: true,
+        paneles: capa.querySelectorAll('.panel').length,
+        retrato: capa.querySelectorAll('canvas.retrato').length,
+        ancho: Math.round(r.width), alto: Math.round(r.height),
+        escala: m ? Number(m[1]) : 1,
+        marcos: Object.keys(resolverMarcos(atlas.ui, 'recursos/pixel/')),
+        ratonEnCentro: enCentro ? enCentro.tagName.toLowerCase() : null,
+        ratonEnPanel: enPanel ? enPanel.tagName.toLowerCase() : null,
+        fuenteCargada: document.fonts ? document.fonts.check('9px Silkscreen') : null,
+      };
+    });
     this.events.once(Phaser.Scenes.Events.UPDATE, marcarListo);
+  }
+
+  /**
+   * Prepara los ciudadanos que caminan (P4b): toma las unidades ciudadanas de la aldea, arma el catálogo de
+   * casas (tile de puerta + centro de huella, en coordenadas absolutas) y los reparte con ruta A*.
+   */
+  private crearCiudadanos(aldea: Aldea): Ciudadano[] {
+    const oc = this.ocupacion;
+    if (!oc) return [];
+    const casas = casasDeAldea(oc, aldea.edificios);
+    this.casas = casas;
+
+    const semillas: SemillaCiudadano[] = [];
+    for (const u of aldea.unidades) {
+      if (u.clase !== 'ciudadano') continue;
+      semillas.push({ sprite: u.id, actividad: u.estado, u: Math.round(u.u), v: Math.round(u.v), fase: u.fase });
+    }
+    // Modo de estrés (`?estres=N`): replica y dispersa ciudadanos hasta N para medir el p95 con la ciudad
+    // «grande» de referencia (§6). Solo para `shot`; el juego normal no lo usa.
+    const estres = Math.floor(Number(params.get('estres')) || 0);
+    if (estres > semillas.length) {
+      const base = semillas.slice();
+      for (let i = semillas.length; i < estres; i++) {
+        const s = base[i % base.length];
+        const j = Math.floor(i / base.length);
+        semillas.push({ ...s, u: s.u + (j % 7) - 3, v: s.v + (j % 5) - 2, fase: ((s.fase + i * 0.137) % 1) });
+      }
+    }
+    this.rngCiudadanos = crearRng(derivarSemilla(aldea.semilla, 'ciudadanos'));
+    return poblarCiudadanos(semillas, oc, casas);
+  }
+
+  /**
+   * Monta la selección múltiple (P5, R51): el catálogo de entidades pinchables, el control de ratón, la vista
+   * de anillos/caja y el panel de grupo. Los atajos de teclado (Esc, Ctrl+1…9, 1…9) se registran aquí.
+   */
+  private crearSeleccion(atlas: AtlasPixel): void {
+    if (!this.capa || !this.aldea) return;
+    this.reconstruirCatalogo();
+    this.seleccionVista = new SeleccionVista(this);
+
+    const marco = this.marcoPanel();
+    this.panelGrupo = crearPanelGrupo(this.capa, marco, { solo: (id) => this.seleccion?.solo(id) });
+
+    this.seleccion = new ControlSeleccion(this, {
+      entidades: () => this.entidades,
+      vivos: () => idsVivos(this.entidades),
+      alOrdenar: (destino, formacion, encadenar) => this.ordenarGrupo(destino, formacion, encadenar),
+      alCambiar: () => this.refrescarSeleccion(),
+      alCaja: (x0, y0, x1, y1, activa) => {
+        if (activa) this.seleccionVista?.pintarCaja(x0, y0, x1, y1, this.time.now);
+        else this.seleccionVista?.limpiarCaja();
+      },
+      formacion: () => this.formacionActiva,
+    });
+
+    const alTeclear = (e: KeyboardEvent): void => this.atajoSeleccion(e);
+    window.addEventListener('keydown', alTeclear);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      window.removeEventListener('keydown', alTeclear);
+      this.panelGrupo?.liberar();
+    });
+    // Retratos de las miniaturas: el primer fotograma del sprite de cada entidad.
+    void atlas;
+  }
+
+  /** Marco 9-slice para el panel de grupo (madera; cae en el de piedra si no existe). */
+  private marcoPanel(): MarcoUi {
+    const atlas = this.registry.get(CLAVE_REGISTRO_ATLAS) as AtlasPixel;
+    const marcos = resolverMarcos(atlas.ui, 'recursos/pixel/');
+    return marcos.marco_madera ?? marcos.marco_piedra
+      ?? { ruta: 'recursos/pixel/ui/marco-madera.png', corte: { arriba: 6, abajo: 6, izquierda: 6, derecha: 6 }, repetir: 'round' };
+  }
+
+  /** Rehace el catálogo de entidades pinchables a partir de la aldea, los ciudadanos y los animales. */
+  private reconstruirCatalogo(): void {
+    if (!this.aldea) return;
+    const animales = this.aldea.unidades
+      .filter((u) => u.clase === 'animal')
+      .map((u) => ({ id: u.id, u: u.u, v: u.v, estado: u.estado }));
+    this.entidades = catalogoEntidades(this.ciudadanos, animales, this.aldea.edificios);
+  }
+
+  /** Atajos de selección: Esc limpia, Ctrl+1…9 guarda grupo, 1…9 lo recupera (o fija formación con Alt). */
+  private atajoSeleccion(e: KeyboardEvent): void {
+    if (e.repeat || !this.seleccion) return;
+    if (e.code === 'Escape') { this.seleccion.limpiar(); return; }
+    const m = /^(?:Digit|Numpad)([1-9])$/.exec(e.code);
+    if (!m) return;
+    const slot = Number(m[1]);
+    if (e.ctrlKey || e.metaKey) { e.preventDefault(); this.seleccion.guardar(slot); return; }
+    // Sin modificador: recuperar grupo si lo hay; si no, elegir formación por número.
+    if (this.seleccion.hayGrupo(slot)) { e.preventDefault(); this.seleccion.recuperarGrupo(slot); return; }
+    const f = FORMACIONES[slot - 1];
+    if (f) { this.formacionActiva = f; }
+  }
+
+  /** Cambió la selección: repinta anillos, contador y el panel de grupo con miniaturas. */
+  private refrescarSeleccion(): void {
+    if (!this.seleccion || !this.seleccionVista) return;
+    const conjunto = this.seleccion.conjunto();
+    const elevacion = this.elevacion ?? (() => 0);
+    const huellas = this.aldea ? this.aldea.edificios.map((e) => ({ id: e.id, u: e.u, v: e.v, w: e.w, d: e.d })) : [];
+    this.seleccionVista.pintarSeleccion(this.ciudadanos, huellas, conjunto, elevacion);
+    this.panelGrupo?.mostrar(this.miniaturasSeleccion(conjunto));
+    if (conjunto.size === 0) this.panelGrupo?.ocultar();
+  }
+
+  /** Miniaturas del panel: el primer fotograma del atlas de cada entidad seleccionada. */
+  private miniaturasSeleccion(conjunto: ReadonlySet<string>): Miniatura[] {
+    const atlas = this.registry.get(CLAVE_REGISTRO_ATLAS) as AtlasPixel;
+    const salida: Miniatura[] = [];
+    for (const e of this.entidades) {
+      if (!conjunto.has(e.id)) continue;
+      const spriteId = e.clase === 'unidad' ? e.tipo : e.clase === 'edificio' ? this.spriteDeEdificio(e.id) : 'oveja';
+      const sp = atlas.sprites[spriteId] ?? atlas.sprites[Object.keys(atlas.sprites)[0]];
+      const primerEstado = sp ? Object.values(sp.estados)[0] : undefined;
+      const primeraOri = primerEstado ? Object.values(primerEstado.orientaciones)[0] : undefined;
+      const clave = primeraOri?.[0];
+      const f = clave ? atlas.frames[clave] : undefined;
+      if (!f) continue;
+      const img = this.textures.get(`atlas-${f.atlas}`).getSourceImage();
+      salida.push({ id: e.id, imagen: img as CanvasImageSource, frame: { x: f.x, y: f.y, w: f.w, h: f.h }, escala: 2, etiqueta: e.tipo });
+    }
+    return salida;
+  }
+
+  /** Id de sprite de un edificio a partir de su id de aldea (`choza_12` → `choza`). */
+  private spriteDeEdificio(id: string): string {
+    return id.split('_')[0];
+  }
+
+  /**
+   * Orden de movimiento al grupo seleccionado (botón derecho): reparte la formación y da ruta a cada uno.
+   * Mayús encadena puntos de ruta (P5 lo deja listo; el A* reemplaza la ruta actual por la nueva).
+   */
+  private ordenarGrupo(destino: Tile, formacion: Formacion, _encadenar: boolean): void {
+    const oc = this.ocupacion;
+    if (!oc || !this.seleccion) return;
+    const conjunto = this.seleccion.conjunto();
+    const unidades = this.ciudadanos.filter((ci) => conjunto.has(ci.id));
+    if (unidades.length === 0) return;
+    const r = ordenDeGrupo(unidades, oc, formacion, destino);
+    this.destinosOrden = r.destinos;
+    this.seleccionVista?.pintarDestinos(r.destinos, this.elevacion ?? (() => 0));
+  }
+
+  /**
+   * Acción de `shot`: selecciona por caja con coordenadas de rejilla `u0,v0,u1,v1` (en tiles). Sirve para
+   * verificar la caja con N entidades sin depender de píxeles exactos del puntero.
+   */
+  private accionSeleccionarCaja(arg?: unknown): void {
+    if (!this.seleccion) return;
+    const p = typeof arg === 'string' ? arg.split(',').map(Number) : Array.isArray(arg) ? arg.map(Number) : [0, 0, 0, 0];
+    const [u0, v0, u1, v1] = p;
+    this.seleccion.fijarIds(alCaja({ ids: [] }, this.entidades, u0, v0, u1, v1).ids);
+  }
+
+  /** Un tick de simulación de todos los ciudadanos, con azar determinista derivado de la semilla. */
+  private pasoCiudadanos(): void {
+    const oc = this.ocupacion;
+    const rng = this.rngCiudadanos;
+    if (!oc || !rng) return;
+    for (const ci of this.ciudadanos) avanzarCiudadano(ci, oc, this.casas, rng);
+  }
+
+  /** Registra los ms de lógica de ciudadanos de este fotograma en la ventana corta. */
+  private anotarMsCiudadanos(ms: number): void {
+    this.msCiudadanosBuf[this.msCiudadanosI] = ms;
+    this.msCiudadanosI = (this.msCiudadanosI + 1) % this.msCiudadanosBuf.length;
+    if (this.msCiudadanosN < this.msCiudadanosBuf.length) this.msCiudadanosN++;
+  }
+
+  /** p95 de la lógica de ciudadanos en la ventana: debe caber de sobra en los 16,6 ms de §6. */
+  private p95Ciudadanos(): number {
+    if (this.msCiudadanosN === 0) return 0;
+    const copia = Array.prototype.slice.call(this.msCiudadanosBuf, 0, this.msCiudadanosN) as number[];
+    copia.sort((a, b) => a - b);
+    const i = Math.min(copia.length - 1, Math.floor(copia.length * 0.95));
+    return Math.round(copia[i] * 1000) / 1000;
+  }
+
+  /** Monta la capa #ui, el HUD y los atajos del reloj; todo se desmonta en shutdown. */
+  private crearInterfaz(atlas: AtlasPixel): void {
+    const contenedor = document.getElementById('juego');
+    if (!contenedor) return;
+    const capa = crearCapaUi(contenedor);
+    this.capa = capa;
+    const ajustar = (): void => capa.ajustar(this.scale.gameSize.width, this.scale.gameSize.height, this.scale.zoom);
+    ajustar();
+    const alRedimensionar = (): void => ajustar();
+    this.scale.on(Phaser.Scale.Events.RESIZE, alRedimensionar);
+
+    const marcos = resolverMarcos(atlas.ui, 'recursos/pixel/');
+    const porDefecto = { ruta: 'recursos/pixel/ui/marco-madera.png', corte: { arriba: 6, abajo: 6, izquierda: 6, derecha: 6 }, repetir: 'round' as const };
+    const marcoFecha = marcos.marco_piedra ?? marcos.marco_madera ?? porDefecto;
+    const marcoRecursos = marcos.marco_madera ?? porDefecto;
+
+    // Retrato del HUD: la cabeza de un ciudadano del atlas ampliada x2 (R52 lo reutilizara a 48x48).
+    const ciudadano = atlas.sprites.ciudadano_campesino_m ?? atlas.sprites.ciudadano_campesino_h;
+    const claveIdle = ciudadano && Object.values(ciudadano.estados)[0]?.orientaciones.se?.[0];
+    const frameRetrato = claveIdle ? atlas.frames[claveIdle] : undefined;
+    const imagenAtlas = frameRetrato ? this.textures.get(`atlas-${frameRetrato.atlas}`).getSourceImage() : undefined;
+
+    this.hud = crearHud({
+      capa,
+      marcoFecha,
+      marcoRecursos,
+      velocidades: tuning.reloj.velocidades,
+      acciones: {
+        alternarPausa: () => this.partida && pausarPartida(this.partida),
+        fijarVelocidad: (i) => this.partida && velocidadPartida(this.partida, i),
+      },
+      retrato: frameRetrato && imagenAtlas
+        ? { imagen: imagenAtlas as CanvasImageSource, frame: { x: frameRetrato.x, y: frameRetrato.y, w: frameRetrato.w, h: frameRetrato.h }, escala: 2 }
+        : undefined,
+    });
+    this.pintarHud();
+    this.quitarAtajos = crearAtajosReloj({
+      alternarPausa: () => this.partida && pausarPartida(this.partida),
+      fijarVelocidad: (i) => this.partida && velocidadPartida(this.partida, i),
+    }, tuning.reloj.velocidades.length);
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off(Phaser.Scale.Events.RESIZE, alRedimensionar);
+      this.quitarAtajos?.();
+      this.hud?.liberar();
+      capa.liberar();
+    });
+  }
+
+  /**
+   * Mide una ruta de verdad sobre la rejilla (P4): del centro de la aldea a la puerta de una casa alcanzable.
+   * El mundo tiene bolsas de tierra aisladas por el agua, así que se busca la primera casa cuya puerta esté
+   * en la misma componente que el centro; si ninguna lo está, se publica el motivo.
+   */
+  private medirNavegacion(): { hayRuta: boolean; tiles: number; longitud: number; ms: number; motivo: string | null } {
+    if (!this.ocupacion || !this.aldea) return { hayRuta: false, tiles: 0, longitud: 0, ms: 0, motivo: 'sin-mundo' };
+    const oc = this.ocupacion;
+    const centro = this.tileLibreCerca(this.aldea.centro.u, this.aldea.centro.v);
+    if (bloqueada(oc, centro.u, centro.v)) return { hayRuta: false, tiles: 0, longitud: 0, ms: 0, motivo: 'centro-bloqueado' };
+    const alcanzable = alcanzables(oc, centro);
+    const esAlcanzable = (t: Tile): boolean => alcanzable[t.v * oc.tilesU + t.u] === 1;
+
+    let mejor: { destino: Tile; ruta: Tile[] } | null = null;
+    const t0 = performance.now();
+    for (const e of this.aldea.edificios) {
+      if (!oc.estructuras.has(e.v * oc.tilesU + e.u)) continue;
+      const destino = this.puertaDeCasa(e.u, e.v);
+      if (!esAlcanzable(destino)) continue;
+      const ruta = buscarRuta(oc, centro, destino);
+      if (ruta) { mejor = { destino, ruta }; break; }
+    }
+    const ms = performance.now() - t0;
+    if (!mejor) {
+      this.rutaEjemplo = undefined;
+      return { hayRuta: false, tiles: 0, longitud: 0, ms: Math.round(ms * 100) / 100, motivo: 'sin-casas-alcanzables' };
+    }
+    this.rutaEjemplo = mejor.ruta;
+    return {
+      hayRuta: true, tiles: mejor.ruta.length, longitud: Math.round(longitudRuta(mejor.ruta) * 10) / 10,
+      ms: Math.round(ms * 100) / 100, motivo: null,
+    };
+  }
+
+  /** Tile pisable más cercano a (u, v): el centro de la aldea suele estar tapado por la plaza o una casa. */
+  private tileLibreCerca(u: number, v: number): Tile {
+    const oc = this.ocupacion!;
+    const maxRadio = Math.max(oc.tilesU, oc.tilesV);
+    for (let r = 0; r < maxRadio; r++) {
+      for (let dv = -r; dv <= r; dv++) {
+        for (let du = -r; du <= r; du++) {
+          if (Math.max(Math.abs(du), Math.abs(dv)) !== r) continue;
+          const nu = u + du;
+          const nv = v + dv;
+          if (nu < 0 || nv < 0 || nu >= oc.tilesU || nv >= oc.tilesV) continue;
+          if (!bloqueada(oc, nu, nv)) return { u: nu, v: nv };
+        }
+      }
+    }
+    return { u, v };
+  }
+
+  /** Primera celda de acceso (o el propio tile) de la casa que empieza en (u, v). */
+  private puertaDeCasa(u: number, v: number): Tile {
+    const oc = this.ocupacion!;
+    const est = oc.estructuras.get(v * oc.tilesU + u);
+    if (est) {
+      for (const p of est.puertas) {
+        if (!bloqueada(oc, p.u, p.v)) return p;
+      }
+      if (est.puertas.length > 0) return est.puertas[0];
+    }
+    return { u, v };
+  }
+
+  /** Enciende o apaga la capa F3 y la redibuja al encender. `on` indefinido alterna. */
+  private alternarDepuracion(on?: boolean): void {
+    this.depurar = on ?? !this.depurar;
+    if (this.depurar && this.ocupacion) {
+      if (!this.ocupacionVista) this.ocupacionVista = new OcupacionVista(this);
+      const elevacion = this.elevacion ?? (() => 0);
+      if (!this.rutaEjemplo) this.medirNavegacion();
+      this.ocupacionVista.redibujar(this.ocupacion, elevacion, this.rutaEjemplo);
+    } else {
+      this.ocupacionVista?.graficos.clear();
+    }
+  }
+
+  /** Refresca el HUD con el estado actual (barato: crearHud no toca el DOM si nada cambio). */
+  private pintarHud(): void {
+    if (!this.hud || !this.partida) return;
+    const r = resumenPartida(this.partida);
+    const d: DatosHud = {
+      fecha: r.fecha,
+      pausado: this.partida.reloj.pausado,
+      indiceVelocidad: indiceVelocidad(this.partida),
+      recursos: r.recursos,
+    };
+    this.hud.actualizar(d);
   }
 
   update(tiempo: number, delta: number): void {
     this.camara?.update(delta);
     this.vista?.actualizar(tiempo);
+    this.agua?.actualizar(tiempo);
+    this.montanasVista?.actualizar();
+    this.humo?.actualizar(delta);
+    if (this.partida) {
+      // Los ciudadanos avanzan a paso fijo, un tick por tick del reloj (P4b): el mismo número de ticks da
+      // siempre la misma posición, y así el y-sort es determinista aunque el fotograma tarde más o menos.
+      const ticks = avanzarPartida(this.partida, delta);
+      if (ticks > 0) {
+        const t0 = performance.now();
+        for (let i = 0; i < ticks; i++) this.pasoCiudadanos();
+        this.anotarMsCiudadanos(performance.now() - t0);
+      }
+      this.ciudadanosVista?.actualizar(tiempo);
+      this.pintarHud();
+    }
+    // La caja de selección anima sus guiones y la selección se poda por si algo dejó de existir.
+    const caja = this.seleccionVista;
+    if (caja && this.seleccion) {
+      const c = this.seleccion;
+      c.podar();
+      const rect = c.rectanguloCaja();
+      if (rect) caja.pintarCaja(rect.x0, rect.y0, rect.x1, rect.y1, tiempo);
+    }
   }
 }

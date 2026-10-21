@@ -44,6 +44,11 @@ export interface ConfigHorneado {
   alcanceSombra: number;
   /** Las regiones de un mismo material con menos píxeles que esto se funden con las vecinas (≤ 1 = sin limpieza). */
   minRegion: number;
+  /**
+   * Máscara de tiles cubiertos por una pieza de montaña (1 = cubierto), `tilesU`×`tilesV`. Donde está puesta,
+   * el horneado no pinta nieve ni roca: solo tonos suaves, porque la pieza tapa el terreno (P2c3, R84).
+   */
+  cubierto?: Uint8Array;
 }
 
 export interface ImagenIndices {
@@ -54,9 +59,15 @@ export interface ImagenIndices {
   origenY: number;
   /** Índice de paleta por píxel; `VACIO` = transparente (fuera del mapa). */
   datos: Uint8Array;
+  /** Por píxel: 0 sin agua, 1 mar, 2 agua dulce (río o lago). Lo usa la animación del agua (R87). */
+  agua?: Uint8Array;
 }
 
 export const VACIO = 255;
+/** Valores de `ImagenIndices.agua`. */
+export const SIN_AGUA = 0;
+export const AGUA_MAR = 1;
+export const AGUA_DULCE = 2;
 
 /** Materiales (una clase por rampa): la limpieza morfológica opera sobre ellos. */
 const CLASE = { agua: 0, hierba: 1, tierra: 2, roca: 3, piedra: 4 } as const;
@@ -99,6 +110,8 @@ interface Muestra {
   tono: number;
   /** Sombreado en bandas duras, sin tramado: roca y nieve (con tramado se lee como difuminado). */
   duro?: boolean;
+  /** Si es agua: mar o dulce (para la animación, R87). */
+  agua?: 1 | 2;
 }
 
 /** Agua a menos de `r` tiles: el mar (lámina al nivel del mar), el agua dulce (río o lago, por encima), o ninguna. */
@@ -178,8 +191,10 @@ function muestrear(sup: Superficie, cfg: ConfigHorneado, sombras: Sombras | null
     // Agua: más clara cerca de la orilla, más oscura con la profundidad; espuma en la orilla.
     const prof = agua - h;
     const tono = prof < 0.07 ? 6 : 5.2 - Math.min(5.2, prof * 3.4);
-    return { altura: agua, clase: 'agua', tono };
+    return { altura: agua, clase: 'agua', tono, agua: agua <= cfg.nivelMar + 0.04 ? 1 : 2 };
   }
+  // Bajo una pieza de montaña el terreno no se ve: solo tonos suaves, sin nieve ni roca (P2c3).
+  const tapado = cfg.cubierto !== undefined && cfg.cubierto[Math.floor(v) * cfg.tilesU + Math.floor(u)] === 1;
   const e = 0.35;
   const gu = (sup.suelo(u + e, v) - sup.suelo(u - e, v)) / (2 * e);
   const gv = (sup.suelo(u, v + e) - sup.suelo(u, v - e)) / (2 * e);
@@ -198,15 +213,18 @@ function muestrear(sup: Superficie, cfg: ConfigHorneado, sombras: Sombras | null
     // Montaña: nieve en las cumbres suaves (cota perturbada por ruido, borde nítido), roca en las laderas y caras
     // de acantilado donde la pendiente es alta. Bandas duras de 1 a 3 tonos para que se lea como pixel art.
     const cota = sobreMar + ruido * 0.9;
-    if (cota > cfg.alturaCumbre && pendiente < cfg.pendienteRoca * 1.4) {
+    if (!tapado && cota > cfg.alturaCumbre && pendiente < cfg.pendienteRoca * 1.4) {
       return { altura: h, clase: 'piedra', tono: 4.6 + banda(sombra) * 0.9 + cresta * 0.7 - (taparSol ? 1.6 : 0), duro: true };
     }
-    if (pendiente > cfg.pendienteRoca || cota > cfg.alturaCumbre * 0.8) {
+    if (!tapado && (pendiente > cfg.pendienteRoca || cota > cfg.alturaCumbre * 0.8)) {
       return { altura: h, clase: 'roca', tono: 2.2 + banda(sombra) * 0.55 + cresta * 0.6 - (taparSol ? 0.9 : 0), duro: true };
     }
-  } else if (pendiente > cfg.pendienteRoca) {
+  } else if (!tapado && pendiente > cfg.pendienteRoca) {
     return { altura: h, clase: 'roca', tono: 2.2 + banda(sombra) * 0.55 - (taparSol ? 0.9 : 0), duro: true };
   }
+
+  // Bajo una pieza: tono de hierba suave y sin tramado fuerte, para que no asome nieve ni roca por los bordes.
+  if (tapado) return { altura: h, clase: 'hierba', tono: 2.4 + sombra * 1.2 - (taparSol ? 0.8 : 0) };
 
   const orilla = tipoDeOrilla(sup, cfg, u, v);
   if (orilla === 'arena') return { altura: h, clase: 'tierra', tono: 4.1 + sombra * 4 + ruido * 0.5 };
@@ -236,6 +254,7 @@ export function hornear(sup: Superficie, cfg: ConfigHorneado): ImagenIndices {
   const dim = dimensionesImagen(cfg);
   const datos = new Uint8Array(dim.ancho * dim.alto).fill(VACIO);
   const clases = new Uint8Array(dim.ancho * dim.alto).fill(VACIO);
+  const agua = new Uint8Array(dim.ancho * dim.alto);
   const sombras = cfg.resolucionSombra > 0 ? new Sombras(sup, cfg) : null;
   const medioAncho = cfg.tileAncho / 2;
   const medioAlto = cfg.tileAlto / 2;
@@ -257,17 +276,20 @@ export function hornear(sup: Superficie, cfg: ConfigHorneado): ImagenIndices {
       const lo = TONO_MIN[m.clase];
       const hi = TONO_MAX[m.clase];
       const clase = CLASE[m.clase];
+      const marca = m.agua ?? 0;
       for (let j = Math.max(0, y); j < ymin; j++) {
         const t = duro ? Math.round(m.tono) : cuantizar(m.tono, i, j);
-        datos[j * dim.ancho + i] = tonoDe(m.clase, limitar(t, lo, hi));
-        clases[j * dim.ancho + i] = clase;
+        const p = j * dim.ancho + i;
+        datos[p] = tonoDe(m.clase, limitar(t, lo, hi));
+        clases[p] = clase;
+        agua[p] = marca;
       }
       ymin = Math.max(0, y);
       if (ymin === 0) break;
     }
   }
   if (cfg.minRegion > 1) limpiarRegiones(datos, clases, dim.ancho, dim.alto, cfg.minRegion);
-  return { ...dim, datos };
+  return { ...dim, datos, agua };
 }
 
 /**

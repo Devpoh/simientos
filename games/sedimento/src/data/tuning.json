@@ -442,6 +442,21 @@
     "tileMundo": 1,
     "lado": 512
   },
+  "humo": {
+    "semilla": 7717,
+    "fotogramas": 4,
+    "segundosVida": 2.6,
+    "alturaPx": 26,
+    "altoFuego": 0.55,
+    "subidaPx": 26,
+    "derivaPx": 5,
+    "maxFocos": 90,
+    "cadenciaMs": 420
+  },
+  "agua": {
+    "fotogramas": 4,
+    "msPorFotograma": 190
+  },
   "rendimiento": {
     "ventanaFotogramas": 300,
     "refrescoPanelMs": 250,
@@ -486,7 +501,32 @@
     },
     "resolucionSombra": 4,
     "alcanceSombra": 14,
-    "minRegion": 28
+    "minRegion": 28,
+    "montanas": {
+      "alturaMinCumbre": 2.6,
+      "distanciaMinCumbre": 3,
+      "radioEncuadre": 3,
+      "alturaMacizo": 5.2,
+      "alturaPico": 4.4,
+      "mediaMacizo": 3,
+      "mediaPico": 3.6,
+      "mediaCresta": 3.2,
+      "mediaColina": 1,
+      "mediaPie": 0.8,
+      "desnivelMacizo": 5.5,
+      "desnivelPico": 4.5,
+      "desnivelCresta": 3.5,
+      "desnivelColina": 1.8,
+      "desnivelAcantilado": 3.5,
+      "desnivelPie": 1.5,
+      "pendienteAcantilado": 1.05,
+      "solapeCadena": 2,
+      "maxCadena": 6,
+      "maxAcantilados": 40,
+      "maxPies": 30,
+      "pasoLadera": 3,
+      "maxPiezas": 400
+    }
   },
   "aldea": {
     "etiquetaSemilla": "aldea",
@@ -508,6 +548,8 @@
     ],
     "velocidadCaminar": 0.8,
     "calleTiles": 1,
+    "callePrincipalCada": 14,
+    "callePrincipalAncho": 2,
     "pendienteMax": 0.3,
     "desnivelHuellaMax": 0.4,
     "radioCampos": 0.6,
@@ -517,5 +559,54 @@
     "ruidoColocacion": 1.5,
     "arbolesSueltos": 0.15,
     "bosqueRuido": 1.5
+  },
+  "ocupacion": {
+    "subceldas": 4,
+    "pendienteMax": 0.55
+  },
+  "navegacion": {
+    "costeBase": 1,
+    "costeCamino": 0.6,
+    "costePendiente": 0.8,
+    "diagonal": true,
+    "pasoMaxTiles": 48
+  },
+  "orden": {
+    "margenHuellas": 1.5
+  },
+  "ciudadano": {
+    "velocidad": 0.04,
+    "esperaIdle": 40,
+    "ticksDentro": 60,
+    "esperaBloqueado": 100
+  },
+  "seleccion": {
+    "slotsGrupo": 9,
+    "radioClicTiles": 0.75,
+    "radioEdificioTiles": 0.5,
+    "umbralArrastrePx": 4,
+    "umbralArrastreMs": 250,
+    "colorAnillo": "#ffd27a",
+    "colorCaja": "#ffd87a",
+    "formacion": {
+      "separacion": 1.05,
+      "radioAjuste": 6
+    }
+  },
+  "caminoPintor": {
+    "subceldas": 4,
+    "celdaCanto": 5.4,
+    "ruidoBordeRoca": 1.5,
+    "ruidoBordeTierra": 2.2,
+    "umbralTierra": 0.3,
+    "radioRoca": 1.0,
+    "radioTierra": 0.5,
+    "rodadaDist": 1.25,
+    "rodadaAncho": 0.34,
+    "crestaDist": 2.1,
+    "grasaHierba": 0.45,
+    "escalaRuidoGrueso": 0.09,
+    "escalaRuidoFino": 0.31,
+    "pasoLado": 128
   }
 }

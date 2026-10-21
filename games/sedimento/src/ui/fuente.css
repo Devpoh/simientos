@@ -1,0 +1,52 @@
+/* Fuente pixel libre (OFL) servida en local, sin CDN (R70).
+   Silkscreen · Copyright 2001 The Silkscreen Project Authors · SIL Open Font License 1.1 (OFL.txt). */
+
+@font-face {
+  font-family: 'Silkscreen';
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url('/recursos/fuentes/silkscreen-400.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Silkscreen';
+  font-style: normal;
+  font-weight: 700;
+  font-display: block;
+  src: url('/recursos/fuentes/silkscreen-700.ttf') format('truetype');
+}
+
+:root {
+  --fuente-pixel: 'Silkscreen', monospace;
+  /* Grosor del borde de los marcos 9-slice (corte de los sprites de ui/). */
+  --marco-grosor: 6px;
+}
+
+/* Capa de interfaz: cubre el lienzo, no intercepta el ratón salvo en los paneles. */
+#ui {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+  overflow: hidden;
+  font-family: var(--fuente-pixel);
+  color: var(--c-piedra-6);
+  image-rendering: pixelated;
+  user-select: none;
+}
+
+#ui .panel {
+  pointer-events: auto;
+  image-rendering: pixelated;
+  font-family: var(--fuente-pixel);
+  color: var(--c-piedra-6);
+  background-color: var(--c-tinta-0);
+  box-sizing: border-box;
+}
+
+#ui .retrato {
+  image-rendering: pixelated;
+  display: block;
+}
