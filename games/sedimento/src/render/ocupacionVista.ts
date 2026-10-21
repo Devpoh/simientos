@@ -5,6 +5,7 @@ import Phaser from 'phaser';
 import tuning from '../data/tuning.json';
 import { aPantalla, type Huella } from '../logic/iso';
 import { BLOQUEADA, CAMINO, LIBRE, PUERTA, estadoTile, huellaGirada, type Ocupacion } from '../logic/ocupacion';
+import type { Tile } from '../logic/navegacion';
 const COLOR: Record<number, number> = {
   [LIBRE]: 0x2bd66a,
   [BLOQUEADA]: 0xe23b3b,
@@ -13,6 +14,7 @@ const COLOR: Record<number, number> = {
 };
 const ALFA = 0.22;
 const ALFA_HUELLA = 0.35;
+const COLOR_RUTA = 0xffffff;
 const PROFUNDIDAD = 100000;
 
 /** Trapecio isométrico del tile (u, v) como polígono de Phaser. */
@@ -39,8 +41,8 @@ export class OcupacionVista {
     this.graficos = scene.add.graphics().setDepth(PROFUNDIDAD);
   }
 
-  /** Redibuja la ocupación entera y las huellas de las estructuras. */
-  redibujar(oc: Ocupacion, elevacion: (u: number, v: number) => number): void {
+  /** Redibuja la ocupación entera, las huellas de las estructuras y, si se da, una ruta de ejemplo. */
+  redibujar(oc: Ocupacion, elevacion: (u: number, v: number) => number, ruta?: Tile[]): void {
     const g = this.graficos;
     g.clear();
     for (let v = 0; v < oc.tilesV; v++) {
@@ -57,6 +59,20 @@ export class OcupacionVista {
     for (const est of oc.estructuras.values()) {
       this.huella(est.u, est.v, huellaGirada(est.huella, est.giro), elevacion);
     }
+    if (ruta) this.ruta(ruta, elevacion);
+  }
+
+  /** Pinta la ruta de ejemplo (P4): una línea por encima del terreno, tile a tile. */
+  private ruta(ruta: Tile[], elevacion: (u: number, v: number) => number): void {
+    const g = this.graficos;
+    const pts: Phaser.Math.Vector2[] = [];
+    for (const t of ruta) {
+      const p = aPantalla(t.u + 0.5, t.v + 0.5, this.t);
+      pts.push(new Phaser.Math.Vector2(p.x, p.y - elevacion(t.u + 0.5, t.v + 0.5) - 2));
+    }
+    if (pts.length < 2) return;
+    g.lineStyle(2, COLOR_RUTA, 0.9);
+    g.strokePoints(pts, false, false);
   }
 
   private huella(u: number, v: number, h: Huella, elevacion: (u: number, v: number) => number): void {

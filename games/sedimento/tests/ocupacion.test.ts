@@ -4,7 +4,7 @@ import { claveOrdenEstructura } from '../src/logic/iso';
 import { crearMundo, type Mundo } from '../src/logic/mundo';
 import type { Superficie } from '../src/logic/horneado';
 import {
-  BLOQUEADA, PUERTA, SUBCELDAS, TERRENO_AGUA, TERRENO_PENDIENTE,
+  BLOQUEADA, CAMINO, LIBRE, PUERTA, SUBCELDAS, TERRENO_AGUA, TERRENO_PENDIENTE,
   bloqueada, calcularTerreno, colocarEstructura, colocarObjeto, colisionesViolaciones, crearOcupacion,
   derribarEn, estadoTile, huellaGirada, marcarCamino, nEstructuras,
   puedeColocar, puertaGirada, reservarDinamica, type Ocupacion,
@@ -98,6 +98,16 @@ describe('puedeColocar: motivos (P3, R21, R50)', () => {
     expect(puedeColocar(oc, huella(2, 2), 3, 3)).toEqual({ ok: false, motivo: 'camino' });
   });
 
+  it('un tile enteramente de camino se reporta como camino, no como libre', () => {
+    const oc = chica();
+    for (let su = 0; su < SUBCELDAS; su++) {
+      for (let sv = 0; sv < SUBCELDAS; sv++) marcarCamino(oc, 3 * SUBCELDAS + su, 4 * SUBCELDAS + sv);
+    }
+    expect(estadoTile(oc, 3, 4)).toBe(CAMINO);
+    // Y sigue siendo pisable: el camino acelera, no bloquea.
+    expect(bloqueada(oc, 3, 4)).toBe(false);
+  });
+
   it('el giro intercambia ancho y fondo', () => {
     expect(huellaGirada({ w: 2, d: 5 }, 0)).toEqual({ w: 2, d: 5 });
     expect(huellaGirada({ w: 2, d: 5 }, 1)).toEqual({ w: 5, d: 2 });
@@ -154,6 +164,22 @@ describe('colocar y derribar (P3)', () => {
     expect(estadoTile(oc, 4, 6)).toBe(PUERTA);
     expect(bloqueada(oc, 4, 6)).toBe(false);
     expect(bloqueada(oc, 4, 4)).toBe(true);
+  });
+
+  it('la estructura guarda sus puertas en coordenadas absolutas (están fuera de la huella)', () => {
+    const oc = chica();
+    colocarEstructura(oc, 'casa', huella(2, 2), 4, 4, 0, [{ i: 0, j: 2 }, { i: 1, j: 2 }]);
+    const est = oc.estructuras.get(4 * oc.tilesU + 4);
+    expect(est?.puertas).toEqual([{ u: 4, v: 6 }, { u: 5, v: 6 }]);
+  });
+
+  it('derribar limpia también las puertas (no deja un acceso fantasma)', () => {
+    const oc = chica();
+    colocarEstructura(oc, 'casa', huella(2, 2), 4, 4, 0, [{ i: 0, j: 2 }]);
+    expect(estadoTile(oc, 4, 6)).toBe(PUERTA);
+    derribarEn(oc, 4, 4);
+    expect(estadoTile(oc, 4, 6)).toBe(LIBRE);
+    expect(colisionesViolaciones(oc)).toBe(0);
   });
 
   it('la puerta girada sigue pegada al lado correcto de la huella girada', () => {

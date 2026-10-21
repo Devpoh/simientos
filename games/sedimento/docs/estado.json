@@ -249,8 +249,10 @@
     },
     {
       "id": "P4",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "dividida en P4a (navegación A* sobre la rejilla) y P4b (ciudadanos que caminan, puertas, y-sort y 300 unidades)"
+      ],
       "creada": "2026-10-20T05:01:34.270Z",
       "titulo": "Navegación y ciudadanos que caminan",
       "objetivo": "A* sobre la rejilla; ciudadanos que caminan y entran y salen por las puertas; y-sort con una sola regla",
@@ -263,7 +265,8 @@
       ],
       "sesion": "B",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "fin": "2026-10-21T08:19:35.678Z"
     },
     {
       "id": "P5",
@@ -2095,6 +2098,50 @@
       },
       "motivo": "bench-60fps (D034) sigue sin poder medirse: Chromium headless usa SwiftShader, sin GPU real",
       "fin": "2026-10-21T07:40:15.755Z"
+    },
+    {
+      "id": "P4a",
+      "estado": "hecha",
+      "hecho": [
+        "logic/monticulo.ts: montículo binario mínimo compartido por los dos A* (hexagonal y rejilla), con desempate determinista por índice",
+        "logic/navegacion.ts: A* sobre la rejilla de ocupación con coste base/camino, diagonal con regla de no cortar esquina, heurística octil, suavizarRuta, longitudRuta, puntoEnRuta, alcanzables y alcanzablesCerca",
+        "tuning.json: sección navegacion (costeBase 1, costeCamino 0,6, costePendiente 0,8, diagonal true)",
+        "F3 pinta la ruta de ejemplo (línea blanca) y exponer(navegacion) publica hayRuta/tiles/longitud/ms/motivo",
+        "Arreglos que salieron del test: estadoTile ya no cuenta el camino como libre; la estructura guarda sus puertas en coordenadas absolutas (están fuera de la huella) y derribar las limpia"
+      ],
+      "creada": "2026-10-21T08:19:35.720Z",
+      "titulo": "Navegación A* sobre la rejilla de ocupación",
+      "objetivo": "A* sobre la rejilla de ocupación con coste por terreno/camino, sin cortar esquinas, con ruta suavizada y alcanzabilidad; verificado con test de propiedad y ruta real en el navegador",
+      "criterios": [
+        "Test de propiedad: 200 ciudadanos x 10 000 ticks sin pisar una celda bloqueada",
+        "La ruta rodea muros y rodea el agua (no atraviesa lo bloqueado)",
+        "Determinista: los mismos datos dan la misma ruta (y-sort §4)",
+        "shot: colisionesViolaciones = 0 y ruta dibujada en F3 (captura)"
+      ],
+      "sesion": "B",
+      "inicio": "2026-10-21T08:19:35.721Z",
+      "verificacion": {
+        "tests": "395/395 en 25 archivos",
+        "resultado": "navegacion.hayRuta=true, 10 tiles, 9 de longitud, 0,5 ms; ocupacion violaciones=0 y rechazados=0; errores y avisos vacios",
+        "captura": "P4a-ruta.png"
+      },
+      "commit": "pendiente",
+      "fin": "2026-10-21T08:19:46.391Z"
+    },
+    {
+      "id": "P4b",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-21T08:19:46.344Z",
+      "titulo": "Ciudadanos que caminan y entran por las puertas",
+      "objetivo": "Ciudadanos con máquina de estados (idle, andar, entrar, dentro, salir), ruta A* y puertas; y-sort con una sola regla; 300 caminando a p95 <= 16,6 ms",
+      "criterios": [
+        "Entrar y salir por la puerta (estado dentro) e y-sort determinista (tests)",
+        "La ruta se replanifica al construir o derribar (test)",
+        "300 ciudadanos caminando con p95 <= 16,6 ms (shot)",
+        "shot: nadie dibujado encima o debajo de una casa (captura)"
+      ],
+      "sesion": "B"
     }
   ],
   "errores": [
@@ -2188,6 +2235,15 @@
       "sintoma": "git push origin claude/nube devuelve 403 (remote: Permission to Devpoh/simientos.git denied to Devpoh)",
       "causa": "El GITHUB_TOKEN del entorno es un token de instalacion de GitHub App (ghu_...) sin scopes de escritura: x-oauth-scopes viene vacio y la API responde 403 Resource not accessible by integration al crear la ref y al empujar. La API de lectura ve el repo como admin/push=true, pero el token de git no tiene permiso de escritura.",
       "solucion": "No se puede resolver desde la sesion. Los commits quedan en local en la rama claude/nube. Hace falta un token con permiso contents:write (o repo) o que el usuario empuje."
+    },
+    {
+      "id": "E011",
+      "t": "2026-10-21T08:19:57.273Z",
+      "estado": "resuelto",
+      "fase": "P4a",
+      "sintoma": "buscarRuta devolvía null entre el centro de la aldea y la puerta de la primera casa, aunque la rejilla tuviera 2273 tiles libres",
+      "causa": "Dos causas sumadas: (1) estadoTile contaba las subceldas de camino como libres, así que un tile de camino nunca se reportaba como camino; (2) las celdas de acceso del atlas están FUERA de la huella, así que puertaDeCasa, que buscaba PUERTA dentro de la huella, nunca la encontraba y usaba el tile de esquina (bloqueado) como destino",
+      "solucion": "estadoTile solo cuenta libre si la subcelda no es camino; colocarEstructura guarda las puertas en coordenadas absolutas dentro de EstructuraColocada y derribarEn las limpia; puertaDeCasa usa esas puertas. Además el mundo tiene bolsas de tierra aisladas por el agua, así que medirNavegacion usa alcanzables() para elegir una casa de la misma componente"
     }
   ],
   "faltantes": [
@@ -2618,6 +2674,13 @@
       "texto": "P3 cierra con la rejilla de ocupación como fuente de verdad de colocación/navegación/F3. hex.ts NO se retira todavía: su Rejilla y su geometría axial sostienen la generación del terreno aprobado (R59); sustituirla por una rejilla cuadrada cambiaría el relieve validado sin ganar nada de juego",
       "porque": "R27 (juego antes que estilo) y el riesgo de regresión visual; la hoja de ruta (§8) acota P3 a ocupacion.ts + puedeColocar + F3 + tests de §4, no a reescribir el generador de terreno",
       "fase": "P3"
+    },
+    {
+      "id": "D041",
+      "t": "2026-10-21T08:19:57.238Z",
+      "fase": "P4a",
+      "texto": "El A* de la rejilla vive en logic/navegacion.ts y comparte montículo con el hexagonal (logic/monticulo.ts). La ruta se suaviza a vértices y el movimiento continuo se interpola con puntoEnRuta. No cortar esquina es obligatorio: dos unidades cruzando un cruce en diagonal romperían el y-sort determinista de §4",
+      "porque": "La rejilla de ocupación es la única fuente de verdad (D040): el A* hexagonal de rutas.ts sigue para el terreno del mundo, pero la colocación y el paso por puertas se deciden en la rejilla"
     }
   ],
   "conceptos": [
@@ -2773,6 +2836,30 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-21T08:19:57.273Z",
+      "texto": "Error E011 (resuelto): buscarRuta devolvía null entre el centro de la aldea y la puerta de la primera casa, aunque la rejilla tuviera 2273 tiles libres"
+    },
+    {
+      "t": "2026-10-21T08:19:57.238Z",
+      "texto": "Decisión: El A* de la rejilla vive en logic/navegacion.ts y comparte montículo con el hexagonal (logic/monticulo.ts). La ruta se suaviza a vértices y el movimiento continuo se interpola con puntoEnRuta. No cortar esquina es obligatorio: dos unidades cruzando un cruce en diagonal romperían el y-sort determinista de §4"
+    },
+    {
+      "t": "2026-10-21T08:19:46.399Z",
+      "texto": "Fase P4a → hecha: Navegación A* sobre la rejilla de ocupación"
+    },
+    {
+      "t": "2026-10-21T08:19:46.351Z",
+      "texto": "Fase P4b creada: Ciudadanos que caminan y entran por las puertas"
+    },
+    {
+      "t": "2026-10-21T08:19:35.727Z",
+      "texto": "Fase P4a creada: Navegación A* sobre la rejilla de ocupación"
+    },
+    {
+      "t": "2026-10-21T08:19:35.685Z",
+      "texto": "Fase P4 → hecha: Navegación y ciudadanos que caminan"
+    },
     {
       "t": "2026-10-21T08:02:50.952Z",
       "texto": "Fase P3 → hecha: Rejilla de ocupación única"
@@ -3330,5 +3417,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-21T08:02:50.952Z"
+  "actualizado": "2026-10-21T08:19:57.273Z"
 }

@@ -561,5 +561,12 @@
   "ocupacion": {
     "subceldas": 4,
     "pendienteMax": 0.55
+  },
+  "navegacion": {
+    "costeBase": 1,
+    "costeCamino": 0.6,
+    "costePendiente": 0.8,
+    "diagonal": true,
+    "pasoMaxTiles": 48
   }
 }

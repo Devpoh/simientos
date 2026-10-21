@@ -43,6 +43,12 @@ export const MOTIVOS: Record<MotivoNoColocable, string> = {
 
 export type ResultadoColocacion = { ok: true } | { ok: false; motivo: MotivoNoColocable };
 
+/** Un tile de la rejilla en coordenadas absolutas. */
+export interface Tile {
+  u: number;
+  v: number;
+}
+
 /** Celda de acceso, en tiles relativos a la esquina trasera de la huella. Mismo dato que el atlas. */
 export interface PuertaLocal {
   i: number;
@@ -56,6 +62,8 @@ export interface EstructuraColocada {
   u: number;
   v: number;
   giro: Giro;
+  /** Tiles de acceso en coordenadas absolutas. Quedan fuera de la huella, así que hay que guardarlos. */
+  puertas: Tile[];
 }
 
 export interface Ocupacion {
@@ -228,7 +236,15 @@ export function colocarEstructura(
       }
     }
   }
-  oc.estructuras.set(v * oc.tilesU + u, { id, huella: h, u, v, giro });
+  const puertasAbs: Tile[] = [];
+  for (const p of puertas) {
+    const pg = puertaGirada(p, h, giro);
+    const du = u + pg.i;
+    const dv = v + pg.j;
+    if (du < 0 || dv < 0 || du >= oc.tilesU || dv >= oc.tilesV) continue;
+    puertasAbs.push({ u: du, v: dv });
+  }
+  oc.estructuras.set(v * oc.tilesU + u, { id, huella: h, u, v, giro, puertas: puertasAbs });
   return true;
 }
 
@@ -238,6 +254,15 @@ export function derribarEn(oc: Ocupacion, u: number, v: number): EstructuraColoc
     const g = huellaGirada(e.huella, e.giro);
     if (u >= e.u && u < e.u + g.w && v >= e.v && v < e.v + g.d) {
       porSubcelda(oc, e.huella, e.u, e.v, e.giro, (_su, _sv, k) => { oc.capas.estructuras[k] = LIBRE; });
+      // Las puertas quedan fuera de la huella: si no se limpian, dejarían un acceso fantasma.
+      for (const p of e.puertas) {
+        for (let sv = 0; sv < SUBCELDAS; sv++) {
+          for (let su = 0; su < SUBCELDAS; su++) {
+            const k = indiceSub(oc, p.u * SUBCELDAS + su, p.v * SUBCELDAS + sv);
+            if (oc.capas.estructuras[k] === PUERTA) oc.capas.estructuras[k] = LIBRE;
+          }
+        }
+      }
       oc.estructuras.delete(e.v * oc.tilesU + e.u);
       return e;
     }
@@ -289,12 +314,13 @@ export function estadoTile(oc: Ocupacion, u: number, v: number): number {
       const e = oc.capas.estructuras[k];
       if (e === PUERTA) hayPuerta = true;
       else if (e === CAMINO) hayCamino = true;
-      if (oc.capas.terreno[k] !== BLOQUEADA && e !== BLOQUEADA && oc.capas.objetos[k] === LIBRE) hayLibre = true;
+      // Un camino no es «libre»: es transitable pero cuesta menos, y la interfaz lo pinta distinto.
+      if (oc.capas.terreno[k] !== BLOQUEADA && e !== BLOQUEADA && e !== CAMINO && oc.capas.objetos[k] === LIBRE) hayLibre = true;
     }
   }
   if (hayPuerta) return PUERTA;
-  if (hayCamino && !hayLibre) return CAMINO;
-  return hayLibre ? LIBRE : BLOQUEADA;
+  if (hayLibre) return LIBRE;
+  return hayCamino ? CAMINO : BLOQUEADA;
 }
 
 /** Cuántas estructuras vivas hay. */

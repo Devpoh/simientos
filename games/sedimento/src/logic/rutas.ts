@@ -1,4 +1,5 @@
 import { Rejilla } from './hex';
+import { MonticuloMin } from './monticulo';
 import type { Mapa, Terreno } from './mapa';
 
 // A* sobre la rejilla hexagonal. El coste de un paso depende del terreno de destino
@@ -38,61 +39,6 @@ function costeMinimoTransitable(cfg: ConfigMovimiento): number {
     if (coste !== null && coste < minimo) minimo = coste;
   }
   return minimo;
-}
-
-/** Montículo binario mínimo por `f`, con desempate determinista por menor índice. */
-class MonticuloMin {
-  private datos: { i: number; f: number }[] = [];
-
-  get tamano(): number {
-    return this.datos.length;
-  }
-
-  insertar(i: number, f: number): void {
-    this.datos.push({ i, f });
-    this.subir(this.datos.length - 1);
-  }
-
-  extraerMin(): { i: number; f: number } | undefined {
-    const datos = this.datos;
-    if (datos.length === 0) return undefined;
-    const min = datos[0];
-    const ultimo = datos.pop() as { i: number; f: number };
-    if (datos.length > 0) {
-      datos[0] = ultimo;
-      this.bajar(0);
-    }
-    return min;
-  }
-
-  private tienePrioridad(a: { i: number; f: number }, b: { i: number; f: number }): boolean {
-    return a.f !== b.f ? a.f < b.f : a.i < b.i;
-  }
-
-  private subir(idx: number): void {
-    const datos = this.datos;
-    while (idx > 0) {
-      const padre = (idx - 1) >> 1;
-      if (!this.tienePrioridad(datos[idx], datos[padre])) break;
-      [datos[idx], datos[padre]] = [datos[padre], datos[idx]];
-      idx = padre;
-    }
-  }
-
-  private bajar(idx: number): void {
-    const datos = this.datos;
-    const n = datos.length;
-    while (true) {
-      const izq = idx * 2 + 1;
-      const der = idx * 2 + 2;
-      let mejor = idx;
-      if (izq < n && this.tienePrioridad(datos[izq], datos[mejor])) mejor = izq;
-      if (der < n && this.tienePrioridad(datos[der], datos[mejor])) mejor = der;
-      if (mejor === idx) break;
-      [datos[idx], datos[mejor]] = [datos[mejor], datos[idx]];
-      idx = mejor;
-    }
-  }
 }
 
 function reconstruir(cameFrom: Map<number, number>, actual: number): number[] {

@@ -14,7 +14,8 @@ import { HumoVista } from '../render/humoVista';
 import { focosDeAldea } from '../logic/humo';
 import { cobertura, generarMontanas, reservaAldea } from '../logic/montanas';
 import { MontanasVista } from '../render/montanasVista';
-import { crearOcupacion, colocarEstructura, colocarObjeto, colisionesViolaciones, type Ocupacion } from '../logic/ocupacion';
+import { bloqueada, crearOcupacion, colocarEstructura, colocarObjeto, colisionesViolaciones, type Ocupacion } from '../logic/ocupacion';
+import { alcanzables, buscarRuta, longitudRuta, type Tile } from '../logic/navegacion';
 import { OcupacionVista } from '../render/ocupacionVista';
 import { params } from '../core/test-hooks';
 import { ControlCamara } from '../render/controlCamara';
@@ -71,6 +72,7 @@ export class MundoScene extends Phaser.Scene {
   private ocupacionVista?: OcupacionVista;
   private poblado?: { estructuras: number; objetos: number; rechazados: string[] };
   private elevacion?: (u: number, v: number) => number;
+  private rutaEjemplo?: Tile[];
   private depurar = false;
   private humo?: HumoVista;
   private partida?: Partida;
@@ -176,6 +178,9 @@ export class MundoScene extends Phaser.Scene {
     exponer('nProps', () => aldea.props.length);
     exponer('nUnidades', () => aldea.unidades.length);
     exponer('solapesAldea', () => this.vista?.solapes ?? -1);
+    // Navegación (P4, R50.4): ruta de ejemplo desde el centro de la aldea hasta la puerta de una casa.
+    // Publica el motivo cuando no hay camino (la unidad quedaría en estado `bloqueado`, con su icono).
+    exponer('navegacion', () => this.medirNavegacion());
     // Rejilla de ocupación (P3, R50): fuente de verdad de colocación y navegación. `colisionesViolaciones`
     // debe ser 0 siempre; `rechazados` (edificios que la rejilla no acepta donde los puso la aldea) también.
     exponer('ocupacion', () => ({
@@ -298,13 +303,79 @@ export class MundoScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Mide una ruta de verdad sobre la rejilla (P4): del centro de la aldea a la puerta de una casa alcanzable.
+   * El mundo tiene bolsas de tierra aisladas por el agua, así que se busca la primera casa cuya puerta esté
+   * en la misma componente que el centro; si ninguna lo está, se publica el motivo.
+   */
+  private medirNavegacion(): { hayRuta: boolean; tiles: number; longitud: number; ms: number; motivo: string | null } {
+    if (!this.ocupacion || !this.aldea) return { hayRuta: false, tiles: 0, longitud: 0, ms: 0, motivo: 'sin-mundo' };
+    const oc = this.ocupacion;
+    const centro = this.tileLibreCerca(this.aldea.centro.u, this.aldea.centro.v);
+    if (bloqueada(oc, centro.u, centro.v)) return { hayRuta: false, tiles: 0, longitud: 0, ms: 0, motivo: 'centro-bloqueado' };
+    const alcanzable = alcanzables(oc, centro);
+    const esAlcanzable = (t: Tile): boolean => alcanzable[t.v * oc.tilesU + t.u] === 1;
+
+    let mejor: { destino: Tile; ruta: Tile[] } | null = null;
+    const t0 = performance.now();
+    for (const e of this.aldea.edificios) {
+      if (!oc.estructuras.has(e.v * oc.tilesU + e.u)) continue;
+      const destino = this.puertaDeCasa(e.u, e.v);
+      if (!esAlcanzable(destino)) continue;
+      const ruta = buscarRuta(oc, centro, destino);
+      if (ruta) { mejor = { destino, ruta }; break; }
+    }
+    const ms = performance.now() - t0;
+    if (!mejor) {
+      this.rutaEjemplo = undefined;
+      return { hayRuta: false, tiles: 0, longitud: 0, ms: Math.round(ms * 100) / 100, motivo: 'sin-casas-alcanzables' };
+    }
+    this.rutaEjemplo = mejor.ruta;
+    return {
+      hayRuta: true, tiles: mejor.ruta.length, longitud: Math.round(longitudRuta(mejor.ruta) * 10) / 10,
+      ms: Math.round(ms * 100) / 100, motivo: null,
+    };
+  }
+
+  /** Tile pisable más cercano a (u, v): el centro de la aldea suele estar tapado por la plaza o una casa. */
+  private tileLibreCerca(u: number, v: number): Tile {
+    const oc = this.ocupacion!;
+    const maxRadio = Math.max(oc.tilesU, oc.tilesV);
+    for (let r = 0; r < maxRadio; r++) {
+      for (let dv = -r; dv <= r; dv++) {
+        for (let du = -r; du <= r; du++) {
+          if (Math.max(Math.abs(du), Math.abs(dv)) !== r) continue;
+          const nu = u + du;
+          const nv = v + dv;
+          if (nu < 0 || nv < 0 || nu >= oc.tilesU || nv >= oc.tilesV) continue;
+          if (!bloqueada(oc, nu, nv)) return { u: nu, v: nv };
+        }
+      }
+    }
+    return { u, v };
+  }
+
+  /** Primera celda de acceso (o el propio tile) de la casa que empieza en (u, v). */
+  private puertaDeCasa(u: number, v: number): Tile {
+    const oc = this.ocupacion!;
+    const est = oc.estructuras.get(v * oc.tilesU + u);
+    if (est) {
+      for (const p of est.puertas) {
+        if (!bloqueada(oc, p.u, p.v)) return p;
+      }
+      if (est.puertas.length > 0) return est.puertas[0];
+    }
+    return { u, v };
+  }
+
   /** Enciende o apaga la capa F3 y la redibuja al encender. `on` indefinido alterna. */
   private alternarDepuracion(on?: boolean): void {
     this.depurar = on ?? !this.depurar;
     if (this.depurar && this.ocupacion) {
       if (!this.ocupacionVista) this.ocupacionVista = new OcupacionVista(this);
       const elevacion = this.elevacion ?? (() => 0);
-      this.ocupacionVista.redibujar(this.ocupacion, elevacion);
+      if (!this.rutaEjemplo) this.medirNavegacion();
+      this.ocupacionVista.redibujar(this.ocupacion, elevacion, this.rutaEjemplo);
     } else {
       this.ocupacionVista?.graficos.clear();
     }
