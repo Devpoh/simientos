@@ -27,9 +27,16 @@ import {
   avanzarCiudadano, casasDeAldea, contarEstados, longitudRutas, poblarCiudadanos, violacionesCiudadanos,
   type Casa, type Ciudadano, type SemillaCiudadano,
 } from '../logic/ciudadano';
+import { catalogoEntidades, idsVivos } from '../logic/catalogoEntidades';
+import { ordenDeGrupo } from '../logic/ordenesGrupo';
+import { FORMACIONES, type Formacion } from '../logic/formaciones';
+import { ControlSeleccion } from '../render/controlSeleccion';
+import { SeleccionVista } from '../render/seleccionVista';
+import { crearPanelGrupo, type Miniatura, type PanelGrupo } from '../ui/panelGrupo';
+import { alCaja, type Entidad } from '../logic/seleccion';
 import { crearRng, derivarSemilla, type Rng } from '../logic/azar';
 import { PanelRendimiento } from '../ui/panelRendimiento';
-import { crearCapaUi, type CapaUi } from '../ui/capa';
+import { crearCapaUi, type CapaUi, type MarcoUi } from '../ui/capa';
 import { crearHud, type DatosHud, type Hud } from '../ui/hud';
 import { crearAtajosReloj } from '../ui/atajos';
 import { resolverMarcos } from '../logic/marcos';
@@ -94,6 +101,14 @@ export class MundoScene extends Phaser.Scene {
   private hud?: Hud;
   private quitarAtajos?: () => void;
   private capa?: CapaUi;
+  // Selección múltiple y órdenes (P5, R51): catálogo de lo pinchable, control de ratón, vista de anillos/caja
+  // y panel de grupo.
+  private seleccion?: ControlSeleccion;
+  private seleccionVista?: SeleccionVista;
+  private panelGrupo?: PanelGrupo;
+  private entidades: Entidad[] = [];
+  private formacionActiva: Formacion = 'cuadro';
+  private destinosOrden: { u: number; v: number }[] = [];
 
   constructor() {
     super('Mundo');
@@ -181,6 +196,8 @@ export class MundoScene extends Phaser.Scene {
     // HUD con la fecha y los recursos (solo se redibuja cuando cambian) y el reloj (pausa y velocidades).
     this.partida = crearPartida(semilla);
     this.crearInterfaz(atlas);
+    // Selección múltiple y órdenes (P5, R51): ratón, anillos, panel de grupo y avisos de destino.
+    this.crearSeleccion(atlas);
 
     const r1 = (v: number): number => Math.round(v * 10) / 10;
     exponerAccion('reiniciarMedidas', () => medidor.reiniciar());
@@ -243,6 +260,18 @@ export class MundoScene extends Phaser.Scene {
     }));
     exponer('lienzo', () => ({ ancho: this.scale.gameSize.width, alto: this.scale.gameSize.height, zoom: this.scale.zoom }));
     exponer('escalaEntera', () => escalaFisica(this.scale.zoom, window.devicePixelRatio));
+    // Selección múltiple y órdenes (P5, R51): lo seleccionado, el grupo guardado y la formación activa.
+    exponer('seleccion', () => ({
+      ids: this.seleccion?.leer().ids ?? [],
+      n: this.seleccion?.leer().ids.length ?? 0,
+      nEntidades: this.entidades.length,
+      formacion: this.formacionActiva,
+      panelVisible: this.panelGrupo?.visible ?? false,
+      miniaturas: this.panelGrupo?.nMiniaturas ?? 0,
+      destinos: this.destinosOrden.length,
+      grupos: [1, 2, 3, 4, 5, 6, 7, 8, 9].filter((s) => this.seleccion?.hayGrupo(s)),
+    }));
+    exponerAccion('seleccionarCaja', (arg) => this.accionSeleccionarCaja(arg));
     // Estado de la interfaz y del reloj, para que shot lo compruebe sin captura.
     exponer('reloj', () => {
       const p = this.partida;
@@ -319,6 +348,132 @@ export class MundoScene extends Phaser.Scene {
     }
     this.rngCiudadanos = crearRng(derivarSemilla(aldea.semilla, 'ciudadanos'));
     return poblarCiudadanos(semillas, oc, casas);
+  }
+
+  /**
+   * Monta la selección múltiple (P5, R51): el catálogo de entidades pinchables, el control de ratón, la vista
+   * de anillos/caja y el panel de grupo. Los atajos de teclado (Esc, Ctrl+1…9, 1…9) se registran aquí.
+   */
+  private crearSeleccion(atlas: AtlasPixel): void {
+    if (!this.capa || !this.aldea) return;
+    this.reconstruirCatalogo();
+    this.seleccionVista = new SeleccionVista(this);
+
+    const marco = this.marcoPanel();
+    this.panelGrupo = crearPanelGrupo(this.capa, marco, { solo: (id) => this.seleccion?.solo(id) });
+
+    this.seleccion = new ControlSeleccion(this, {
+      entidades: () => this.entidades,
+      vivos: () => idsVivos(this.entidades),
+      alOrdenar: (destino, formacion, encadenar) => this.ordenarGrupo(destino, formacion, encadenar),
+      alCambiar: () => this.refrescarSeleccion(),
+      alCaja: (x0, y0, x1, y1, activa) => {
+        if (activa) this.seleccionVista?.pintarCaja(x0, y0, x1, y1, this.time.now);
+        else this.seleccionVista?.limpiarCaja();
+      },
+      formacion: () => this.formacionActiva,
+    });
+
+    const alTeclear = (e: KeyboardEvent): void => this.atajoSeleccion(e);
+    window.addEventListener('keydown', alTeclear);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      window.removeEventListener('keydown', alTeclear);
+      this.panelGrupo?.liberar();
+    });
+    // Retratos de las miniaturas: el primer fotograma del sprite de cada entidad.
+    void atlas;
+  }
+
+  /** Marco 9-slice para el panel de grupo (madera; cae en el de piedra si no existe). */
+  private marcoPanel(): MarcoUi {
+    const atlas = this.registry.get(CLAVE_REGISTRO_ATLAS) as AtlasPixel;
+    const marcos = resolverMarcos(atlas.ui, 'recursos/pixel/');
+    return marcos.marco_madera ?? marcos.marco_piedra
+      ?? { ruta: 'recursos/pixel/ui/marco-madera.png', corte: { arriba: 6, abajo: 6, izquierda: 6, derecha: 6 }, repetir: 'round' };
+  }
+
+  /** Rehace el catálogo de entidades pinchables a partir de la aldea, los ciudadanos y los animales. */
+  private reconstruirCatalogo(): void {
+    if (!this.aldea) return;
+    const animales = this.aldea.unidades
+      .filter((u) => u.clase === 'animal')
+      .map((u) => ({ id: u.id, u: u.u, v: u.v, estado: u.estado }));
+    this.entidades = catalogoEntidades(this.ciudadanos, animales, this.aldea.edificios);
+  }
+
+  /** Atajos de selección: Esc limpia, Ctrl+1…9 guarda grupo, 1…9 lo recupera (o fija formación con Alt). */
+  private atajoSeleccion(e: KeyboardEvent): void {
+    if (e.repeat || !this.seleccion) return;
+    if (e.code === 'Escape') { this.seleccion.limpiar(); return; }
+    const m = /^(?:Digit|Numpad)([1-9])$/.exec(e.code);
+    if (!m) return;
+    const slot = Number(m[1]);
+    if (e.ctrlKey || e.metaKey) { e.preventDefault(); this.seleccion.guardar(slot); return; }
+    // Sin modificador: recuperar grupo si lo hay; si no, elegir formación por número.
+    if (this.seleccion.hayGrupo(slot)) { e.preventDefault(); this.seleccion.recuperarGrupo(slot); return; }
+    const f = FORMACIONES[slot - 1];
+    if (f) { this.formacionActiva = f; }
+  }
+
+  /** Cambió la selección: repinta anillos, contador y el panel de grupo con miniaturas. */
+  private refrescarSeleccion(): void {
+    if (!this.seleccion || !this.seleccionVista) return;
+    const conjunto = this.seleccion.conjunto();
+    const elevacion = this.elevacion ?? (() => 0);
+    const huellas = this.aldea ? this.aldea.edificios.map((e) => ({ id: e.id, u: e.u, v: e.v, w: e.w, d: e.d })) : [];
+    this.seleccionVista.pintarSeleccion(this.ciudadanos, huellas, conjunto, elevacion);
+    this.panelGrupo?.mostrar(this.miniaturasSeleccion(conjunto));
+    if (conjunto.size === 0) this.panelGrupo?.ocultar();
+  }
+
+  /** Miniaturas del panel: el primer fotograma del atlas de cada entidad seleccionada. */
+  private miniaturasSeleccion(conjunto: ReadonlySet<string>): Miniatura[] {
+    const atlas = this.registry.get(CLAVE_REGISTRO_ATLAS) as AtlasPixel;
+    const salida: Miniatura[] = [];
+    for (const e of this.entidades) {
+      if (!conjunto.has(e.id)) continue;
+      const spriteId = e.clase === 'unidad' ? e.tipo : e.clase === 'edificio' ? this.spriteDeEdificio(e.id) : 'oveja';
+      const sp = atlas.sprites[spriteId] ?? atlas.sprites[Object.keys(atlas.sprites)[0]];
+      const primerEstado = sp ? Object.values(sp.estados)[0] : undefined;
+      const primeraOri = primerEstado ? Object.values(primerEstado.orientaciones)[0] : undefined;
+      const clave = primeraOri?.[0];
+      const f = clave ? atlas.frames[clave] : undefined;
+      if (!f) continue;
+      const img = this.textures.get(`atlas-${f.atlas}`).getSourceImage();
+      salida.push({ id: e.id, imagen: img as CanvasImageSource, frame: { x: f.x, y: f.y, w: f.w, h: f.h }, escala: 2, etiqueta: e.tipo });
+    }
+    return salida;
+  }
+
+  /** Id de sprite de un edificio a partir de su id de aldea (`choza_12` → `choza`). */
+  private spriteDeEdificio(id: string): string {
+    return id.split('_')[0];
+  }
+
+  /**
+   * Orden de movimiento al grupo seleccionado (botón derecho): reparte la formación y da ruta a cada uno.
+   * Mayús encadena puntos de ruta (P5 lo deja listo; el A* reemplaza la ruta actual por la nueva).
+   */
+  private ordenarGrupo(destino: Tile, formacion: Formacion, _encadenar: boolean): void {
+    const oc = this.ocupacion;
+    if (!oc || !this.seleccion) return;
+    const conjunto = this.seleccion.conjunto();
+    const unidades = this.ciudadanos.filter((ci) => conjunto.has(ci.id));
+    if (unidades.length === 0) return;
+    const r = ordenDeGrupo(unidades, oc, formacion, destino);
+    this.destinosOrden = r.destinos;
+    this.seleccionVista?.pintarDestinos(r.destinos, this.elevacion ?? (() => 0));
+  }
+
+  /**
+   * Acción de `shot`: selecciona por caja con coordenadas de rejilla `u0,v0,u1,v1` (en tiles). Sirve para
+   * verificar la caja con N entidades sin depender de píxeles exactos del puntero.
+   */
+  private accionSeleccionarCaja(arg?: unknown): void {
+    if (!this.seleccion) return;
+    const p = typeof arg === 'string' ? arg.split(',').map(Number) : Array.isArray(arg) ? arg.map(Number) : [0, 0, 0, 0];
+    const [u0, v0, u1, v1] = p;
+    this.seleccion.fijarIds(alCaja({ ids: [] }, this.entidades, u0, v0, u1, v1).ids);
   }
 
   /** Un tick de simulación de todos los ciudadanos, con azar determinista derivado de la semilla. */
@@ -502,6 +657,14 @@ export class MundoScene extends Phaser.Scene {
       }
       this.ciudadanosVista?.actualizar(tiempo);
       this.pintarHud();
+    }
+    // La caja de selección anima sus guiones y la selección se poda por si algo dejó de existir.
+    const caja = this.seleccionVista;
+    if (caja && this.seleccion) {
+      const c = this.seleccion;
+      c.podar();
+      const rect = c.rectanguloCaja();
+      if (rect) caja.pintarCaja(rect.x0, rect.y0, rect.x1, rect.y1, tiempo);
     }
   }
 }

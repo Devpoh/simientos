@@ -580,6 +580,19 @@
     "ticksDentro": 60,
     "esperaBloqueado": 100
   },
+  "seleccion": {
+    "slotsGrupo": 9,
+    "radioClicTiles": 0.75,
+    "radioEdificioTiles": 0.5,
+    "umbralArrastrePx": 4,
+    "umbralArrastreMs": 250,
+    "colorAnillo": "#ffd27a",
+    "colorCaja": "#ffd87a",
+    "formacion": {
+      "separacion": 1.05,
+      "radioAjuste": 6
+    }
+  },
   "caminoPintor": {
     "subceldas": 4,
     "celdaCanto": 5.4,

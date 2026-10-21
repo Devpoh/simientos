@@ -133,6 +133,35 @@ export function irA(ci: Ciudadano, oc: Ocupacion, casa: Casa, cfg: ConfigCiudada
   return true;
 }
 
+/**
+ * Manda al ciudadano a un tile concreto (P5, orden del jugador), sin casa de destino. Al llegar se queda
+ * `idle` en el sitio: el estado `andar` pasa a `entrar` y, sin casa, de ahí a `idle`. `null` si no hay ruta.
+ */
+export function irATile(
+  ci: Ciudadano, oc: Ocupacion, destino: Tile, cfg: ConfigCiudadano = CFG_CIUDADANO, cfgNav: ConfigNavegacion = CFG_NAVEGACION,
+): Tile[] | null {
+  const origen = { u: Math.round(ci.u), v: Math.round(ci.v) };
+  if (!transitable(oc, origen.u, origen.v) || !transitable(oc, destino.u, destino.v)) {
+    ci.estado = 'bloqueado';
+    ci.ruta = null;
+    ci.espera = cfg.esperaBloqueado;
+    return null;
+  }
+  const ruta = buscarRuta(oc, origen, destino, cfgNav);
+  if (!ruta) {
+    ci.estado = 'bloqueado';
+    ci.ruta = null;
+    ci.espera = cfg.esperaBloqueado;
+    return null;
+  }
+  ci.casa = null;
+  ci.ruta = ruta;
+  ci.tramo = 0;
+  ci.avance = 0;
+  ci.estado = 'andar';
+  return ruta;
+}
+
 /** Replanifica todas las rutas contra la rejilla actual (al construir o derribar, §4.3). */
 export function replanificar(ciudadanos: readonly Ciudadano[], oc: Ocupacion, cfgNav: ConfigNavegacion = CFG_NAVEGACION): number {
   let replanificados = 0;
