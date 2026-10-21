@@ -96,8 +96,8 @@ export function crearMundo(semilla: number = tuning.mapa.semilla): Mundo {
   return { semilla, mapa, campo, superficie, cfg: { ...cfg, ...cfgHorneado, alturaMax: cfg.alturaMax + relieve.amplitud * 0.6 }, tilesU, tilesV };
 }
 
-export function hornearMundo(m: Mundo): ImagenIndices {
-  return hornear(m.superficie, m.cfg);
+export function hornearMundo(m: Mundo, cubierto?: Uint8Array): ImagenIndices {
+  return hornear(m.superficie, cubierto ? { ...m.cfg, cubierto } : m.cfg);
 }
 
 /** Altura en píxeles (hacia arriba) a la que queda el suelo, o el agua, en (u, v): lo que hay que restar a la y de un sprite. */

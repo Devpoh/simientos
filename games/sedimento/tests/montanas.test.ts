@@ -2,8 +2,12 @@ import { describe, expect, it } from 'vitest';
 import datos from '../public/recursos/pixel/atlas.json';
 import tuning from '../src/data/tuning.json';
 import type { AtlasPixel } from '../src/data/atlas';
-import { crearMundo } from '../src/logic/mundo';
-import { centroPieza, accesible, bloqueado, generarMontanas, solapan, type Montanas, type PiezaMontana } from '../src/logic/montanas';
+import { crearMundo, hornearMundo } from '../src/logic/mundo';
+import { RAMPAS } from '../src/data/paleta';
+import { generarAldea } from '../src/logic/aldeaReferencia';
+import {
+  centroPieza, accesible, bloqueado, cobertura, generarMontanas, reservaAldea, solapan, type Montanas, type PiezaMontana,
+} from '../src/logic/montanas';
 
 const atlas = datos as unknown as AtlasPixel;
 const mundo = crearMundo(tuning.mapa.semilla);
@@ -16,7 +20,7 @@ const SECO = (u: number, v: number): boolean => {
   return Number.isNaN(a) || a <= mundo.superficie.suelo(u + 0.5, v + 0.5);
 };
 
-describe('montañas: colocación determinista (P2c2, R84, D033)', () => {
+describe('montaĂ±as: colocaciĂłn determinista (P2c2, R84, D033)', () => {
   it('coloca piezas y todas existen en el atlas con la huella que dice la pieza', () => {
     expect(montanas.piezas.length).toBeGreaterThan(0);
     for (const p of montanas.piezas) {
@@ -44,7 +48,7 @@ describe('montañas: colocación determinista (P2c2, R84, D033)', () => {
     }
   });
 
-  it('ninguna pieza toca el agua: toda su huella está seca', () => {
+  it('ninguna pieza toca el agua: toda su huella estĂˇ seca', () => {
     for (const p of montanas.piezas) {
       for (let j = 0; j < p.d; j++) {
         for (let i = 0; i < p.w; i++) {
@@ -63,7 +67,7 @@ describe('montañas: colocación determinista (P2c2, R84, D033)', () => {
     }
   });
 
-  it('misma semilla → mismas piezas (determinista), y otra semilla cambia el resultado', () => {
+  it('misma semilla â†’ mismas piezas (determinista), y otra semilla cambia el resultado', () => {
     const otra = generarMontanas(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, mundo.semilla);
     expect(otra.piezas).toEqual(montanas.piezas);
     const distinta = generarMontanas(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, mundo.semilla + 1);
@@ -78,7 +82,7 @@ describe('montañas: colocación determinista (P2c2, R84, D033)', () => {
       const c = centroPieza(p);
       expect(alturaDe(c.u, c.v), p.id).toBeGreaterThanOrEqual(cfg.alturaPico);
     }
-    // Toda cresta está pegada a otra pieza de montaña (la cordillera es una cadena, no piezas sueltas).
+    // Toda cresta estĂˇ pegada a otra pieza de montaĂ±a (la cordillera es una cadena, no piezas sueltas).
     const crestas = montanas.piezas.filter((p) => p.tipo === 'cresta');
     expect(crestas.length).toBeGreaterThanOrEqual(2);
     const montanasTodas = montanas.piezas;
@@ -101,13 +105,13 @@ describe('montañas: colocación determinista (P2c2, R84, D033)', () => {
     }
   });
 
-  it('las huellas bloquean el paso y dejan accesible el pie de la montaña (P3)', () => {
+  it('las huellas bloquean el paso y dejan accesible el pie de la montaĂ±a (P3)', () => {
     for (const p of montanas.piezas) {
       for (let j = 0; j < p.d; j++) {
         for (let i = 0; i < p.w; i++) expect(bloqueado(montanas, p.u + i, p.v + j), `${p.id}`).toBe(true);
       }
     }
-    // Alrededor de cada pieza hay al menos un tile libre y accesible: la montaña no tapió el mapa.
+    // Alrededor de cada pieza hay al menos un tile libre y accesible: la montaĂ±a no tapiĂł el mapa.
     let libres = 0;
     for (const p of montanas.piezas) {
       for (let j = -1; j <= p.d; j++) {
@@ -120,5 +124,96 @@ describe('montañas: colocación determinista (P2c2, R84, D033)', () => {
       }
     }
     expect(libres).toBeGreaterThan(0);
+  });
+});
+
+describe('montañas: el terreno bajo las piezas no lleva nieve ni roca (P2c3, R84)', () => {
+  const cubierto = cobertura(montanas, mundo.tilesU, mundo.tilesV);
+  // Hornear el mundo entero es caro; se hace una vez y los tests comparten el resultado.
+  const sinMascara = hornearMundo(mundo);
+  const conMascara = hornearMundo(mundo, cubierto);
+
+  it('la máscara marca exactamente las huellas de las piezas', () => {
+    for (const p of montanas.piezas) {
+      for (let j = 0; j < p.d; j++) {
+        for (let i = 0; i < p.w; i++) {
+          const u = p.u + i;
+          const v = p.v + j;
+          if (u < 0 || v < 0 || u >= mundo.tilesU || v >= mundo.tilesV) continue;
+          expect(cubierto[v * mundo.tilesU + u], `${p.id}@${u},${v}`).toBe(1);
+        }
+      }
+    }
+    let marcados = 0;
+    for (const c of cubierto) marcados += c;
+    expect(marcados).toBeGreaterThan(0);
+  });
+
+  it('con la máscara bajan los píxeles de roca y nieve: el terreno tapado es suave', () => {
+    const duro = new Set([...RAMPAS.roca, ...RAMPAS.piedra]);
+    let antes = 0;
+    let despues = 0;
+    for (const v of sinMascara.datos) if (duro.has(v)) antes++;
+    for (const v of conMascara.datos) if (duro.has(v)) despues++;
+    expect(antes).toBeGreaterThan(0);
+    // Bajo cada pieza el horneado deja de pintar roca y nieve, así que el recuento baja de forma clara.
+    expect(despues).toBeLessThan(antes * 0.85);
+  });
+
+  it('la máscara no cambia el agua ni las dimensiones de la imagen', () => {
+    expect(conMascara.ancho).toBe(sinMascara.ancho);
+    expect(conMascara.alto).toBe(sinMascara.alto);
+    expect(Array.from(conMascara.agua ?? [])).toEqual(Array.from(sinMascara.agua ?? []));
+  });
+
+  it('es determinista con la máscara puesta', () => {
+    expect(Array.from(conMascara.datos)).toEqual(Array.from(hornearMundo(mundo, cubierto).datos));
+  });
+});
+
+describe('montañas: ninguna pieza tapa la aldea (P2c3, R84)', () => {
+  const aldea = generarAldea(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, mundo.semilla);
+  const reservado = reservaAldea(aldea, mundo.tilesU, mundo.tilesV);
+  const m = generarMontanas(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, mundo.semilla, tuning.horneado.montanas, reservado);
+
+  it('con la reserva de la aldea, ningún edificio ni prop queda bajo una pieza', () => {
+    const tapados: string[] = [];
+    for (const e of [...aldea.edificios, ...aldea.props]) {
+      for (let j = 0; j < e.d; j++) {
+        for (let i = 0; i < e.w; i++) {
+          if (bloqueado(m, e.u + i, e.v + j)) tapados.push(`${e.id}@${e.u},${e.v}`);
+        }
+      }
+    }
+    expect(tapados).toEqual([]);
+  });
+
+  it('la reserva no deja el mapa sin montañas', () => {
+    expect(m.piezas.length).toBeGreaterThan(0);
+  });
+
+  it('ninguna pieza pisa un tile reservado por la aldea', () => {
+    for (const p of m.piezas) {
+      for (let j = 0; j < p.d; j++) {
+        for (let i = 0; i < p.w; i++) {
+          const u = p.u + i;
+          const v = p.v + j;
+          expect(reservado[v * mundo.tilesU + u], `${p.id}@${u},${v}`).toBe(0);
+        }
+      }
+    }
+  });
+
+  it('las piezas no se solapan entre sí ni con la reserva puesta', () => {
+    for (let a = 0; a < m.piezas.length; a++) {
+      for (let b = a + 1; b < m.piezas.length; b++) {
+        expect(solapan(m.piezas[a], m.piezas[b]), `${m.piezas[a].id}/${m.piezas[b].id}`).toBe(false);
+      }
+    }
+  });
+
+  it('es determinista con la reserva puesta', () => {
+    const otra = generarMontanas(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, mundo.semilla, tuning.horneado.montanas, reservado);
+    expect(otra.piezas).toEqual(m.piezas);
   });
 });

@@ -12,6 +12,8 @@ import { crearTrozos } from '../render/terrenoHorneado';
 import { AguaVista } from '../render/aguaVista';
 import { HumoVista } from '../render/humoVista';
 import { focosDeAldea } from '../logic/humo';
+import { cobertura, generarMontanas, reservaAldea } from '../logic/montanas';
+import { MontanasVista } from '../render/montanasVista';
 import { params } from '../core/test-hooks';
 import { ControlCamara } from '../render/controlCamara';
 import { CLAVE_REGISTRO_ATLAS } from '../render/sprites';
@@ -33,6 +35,7 @@ export class MundoScene extends Phaser.Scene {
   private aldea?: Aldea;
   private vista?: AldeaVista;
   private agua?: AguaVista;
+  private montanasVista?: MontanasVista;
   private humo?: HumoVista;
   private partida?: Partida;
   private hud?: Hud;
@@ -52,7 +55,16 @@ export class MundoScene extends Phaser.Scene {
     const t0 = performance.now();
     const mundo = crearMundo(semilla);
     const t1 = performance.now();
-    const imagen = hornearMundo(mundo);
+    // Aldea de referencia primero (P2 tramo 4): es la que decide dónde puede haber montaña, no al revés.
+    const elevacion = (u: number, v: number): number => alturaPx(mundo.superficie, mundo.cfg, u, v);
+    const aldea = generarAldea(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, semilla);
+    const t1b = performance.now();
+    // Montañas (P2c3, R84): la reserva de la aldea impide que una pieza tape una casa o un prop; su máscara
+    // de cobertura hace que el horneado no pinte nieve ni roca debajo.
+    const montanas = generarMontanas(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, semilla,
+      tuning.horneado.montanas, reservaAldea(aldea, mundo.tilesU, mundo.tilesV));
+    const cubierto = cobertura(montanas, mundo.tilesU, mundo.tilesV);
+    const imagen = hornearMundo(mundo, cubierto);
     const t2 = performance.now();
     const trozos = crearTrozos(this, imagen, tuning.mundo.lado);
     const t3 = performance.now();
@@ -62,17 +74,18 @@ export class MundoScene extends Phaser.Scene {
 
     this.medidas = {
       semilla, tilesU: mundo.tilesU, tilesV: mundo.tilesV, pxAncho: imagen.ancho, pxAlto: imagen.alto, trozos: trozos.length,
-      msGenerar: Math.round(t1 - t0), msHornear: Math.round(t2 - t1), msTexturas: Math.round(t3 - t2),
-      msAgua: Math.round(t3b - t3), trozosAgua: this.agua.nTrozos,
+      msGenerar: Math.round(t1 - t0), msAldea: Math.round(t1b - t1), msHornear: Math.round(t2 - t1b),
+      msTexturas: Math.round(t3 - t2), msAgua: Math.round(t3b - t3), trozosAgua: this.agua.nTrozos,
     };
 
-    // Aldea de referencia: la escena por defecto y la que usa el bench de 60 fps (P2 tramo 4).
-    const elevacion = (u: number, v: number): number => alturaPx(mundo.superficie, mundo.cfg, u, v);
-    const t4 = performance.now();
-    const aldea = generarAldea(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, semilla);
     this.aldea = aldea;
     this.vista = new AldeaVista(this, atlas, aldea, elevacion);
-    this.medidas.msAldea = Math.round(performance.now() - t4);
+
+    // Montañas (P2c3, R84): las piezas que colocó logic/montanas.ts, dibujadas con y-sort y culling.
+    const t5a = performance.now();
+    this.montanasVista = new MontanasVista(this, atlas, montanas.piezas, elevacion);
+    this.medidas.msMontanas = Math.round(performance.now() - t5a);
+    this.medidas.piezasMontana = montanas.piezas.length;
 
     // Humo (R87, D037): una bocanada por chimenea de casa terminada y por brasero; sube y se recicla.
     const t5 = performance.now();
@@ -121,6 +134,7 @@ export class MundoScene extends Phaser.Scene {
     exponer('terreno', () => ({ ...this.medidas, centroAldea: this.aldea?.centro }));
     // Agua viva y humo (R65, R87): lo que se mueve, para que `shot` lo compruebe sin captura.
     exponer('agua', () => ({ trozos: this.agua?.nTrozos ?? 0, fotograma: this.agua?.fotogramaActual ?? -1 }));
+    exponer('montanas', () => ({ piezas: this.montanasVista?.nPiezas ?? 0, visibles: this.montanasVista?.activos ?? 0 }));
     exponer('humo', () => ({
       bocanadas: this.humo?.nBocanadas ?? 0,
       visibles: this.humo?.nVisibles ?? 0,
@@ -242,6 +256,7 @@ export class MundoScene extends Phaser.Scene {
     this.camara?.update(delta);
     this.vista?.actualizar(tiempo);
     this.agua?.actualizar(tiempo);
+    this.montanasVista?.actualizar();
     this.humo?.actualizar(delta);
     if (this.partida) {
       avanzarPartida(this.partida, delta);

@@ -44,6 +44,11 @@ export interface ConfigHorneado {
   alcanceSombra: number;
   /** Las regiones de un mismo material con menos píxeles que esto se funden con las vecinas (≤ 1 = sin limpieza). */
   minRegion: number;
+  /**
+   * Máscara de tiles cubiertos por una pieza de montaña (1 = cubierto), `tilesU`×`tilesV`. Donde está puesta,
+   * el horneado no pinta nieve ni roca: solo tonos suaves, porque la pieza tapa el terreno (P2c3, R84).
+   */
+  cubierto?: Uint8Array;
 }
 
 export interface ImagenIndices {
@@ -188,6 +193,8 @@ function muestrear(sup: Superficie, cfg: ConfigHorneado, sombras: Sombras | null
     const tono = prof < 0.07 ? 6 : 5.2 - Math.min(5.2, prof * 3.4);
     return { altura: agua, clase: 'agua', tono, agua: agua <= cfg.nivelMar + 0.04 ? 1 : 2 };
   }
+  // Bajo una pieza de montaña el terreno no se ve: solo tonos suaves, sin nieve ni roca (P2c3).
+  const tapado = cfg.cubierto !== undefined && cfg.cubierto[Math.floor(v) * cfg.tilesU + Math.floor(u)] === 1;
   const e = 0.35;
   const gu = (sup.suelo(u + e, v) - sup.suelo(u - e, v)) / (2 * e);
   const gv = (sup.suelo(u, v + e) - sup.suelo(u, v - e)) / (2 * e);
@@ -206,15 +213,18 @@ function muestrear(sup: Superficie, cfg: ConfigHorneado, sombras: Sombras | null
     // Montaña: nieve en las cumbres suaves (cota perturbada por ruido, borde nítido), roca en las laderas y caras
     // de acantilado donde la pendiente es alta. Bandas duras de 1 a 3 tonos para que se lea como pixel art.
     const cota = sobreMar + ruido * 0.9;
-    if (cota > cfg.alturaCumbre && pendiente < cfg.pendienteRoca * 1.4) {
+    if (!tapado && cota > cfg.alturaCumbre && pendiente < cfg.pendienteRoca * 1.4) {
       return { altura: h, clase: 'piedra', tono: 4.6 + banda(sombra) * 0.9 + cresta * 0.7 - (taparSol ? 1.6 : 0), duro: true };
     }
-    if (pendiente > cfg.pendienteRoca || cota > cfg.alturaCumbre * 0.8) {
+    if (!tapado && (pendiente > cfg.pendienteRoca || cota > cfg.alturaCumbre * 0.8)) {
       return { altura: h, clase: 'roca', tono: 2.2 + banda(sombra) * 0.55 + cresta * 0.6 - (taparSol ? 0.9 : 0), duro: true };
     }
-  } else if (pendiente > cfg.pendienteRoca) {
+  } else if (!tapado && pendiente > cfg.pendienteRoca) {
     return { altura: h, clase: 'roca', tono: 2.2 + banda(sombra) * 0.55 - (taparSol ? 0.9 : 0), duro: true };
   }
+
+  // Bajo una pieza: tono de hierba suave y sin tramado fuerte, para que no asome nieve ni roca por los bordes.
+  if (tapado) return { altura: h, clase: 'hierba', tono: 2.4 + sombra * 1.2 - (taparSol ? 0.8 : 0) };
 
   const orilla = tipoDeOrilla(sup, cfg, u, v);
   if (orilla === 'arena') return { altura: h, clase: 'tierra', tono: 4.1 + sombra * 4 + ruido * 0.5 };

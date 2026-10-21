@@ -3,7 +3,7 @@
 // y pies de ladera en el borde. Lógica pura y determinista: misma semilla → mismas piezas, sin Phaser.
 import tuning from '../data/tuning.json';
 import { crearRng, derivarSemilla, type Rng } from './azar';
-import type { Catalogo } from './aldeaReferencia';
+import type { Aldea, Catalogo, Elemento } from './aldeaReferencia';
 import type { Superficie } from './horneado';
 import type { Huella } from './iso';
 
@@ -325,17 +325,21 @@ function vestirLaderas(c: Contexto): void {
   }
 }
 
-/** Genera las montañas. `semilla` + superficie + catálogo → siempre el mismo resultado. */
+/** Genera las montañas. `semilla` + superficie + catálogo → siempre el mismo resultado. `reservado` (1 = no tocar)
+ * marca los tiles ya ocupados por otra cosa (p. ej. la aldea de referencia), para que ninguna pieza los tape. */
 export function generarMontanas(
   sup: Superficie, tilesU: number, tilesV: number, cat: Catalogo, semilla: number, cfg: ConfigMontanas = tuning.horneado.montanas,
+  reservado?: Uint8Array,
 ): Montanas {
   const rng = crearRng(derivarSemilla(semilla, 'montanas'));
   const ids = {} as Record<TipoMontana, string[]>;
   for (const tipo of Object.keys(FAMILIA) as TipoMontana[]) {
     ids[tipo] = Object.keys(cat).filter((id) => id.startsWith(FAMILIA[tipo])).sort();
   }
+  const mapa = new Uint8Array(tilesU * tilesV);
+  if (reservado) for (let i = 0; i < mapa.length; i++) mapa[i] = reservado[i] ? HUELLA : LIBRE;
   const c: Contexto = {
-    sup, tilesU, tilesV, cfg, exige: exigencias(cfg), mapa: new Uint8Array(tilesU * tilesV), ids, cat, rng, piezas: [],
+    sup, tilesU, tilesV, cfg, exige: exigencias(cfg), mapa, ids, cat, rng, piezas: [],
   };
 
   const cumbres = buscarCumbres(c);
@@ -356,6 +360,44 @@ export function generarMontanas(
   // Orden de dibujo estable: por esquina trasera, como el resto del mundo.
   c.piezas.sort((a, b) => (a.u + a.v) - (b.u + b.v) || a.u - b.u || a.v - b.v);
   return { semilla, piezas: c.piezas, cumbres: puestas };
+}
+
+/**
+ * Máscara de tiles cubiertos por alguna pieza (1 = cubierto). La usa el horneado para no pintar nieve ni
+ * roca bajo las piezas: ahí el terreno solo pone tonos suaves (P2c3). También sirve a P3 como rejilla de bloqueo.
+ */
+export function cobertura(m: Montanas, tilesU: number, tilesV: number): Uint8Array {
+  const c = new Uint8Array(tilesU * tilesV);
+  for (const p of m.piezas) {
+    const u1 = Math.max(0, p.u);
+    const v1 = Math.max(0, p.v);
+    const u2 = Math.min(tilesU, p.u + p.w);
+    const v2 = Math.min(tilesV, p.v + p.d);
+    for (let v = v1; v < v2; v++) for (let u = u1; u < u2; u++) c[v * tilesU + u] = 1;
+  }
+  return c;
+}
+
+/**
+ * Máscara de tiles ya ocupados por la aldea (1 = reservado). Las montañas la reciben para no plantar una pieza
+ * encima de una casa o un prop (P2c3). Los árboles no reservan: las piezas los taparían sin más, y en cambio
+ * la aldea no debe desplazarse por la montaña, que se coloca después.
+ */
+export function reservaAldea(aldea: Aldea, tilesU: number, tilesV: number): Uint8Array {
+  const c = new Uint8Array(tilesU * tilesV);
+  const marcar = (e: Elemento): void => {
+    for (let j = 0; j < e.d; j++) {
+      for (let i = 0; i < e.w; i++) {
+        const u = e.u + i;
+        const v = e.v + j;
+        if (u < 0 || v < 0 || u >= tilesU || v >= tilesV) continue;
+        c[v * tilesU + u] = 1;
+      }
+    }
+  };
+  for (const e of aldea.edificios) marcar(e);
+  for (const e of aldea.props) marcar(e);
+  return c;
 }
 
 /** ¿Solapan dos piezas? (prueba de propiedad: nunca debe pasar) */
