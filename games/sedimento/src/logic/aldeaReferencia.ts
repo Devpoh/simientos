@@ -5,6 +5,12 @@ import tuning from '../data/tuning.json';
 import { crearRng, derivarSemilla, type Rng } from './azar';
 import type { Superficie } from './horneado';
 import type { Huella } from './iso';
+import {
+  añadirRamales, CFG_CALLES, generarRetícula, type TrazadoCalle,
+} from './calles';
+
+export type { TrazadoCalle } from './calles';
+export { CALLE_ROCA, CALLE_TIERRA, SIN_CALLE } from './calles';
 
 export type ConfigAldea = typeof tuning.aldea;
 
@@ -54,6 +60,10 @@ export interface Aldea {
   arboles: Elemento[];
   props: Elemento[];
   unidades: Unidad[];
+  /** Material por tile de la red de calles (P3b2, R85): 0 sin calle, 1 roca, 2 tierra. */
+  calles: Uint8Array;
+  /** Trazados de las calles, para estamparlos en la máscara de subceldas (P3b1). */
+  trazados: TrazadoCalle[];
 }
 
 /** Cuadrícula de tiles aptos: seco por completo y sin pendiente fuerte. 1 = apto. */
@@ -243,7 +253,6 @@ export function generarAldea(
   const arbolables = calcularAptos(sup, tilesU, tilesV, cfg.pendienteMaxArbol);
   const c: Contexto = { sup, tilesU, tilesV, aptos, arbolables, mapa: new Uint8Array(tilesU * tilesV), cfg, cat, rng };
   const ids = (f: (id: string, s: SpriteCatalogo) => boolean): string[] => Object.keys(cat).filter((id) => f(id, cat[id])).sort();
-
   const idsCasas = ids((id) => id.startsWith('casa_'));
   const idsCampos = ids((id) => id.startsWith('campo_'));
   const idsPuestos = ids((id) => id.startsWith('puesto_'));
@@ -257,6 +266,12 @@ export function generarAldea(
   const centro = buscarCentro(aptos, tilesU, tilesV, radioAldea);
   const edificios: Elemento[] = [];
   const props: Elemento[] = [];
+
+  // Red de calles (P3b2, R85, §10.9): calles principales de roca, travesías y ramales de tierra. Se traza sobre
+  // todo el terreno apto y se pinta en la capa del suelo, POR DEBAJO de los edificios: no reserva tiles ni altera
+  // la colocación (entre huellas ya queda la calle de §10.9), y lo que un edificio tapa simplemente no se ve.
+  const red = generarRetícula(aptos, tilesU, tilesV, centro, crearRng(derivarSemilla(semilla, 'calles')),
+    Math.max(radioAldea * 1.35, 26), CFG_CALLES);
 
   const unico = (): { ori: OrientacionAldea } => ({ ori: 'unica' });
   const conOri = (): { ori: OrientacionAldea } => ({ ori: c.rng() < 0.5 ? 'u' : 'v' });
@@ -386,7 +401,10 @@ export function generarAldea(
     hechos++;
   }
 
-  return { semilla, centro, edificios, arboles, props, unidades };
+  // Ramales de tierra a la calle principal (P3b2): ya con los edificios colocados, cada uno enlaza con la calle.
+  añadirRamales(red, aptos, tilesU, tilesV, edificios, CFG_CALLES);
+
+  return { semilla, centro, edificios, arboles, props, unidades, calles: red.tiles, trazados: red.trazados };
 }
 
 /** Todo lo que bloquea tiles (edificios, árboles, props), para comprobar huecos. */

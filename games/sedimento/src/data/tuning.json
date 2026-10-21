@@ -548,6 +548,8 @@
     ],
     "velocidadCaminar": 0.8,
     "calleTiles": 1,
+    "callePrincipalCada": 14,
+    "callePrincipalAncho": 2,
     "pendienteMax": 0.3,
     "desnivelHuellaMax": 0.4,
     "radioCampos": 0.6,
