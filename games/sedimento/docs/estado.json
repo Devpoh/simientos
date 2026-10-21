@@ -2010,6 +2010,34 @@
         "captura": "P2c1-piezas-montana-x4.png"
       },
       "fin": "2026-10-20T17:47:05.413Z"
+    },
+    {
+      "id": "P2c2",
+      "estado": "en-curso",
+      "hecho": [],
+      "creada": "2026-10-20T17:53:49.307Z",
+      "titulo": "Colocacion determinista de las piezas de montana",
+      "objetivo": "logic/montanas.ts (puro y con tests) decide donde van las piezas: macizos en los maximos, cordilleras encadenadas sobre las lineas de cumbre, colinas en alturas medias, acantilados en las laderas fuertes y pie de ladera en el borde; sin solapes, nada en agua y determinista",
+      "criterios": [
+        "Colocacion determinista en logic/ (con tests): cordillera = cadena de piezas sobre las lineas de cumbre, macizo en los maximos, colinas en alturas medias; sin solapes y nada en agua",
+        "La huella de cada pieza queda como bloqueada para P3 y los yacimientos de montana quedan al pie, accesibles",
+        "Tests de propiedad: 0 solapes, 0 piezas en agua, mismas piezas con la misma semilla"
+      ],
+      "inicio": "2026-10-20T17:53:49.308Z"
+    },
+    {
+      "id": "P2c3",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-20T17:53:49.350Z",
+      "titulo": "Montanas dibujadas y horneado suave",
+      "objetivo": "La escena dibuja las piezas colocadas por P2c2 sobre el relieve y el terreno horneado bajo ellas solo pone tonos suaves, sin manchas de nieve ni roca (R84, D033)",
+      "criterios": [
+        "El terreno horneado bajo las piezas solo pone tonos suaves (sin manchas de nieve ni de roca)",
+        "La escena dibuja las piezas con el y-sort de la huella y culling como el resto",
+        "Captura a x1 y x2 mirada, comparada con el boceto M1 aprobado",
+        "bench-60fps en verde (D034)"
+      ]
     }
   ],
   "errores": [
@@ -2192,6 +2220,14 @@
       "cerrado": false,
       "texto": "Escala de los animales (R89): el caballo es demasiado grande al lado de la vaca y del ciudadano de 16×24. Reescalar el caballo (cruz ≈ 0,9 de la altura de un adulto) y revisar vaca, oveja, gallina y criaturas con la misma regla de ≈ 7,5 cm por píxel, con una hoja de comparación junto a un ciudadano → Plan: D, tarea ESC1 tras CAM1; B no tiene que tocar nada (el atlas trae las anclas)",
       "area": "arte"
+    },
+    {
+      "id": "L013",
+      "t": "2026-10-20T17:49:20.958Z",
+      "prioridad": "alta",
+      "cerrado": false,
+      "texto": "El push a origin/claude/nube falla con 403 (Permission to Devpoh/simientos.git denied). El GITHUB_TOKEN es un token de GitHub App (ghu_, caduca 21-10 01:24 UTC) sin permiso de escritura de contenidos: la API de contenidos responde 403 Resource not accessible by integration y /user/installations da total_count 0. El progreso queda en commits locales de la rama claude/nube.",
+      "area": "infra"
     }
   ],
   "recomendaciones": [
@@ -2664,6 +2700,22 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-20T17:53:49.357Z",
+      "texto": "Fase P2c3 creada: Montanas dibujadas y horneado suave"
+    },
+    {
+      "t": "2026-10-20T17:53:49.315Z",
+      "texto": "Fase P2c2 creada: Colocacion determinista de las piezas de montana"
+    },
+    {
+      "t": "2026-10-20T17:49:20.991Z",
+      "texto": "Autopiloto: P2b y P2c1 hechas y commiteadas en local. Bloqueo de push (403, token de App sin contents:write). Sigo con P2c2 (colocacion de montanas) en local."
+    },
+    {
+      "t": "2026-10-20T17:49:20.958Z",
+      "texto": "Falta: El push a origin/claude/nube falla con 403 (Permission to Devpoh/simientos.git denied). El GITHUB_TOKEN es un token de GitHub App (ghu_, caduca 21-10 01:24 UTC) sin permiso de escritura de contenidos: la API de contenidos responde 403 Resource not accessible by integration y /user/installations da total_count 0. El progreso queda en commits locales de la rama claude/nube."
+    },
     {
       "t": "2026-10-20T17:47:05.454Z",
       "texto": "Error E009 (resuelto): npm run arte reventaba con ValueError: bytes must be in range(0, 256) al hashear la forma del sprite"
@@ -3177,5 +3229,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-20T17:47:05.454Z"
+  "actualizado": "2026-10-20T17:53:49.357Z"
 }

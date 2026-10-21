@@ -106,32 +106,64 @@ describe('atlas de pixel art: validador', () => {
 });
 
 describe('atlas de pixel art: montañas como piezas (R84, D033)', () => {
-  const PIEZAS: [string, number, number][] = [
-    ['montana_macizo', 17, 11],
-    ['montana_cresta', 10, 4],
+  // Huella por familia: el macizo es el mayor, la cresta se encadena en u, el pico es suelto y las colinas y el pie
+  // de ladera son las piezas menores. Cada familia puede traer varias siluetas (semillas fijas) y acantilados de 2x2 y 3x2.
+  const FAMILIAS: [string, number, number][] = [
+    ['montana_macizo_', 17, 11],
+    ['montana_cresta_', 10, 4],
+    ['montana_pico_', 7, 6],
+    ['montana_colina_4x3_', 4, 3],
+    ['montana_colina_3x3_', 3, 3],
     ['montana_acantilado_2x2', 2, 2],
     ['montana_acantilado_3x2', 3, 2],
-    ['montana_pie_ladera', 4, 3],
+    ['montana_pie_ladera_', 4, 3],
   ];
 
-  it('las cinco piezas del boceto M1 están en el atlas con su huella', () => {
-    for (const [id, w, d] of PIEZAS) {
-      const s = atlas.sprites[id];
-      expect(s, id).toBeDefined();
-      expect(s.categoria, id).toBe('roca');
-      expect(s.huella, id).toEqual({ w, d });
-      expect(s.bloquea, id).toBe(true);
-      expect(s.anclaEn, id).toBe('huella');
-      expect(s.altura, id).toBeGreaterThan(0);
-      expect(s.estados.base.orientaciones.unica?.length, id).toBe(1);
+  const porFamilia = (prefijo: string): string[] => Object.keys(atlas.sprites).filter((id) => id.startsWith(prefijo));
+
+  it('cada familia del boceto M1 está en el atlas con su huella, y hay al menos una de cada', () => {
+    for (const [prefijo, w, d] of FAMILIAS) {
+      const ids = porFamilia(prefijo);
+      expect(ids.length, prefijo).toBeGreaterThanOrEqual(1);
+      for (const id of ids) {
+        const s = atlas.sprites[id];
+        expect(s.categoria, id).toBe('roca');
+        expect(s.huella, id).toEqual({ w, d });
+        expect(s.bloquea, id).toBe(true);
+        expect(s.anclaEn, id).toBe('huella');
+        expect(s.altura, id).toBeGreaterThan(0);
+        expect(s.estados.base.orientaciones.unica?.length, id).toBe(1);
+      }
     }
   });
 
-  it('el macizo es mayor que la cresta y esta que un acantilado (variedad de tamaño)', () => {
-    const area = (id: string) => atlas.sprites[id].huella.w * atlas.sprites[id].huella.d;
-    expect(area('montana_macizo')).toBeGreaterThan(area('montana_cresta'));
-    expect(area('montana_cresta')).toBeGreaterThan(area('montana_acantilado_3x2'));
-    expect(area('montana_acantilado_3x2')).toBeGreaterThan(area('montana_acantilado_2x2'));
+  it('hay variedad real de siluetas (varias piezas por familia) y de tamaño entre familias', () => {
+    for (const [prefijo] of FAMILIAS) {
+      if (prefijo === 'montana_acantilado_2x2' || prefijo === 'montana_acantilado_3x2') continue;
+      expect(porFamilia(prefijo).length, prefijo).toBeGreaterThanOrEqual(2);
+    }
+    const area = (prefijo: string): number => {
+      const s = atlas.sprites[porFamilia(prefijo)[0]];
+      return s.huella.w * s.huella.d;
+    };
+    const ladoLargo = (prefijo: string): number => {
+      const s = atlas.sprites[porFamilia(prefijo)[0]];
+      return Math.max(s.huella.w, s.huella.d);
+    };
+    expect(area('montana_macizo_')).toBeGreaterThan(area('montana_cresta_'));
+    expect(area('montana_macizo_')).toBeGreaterThan(area('montana_pico_'));
+    // La cresta es estrecha pero larga (se encadena en u); el pico es compacto: por eso el lado largo manda.
+    expect(ladoLargo('montana_cresta_')).toBeGreaterThan(ladoLargo('montana_pico_'));
+    expect(area('montana_pico_')).toBeGreaterThan(area('montana_colina_4x3_'));
+    expect(area('montana_colina_4x3_')).toBeGreaterThan(area('montana_colina_3x3_'));
+  });
+
+  it('las siluetas de una misma familia no son el mismo dibujo (semillas distintas)', () => {
+    for (const prefijo of ['montana_macizo_', 'montana_cresta_', 'montana_pico_', 'montana_colina_4x3_']) {
+      const ids = porFamilia(prefijo);
+      const fotos = ids.map((id) => atlas.sprites[id].estados.base.orientaciones.unica![0]);
+      expect(new Set(fotos).size, prefijo).toBe(ids.length);
+    }
   });
 });
 
