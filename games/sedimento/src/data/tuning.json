@@ -486,7 +486,32 @@
     },
     "resolucionSombra": 4,
     "alcanceSombra": 14,
-    "minRegion": 28
+    "minRegion": 28,
+    "montanas": {
+      "alturaMinCumbre": 2.6,
+      "distanciaMinCumbre": 3,
+      "radioEncuadre": 3,
+      "alturaMacizo": 5.2,
+      "alturaPico": 4.4,
+      "mediaMacizo": 3,
+      "mediaPico": 3.6,
+      "mediaCresta": 3.2,
+      "mediaColina": 1,
+      "mediaPie": 0.8,
+      "desnivelMacizo": 5.5,
+      "desnivelPico": 4.5,
+      "desnivelCresta": 3.5,
+      "desnivelColina": 1.8,
+      "desnivelAcantilado": 3.5,
+      "desnivelPie": 1.5,
+      "pendienteAcantilado": 1.05,
+      "solapeCadena": 2,
+      "maxCadena": 6,
+      "maxAcantilados": 40,
+      "maxPies": 30,
+      "pasoLadera": 3,
+      "maxPiezas": 400
+    }
   },
   "aldea": {
     "etiquetaSemilla": "aldea",
