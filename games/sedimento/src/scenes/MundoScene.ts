@@ -14,6 +14,8 @@ import { HumoVista } from '../render/humoVista';
 import { focosDeAldea } from '../logic/humo';
 import { cobertura, generarMontanas, reservaAldea } from '../logic/montanas';
 import { MontanasVista } from '../render/montanasVista';
+import { crearOcupacion, colocarEstructura, colocarObjeto, colisionesViolaciones, type Ocupacion } from '../logic/ocupacion';
+import { OcupacionVista } from '../render/ocupacionVista';
 import { params } from '../core/test-hooks';
 import { ControlCamara } from '../render/controlCamara';
 import { CLAVE_REGISTRO_ATLAS } from '../render/sprites';
@@ -28,6 +30,35 @@ import {
   type Partida,
 } from '../logic/partida';
 
+/** Celda de acceso, en tiles relativos a la esquina trasera de la huella. Mismo dato que el atlas. */
+interface PuertaLocal {
+  i: number;
+  j: number;
+}
+
+/**
+ * Rejilla de ocupación única (P3, R50). La aldea de referencia se registra en la rejilla para que esta sea
+ * la fuente de verdad de colocación, navegación y F3. `rechazados` debería ser 0: si no lo es, el colocador
+ * de la aldea y la rejilla no están de acuerdo y hay que arreglarlo (no se fuerza nada).
+ */
+export function poblarOcupacion(
+  oc: Ocupacion, atlas: AtlasPixel, aldea: Aldea,
+): { estructuras: number; objetos: number; rechazados: string[] } {
+  let estructuras = 0;
+  let objetos = 0;
+  const rechazados: string[] = [];
+  for (const e of aldea.edificios) {
+    const puertas: PuertaLocal[] = atlas.sprites[e.id]?.puertas ?? [];
+    if (colocarEstructura(oc, e.id, { w: e.w, d: e.d }, e.u, e.v, 0, puertas)) estructuras++;
+    else rechazados.push(`${e.id}@${e.u},${e.v}`);
+  }
+  for (const e of [...aldea.props, ...aldea.arboles]) {
+    colocarObjeto(oc, { w: e.w, d: e.d }, e.u, e.v);
+    objetos++;
+  }
+  return { estructuras, objetos, rechazados };
+}
+
 export class MundoScene extends Phaser.Scene {
   private panel?: PanelRendimiento;
   private camara?: ControlCamara;
@@ -36,6 +67,11 @@ export class MundoScene extends Phaser.Scene {
   private vista?: AldeaVista;
   private agua?: AguaVista;
   private montanasVista?: MontanasVista;
+  private ocupacion?: Ocupacion;
+  private ocupacionVista?: OcupacionVista;
+  private poblado?: { estructuras: number; objetos: number; rechazados: string[] };
+  private elevacion?: (u: number, v: number) => number;
+  private depurar = false;
   private humo?: HumoVista;
   private partida?: Partida;
   private hud?: Hud;
@@ -57,6 +93,7 @@ export class MundoScene extends Phaser.Scene {
     const t1 = performance.now();
     // Aldea de referencia primero (P2 tramo 4): es la que decide dónde puede haber montaña, no al revés.
     const elevacion = (u: number, v: number): number => alturaPx(mundo.superficie, mundo.cfg, u, v);
+    this.elevacion = elevacion;
     const aldea = generarAldea(mundo.superficie, mundo.tilesU, mundo.tilesV, atlas.sprites, semilla);
     const t1b = performance.now();
     // Montañas (P2c3, R84): la reserva de la aldea impide que una pieza tape una casa o un prop; su máscara
@@ -80,6 +117,12 @@ export class MundoScene extends Phaser.Scene {
 
     this.aldea = aldea;
     this.vista = new AldeaVista(this, atlas, aldea, elevacion);
+
+    // Rejilla de ocupación única (P3, R50): terreno + huellas de la aldea. `rechazados` debe ser 0.
+    const t4 = performance.now();
+    this.ocupacion = crearOcupacion(mundo.superficie, mundo.tilesU, mundo.tilesV);
+    this.poblado = poblarOcupacion(this.ocupacion, atlas, aldea);
+    this.medidas.msOcupacion = Math.round(performance.now() - t4);
 
     // Montañas (P2c3, R84): las piezas que colocó logic/montanas.ts, dibujadas con y-sort y culling.
     const t5a = performance.now();
@@ -116,6 +159,12 @@ export class MundoScene extends Phaser.Scene {
 
     const r1 = (v: number): number => Math.round(v * 10) / 10;
     exponerAccion('reiniciarMedidas', () => medidor.reiniciar());
+    // F3: pinta encima la rejilla de ocupación (bloqueadas, puertas, huellas). También se puede forzar por
+    // `?depurar=1` o llamando a la acción `depurarOcupacion` desde `shot`.
+    exponerAccion('depurarOcupacion', (on) => this.alternarDepuracion(typeof on === 'boolean' ? on : undefined));
+    this.input.keyboard?.on('keydown-F3', (ev: KeyboardEvent) => { ev.preventDefault(); this.alternarDepuracion(); });
+    if (params.get('depurar') === '1') this.alternarDepuracion(true);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.ocupacionVista?.destruir());
     exponer('fps', () => r1(medidor.fps()));
     exponer('msFotoP95', () => r1(medidor.p95()));
     exponer('msFotoMax', () => r1(medidor.max()));
@@ -127,6 +176,16 @@ export class MundoScene extends Phaser.Scene {
     exponer('nProps', () => aldea.props.length);
     exponer('nUnidades', () => aldea.unidades.length);
     exponer('solapesAldea', () => this.vista?.solapes ?? -1);
+    // Rejilla de ocupación (P3, R50): fuente de verdad de colocación y navegación. `colisionesViolaciones`
+    // debe ser 0 siempre; `rechazados` (edificios que la rejilla no acepta donde los puso la aldea) también.
+    exponer('ocupacion', () => ({
+      tiles: { u: this.ocupacion?.tilesU ?? 0, v: this.ocupacion?.tilesV ?? 0 },
+      estructuras: this.ocupacion ? this.ocupacion.estructuras.size : 0,
+      objetos: this.poblado?.objetos ?? 0,
+      rechazados: this.poblado?.rechazados ?? [],
+      violaciones: this.ocupacion ? colisionesViolaciones(this.ocupacion) : -1,
+      ms: this.medidas.msOcupacion ?? 0,
+    }));
     exponer('camara', () => {
       const cam = this.camara?.leer();
       return cam ? { x: Math.round(cam.x), y: Math.round(cam.y), zoom: cam.zoom } : null;
@@ -237,6 +296,18 @@ export class MundoScene extends Phaser.Scene {
       this.hud?.liberar();
       capa.liberar();
     });
+  }
+
+  /** Enciende o apaga la capa F3 y la redibuja al encender. `on` indefinido alterna. */
+  private alternarDepuracion(on?: boolean): void {
+    this.depurar = on ?? !this.depurar;
+    if (this.depurar && this.ocupacion) {
+      if (!this.ocupacionVista) this.ocupacionVista = new OcupacionVista(this);
+      const elevacion = this.elevacion ?? (() => 0);
+      this.ocupacionVista.redibujar(this.ocupacion, elevacion);
+    } else {
+      this.ocupacionVista?.graficos.clear();
+    }
   }
 
   /** Refresca el HUD con el estado actual (barato: crearHud no toca el DOM si nada cambio). */

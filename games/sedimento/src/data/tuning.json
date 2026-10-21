@@ -557,5 +557,9 @@
     "ruidoColocacion": 1.5,
     "arbolesSueltos": 0.15,
     "bosqueRuido": 1.5
+  },
+  "ocupacion": {
+    "subceldas": 4,
+    "pendienteMax": 0.55
   }
 }

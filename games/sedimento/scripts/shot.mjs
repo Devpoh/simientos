@@ -18,6 +18,7 @@
 //   wheel:<dy>[:<x>:<y>]               mueve el ratón a (x, y) (centro del viewport por defecto)
 //                                      y gira la rueda dy; dy negativo = acercar
 //   drag:<x1>:<y1>:<x2>:<y2>:<boton>  arrastre de (x1,y1) a (x2,y2) en ~10 pasos; boton: left/right/middle
+//   accion:<clave>[:<arg>]            lanza una acción del juego (`__GAME__.accion`), p. ej. depurarOcupacion
 //   <tecla>[:<ms>]                    pulsa <tecla>; con ms, la mantiene pulsada ese tiempo
 import { createServer } from 'vite';
 import { chromium } from 'playwright';
@@ -94,6 +95,8 @@ try {
           await page.mouse.move(x1 + (x2 - x1) * (i / pasos), y1 + (y2 - y1) * (i / pasos));
         }
         await page.mouse.up({ button: boton });
+      } else if (k === 'accion') {
+        await page.evaluate(([clave, arg]) => window.__GAME__?.accion?.(clave, arg), [v, w]);
       } else if (v) { await page.keyboard.down(k); await page.waitForTimeout(Number(v)); await page.keyboard.up(k); }
       else await page.keyboard.press(k);
     }

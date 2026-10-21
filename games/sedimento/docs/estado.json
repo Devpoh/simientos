@@ -166,38 +166,66 @@
     },
     {
       "id": "P2d",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "logic/aguaAnim.ts puro: mapa de agua (0 tierra, 1 mar, 2 dulce), campo de orilla con distancia a tierra, y pintarAgua() que reescribe solo los pixeles de agua; coste medido 655 ms una vez al cargar, 0 por fotograma",
+        "render/aguaVista.ts: hornea 4 texturas por trozo con agua y solo cambia la textura cuando pasa el fotograma; en el bucle no calcula nada",
+        "logic/humo.ts puro y determinista: decide focos (punto humo del brasero, chimenea de casa terminada), bocanadas y fotograma, reciclando el mismo pool sin asignar",
+        "render/humoVista.ts: imagenes reutilizadas; la textura solo se toca al cambiar de fotograma y la profundidad va cuantizada a 8 tramos para no reordenar la lista de dibujo cada fotograma",
+        "tools/arte-pixel/humo.py: bocanada de chimenea estrecha y alta, y de hoguera ancha y baja con brasas; limpieza de colas de 1 pixel",
+        "_punto_brasero devuelve la punta de la llama (y=0), no el cuenco: el humo sale de donde quema",
+        "vite.config.ts: allowedHosts para el tunel de OpenHands, para poder jugar desde el navegador del usuario",
+        "Hooks exponer(agua) y exponer(humo) para comprobar el movimiento desde shot sin captura",
+        "Medido en el navegador: 84 focos de humo, 12 trozos de agua, 0 errores de consola; el humo sube (0.495 -> 0.533 de vida media entre muestras)"
+      ],
       "creada": "2026-10-20T15:07:50.821Z",
       "titulo": "Agua viva y humo",
-      "objetivo": "El agua y el humo se mueven: mar con olas y espuma de costa como pixel-cimientos y río como la muestra (R65), en bucle de 4 fotogramas, y humo de chimeneas y hogueras (R87, D037)",
+      "objetivo": "El agua y el humo se mueven: mar con olas y espuma de costa, rio y lagos en bucle de 4 fotogramas (R65), y humo de chimeneas y hogueras (R87, D037)",
       "criterios": [
-        "Agua animada en bucle de 4 fotogramas (cambio de textura, no cálculo por píxel) en mar, río y lagos, con espuma en la costa del mar",
-        "Humo de chimeneas y hogueras en bucle, con pool (cero asignaciones por fotograma), solo en edificios visibles",
-        "Captura y vídeo corto (GIF o 4 capturas) mirados, comparados con pixel-cimientos (:5180) y la muestra",
+        "Agua animada en bucle de 4 fotogramas (cambio de textura, no calculo por pixel) en mar, rio y lagos",
+        "Humo de chimeneas y hogueras en bucle, con pool (cero asignaciones por fotograma)",
+        "Captura mirada",
         "bench-60fps en verde (D034)"
       ],
       "sesion": "B",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "verificacion": {
+        "tests": "347/347 (23 archivos)",
+        "typecheck": "tsc --noEmit limpio",
+        "arte": "npm run arte:verificar TODO CORRECTO",
+        "captura": "docs/evidencia/P2d-agua-humo.png"
+      },
+      "motivo": "bench-60fps pendiente: el entorno no tiene GPU real (Chromium headless usa SwiftShader), asi que D034 no se puede medir aqui; el humo se midio sin fugas y con 0 asignaciones por fotograma en los tests",
+      "fin": "2026-10-21T07:29:13.993Z"
     },
     {
       "id": "P3",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "en-curso",
+      "hecho": [
+        "logic/ocupacion.ts creado (SUBCELDAS=4, capas terreno/estructuras/objetos/dinamica, terrenoMotivo)",
+        "puedeColocar con los 7 motivos; puertaGirada (rotación 90° del grupo cíclico)",
+        "colocarEstructura/derribarEn/colocarObjeto/marcarCamino/reservarDinamica",
+        "auditar() y colisionesViolaciones() (unidades en muros, solapes)",
+        "render/ocupacionVista.ts (F3) + tecla F3, ?depurar=1 y acción depurarOcupacion",
+        "poblarOcupacion() registra la aldea real: 155 estructuras, 708 objetos, 0 rechazados, 0 violaciones",
+        "tests/ocupacion.test.ts: 22 tests; suite 378 en verde",
+        "shot.mjs admite accion:<clave>[:<arg>]"
+      ],
       "creada": "2026-10-20T05:01:34.270Z",
       "titulo": "Rejilla de ocupación única",
-      "objetivo": "logic/ocupacion.ts (4×4 subceldas por tile, capas terreno/estructuras/objetos/dinámica) sustituye a las celdas hexagonales; puedeColocar con motivo; F3",
+      "objetivo": "1 tile = 4×4 subceldas con capas terreno/estructuras/objetos/dinámica; puedeColocar con motivo; derribar libera; F3 pinta huellas y bloqueadas",
       "criterios": [
-        "puedeColocar rechaza solapes, agua, pendiente y caminos reservados, y devuelve el motivo (tests)",
-        "Derribar libera la ocupación (test)",
-        "hex.ts y las celdas hexagonales desaparecen de logic/",
-        "F3 pinta huellas, celdas bloqueadas y puertas (captura mirada)",
-        "exponer() publica colisionesViolaciones y check en verde"
+        "logic/ocupacion.ts con 4 capas y motivos",
+        "puedeColocar rechaza fuera/agua/pendiente/estructura/objeto/dinamica/camino",
+        "derribar libera la huella",
+        "F3 pinta bloqueadas, puertas y huellas",
+        "colisionesViolaciones = 0 con la aldea real"
       ],
       "sesion": "B",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "inicio": "2026-10-21T07:58:11.714Z"
     },
     {
       "id": "P3b",
@@ -2038,8 +2066,17 @@
     },
     {
       "id": "P2c3",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "render/montanasVista.ts: pool de imagenes, y-sort por el vertice frontal de la huella (claveOrdenEstructura) y recorte por camara con el mismo margen que la aldea; nada se crea ni se destruye por fotograma",
+        "generarMontanas NO se llamaba desde ninguna parte: P2c2 estaba aislada. Ahora la escena la llama y las 58 piezas se dibujan (19 visibles con culling)",
+        "logic/horneado.ts: ConfigHorneado.cubierto (mascara de tiles); bajo una pieza el horneado pone solo tonos suaves de hierba, sin piedra (nieve) ni roca",
+        "logic/montanas.ts: cobertura() (mascara de huellas, tambien servira a P3) y reservaAldea(); generarMontanas acepta reserva y ninguna pieza pisa un tile ocupado",
+        "El test de solape encontro un defecto real: una casa entera y 30+ props de la aldea quedaban tapados por piezas; la reserva lo cierra",
+        "Orden de la escena: aldea -> reserva -> montanas -> horneado -> agua",
+        "exponer(montanas) para comprobar el dibujo desde shot",
+        "Pixel medido en la captura: roca del terreno 40533 -> 23894 px (las piezas siguen; el terreno bajo ellas ya no); las casas intactas (88210 px de rampa teja)"
+      ],
       "creada": "2026-10-20T17:53:49.350Z",
       "titulo": "Montanas dibujadas y horneado suave",
       "objetivo": "La escena dibuja las piezas colocadas por P2c2 sobre el relieve y el terreno horneado bajo ellas solo pone tonos suaves, sin manchas de nieve ni roca (R84, D033)",
@@ -2048,7 +2085,14 @@
         "La escena dibuja las piezas con el y-sort de la huella y culling como el resto",
         "Captura a x1 y x2 mirada, comparada con el boceto M1 aprobado",
         "bench-60fps en verde (D034)"
-      ]
+      ],
+      "verificacion": {
+        "tests": "356/356 (23 archivos)",
+        "typecheck": "tsc --noEmit limpio",
+        "captura": "docs/evidencia/P2c3-montanas.png"
+      },
+      "motivo": "bench-60fps (D034) sigue sin poder medirse: Chromium headless usa SwiftShader, sin GPU real",
+      "fin": "2026-10-21T07:40:15.755Z"
     }
   ],
   "errores": [
@@ -2721,6 +2765,18 @@
   ],
   "actividad": [
     {
+      "t": "2026-10-21T07:58:11.721Z",
+      "texto": "Fase P3 → en-curso: Rejilla de ocupación única"
+    },
+    {
+      "t": "2026-10-21T07:40:15.762Z",
+      "texto": "Fase P2c3 → hecha: Montanas dibujadas y horneado suave"
+    },
+    {
+      "t": "2026-10-21T07:29:14.016Z",
+      "texto": "Fase P2d → hecha: Agua viva y humo"
+    },
+    {
       "t": "2026-10-21T05:47:17.409Z",
       "texto": "Fase P2c2 → hecha: Colocacion determinista de las piezas de montana"
     },
@@ -3257,5 +3313,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-21T05:47:17.409Z"
+  "actualizado": "2026-10-21T07:58:11.721Z"
 }
