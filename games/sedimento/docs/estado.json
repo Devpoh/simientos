@@ -231,8 +231,10 @@
     },
     {
       "id": "P3b",
-      "estado": "pendiente",
-      "hecho": [],
+      "estado": "hecha",
+      "hecho": [
+        "dividida en P3b1 (logica: mascara de caminos por subcelda + pintor SDF deterministico) y P3b2 (capa de suelo por trozos, aldea con calles, captura y bench)"
+      ],
       "creada": "2026-10-20T15:06:19.564Z",
       "titulo": "Caminos de tierra y de roca",
       "objetivo": "Capa de caminos de dos materiales (tierra y roca) trazados libremente sobre la máscara de subceldas y dibujados con las piezas de D; la aldea de referencia se ordena alrededor de sus calles (R85, D035, R004)",
@@ -245,7 +247,8 @@
       ],
       "sesion": "B",
       "version": "0.0",
-      "tramo": "alfa"
+      "tramo": "alfa",
+      "fin": "2026-10-21T15:24:19.480Z"
     },
     {
       "id": "P4",
@@ -2100,6 +2103,52 @@
       "fin": "2026-10-21T07:40:15.755Z"
     },
     {
+      "id": "P3b1",
+      "estado": "hecha",
+      "hecho": [
+        "logic/caminosMascara.ts: mascara por subcelda con material (sin camino / roca / tierra), trazar por polilinea con radio, borrar, limpiar, contarMaterial, materialEn y sdf (chamfer de dos pasadas)",
+        "logic/caminosPintor.ts: prepararSdf (roca pura + tierra con hombro de roca dilatado) y pintarRegion, que muestrea el SDF bilineal a nivel de pixel, le suma ruido y umbraliza; tierra apisonada con dos rodadas y matas, roca con Voronoi de cantos, juntas y luz desde la izquierda",
+        "tuning.json: seccion caminoPintor con todos los numeros del boceto CAM1",
+        "tests/caminos-pintor.test.ts: 10 tests (trazar/borrar/cruzar, signo del SDF, rampas de paleta, determinismo, bordes irregulares y coste < 8 ms por trozo de 128x128)"
+      ],
+      "creada": "2026-10-21T15:24:25.019Z",
+      "titulo": "Mascara de caminos y pintor por distancia",
+      "objetivo": "Una mascara de subceldas por material (tierra/roca) en la rejilla de ocupacion, y un pintor puro que la convierte en indices de paleta con bordes irregulares, curvas y cruces sin rejilla visible (D035, D039)",
+      "criterios": [
+        "logic/caminosMascara.ts: trazar/borrar/cruzar caminos por subcelda con tests (borrar no toca estructuras ni objetos)",
+        "El pintor estampa indices de paleta: la roca usa la rampa roca y la tierra la rampa tierra (test)",
+        "Bordes irregulares y sin rejilla: el mismo tile trazado a mano y con curva da bordes distintos (test), y ningun pixel de suelo queda sin pintar dentro de la mascara",
+        "Determinista: la misma mascara y semilla dan exactamente los mismos indices (test)",
+        "Coste: pintar un trozo de 128x128 px tarda < 8 ms (test de rendimiento)"
+      ],
+      "sesion": "B",
+      "tramo": "alfa",
+      "verificacion": {
+        "tests": "437/437 en 29 archivos",
+        "resultado": "pintar un trozo de 128x128 px cuesta ~3 ms (presupuesto 8 ms); indices siempre dentro de las rampas tierra/roca/hierba; misma mascara y semilla dan los mismos indices",
+        "captura": null
+      },
+      "commit": "pendiente",
+      "fin": "2026-10-21T15:30:50.422Z"
+    },
+    {
+      "id": "P3b2",
+      "estado": "pendiente",
+      "hecho": [],
+      "creada": "2026-10-21T15:24:25.060Z",
+      "titulo": "Capa de suelo de caminos y aldea ordenada",
+      "objetivo": "La capa de suelo estampa los caminos por trozos y se redibuja solo en los trozos que cambian; la aldea de referencia se ordena alrededor de calles principales de roca y travesias de tierra; bench en verde",
+      "criterios": [
+        "render/caminosVista.ts: capa por trozos que solo redibuja los trozos afectados al trazar o borrar",
+        "La aldea de referencia usa calles principales de roca de >= 2 tiles y travesias de tierra, con >= 2 tiles entre manzanas (§10.9)",
+        "shot: al trazar un camino con la herramienta, exponer(caminos) sube el numero de tiles y violaciones = 0",
+        "Captura mirada: la aldea se lee ordenada y los caminos tienen curvas y cruces sin rejilla visible (R12)",
+        "bench-60fps en verde (D034)"
+      ],
+      "sesion": "B",
+      "tramo": "alfa"
+    },
+    {
       "id": "P4a",
       "estado": "hecha",
       "hecho": [
@@ -2269,6 +2318,15 @@
       "sintoma": "git push origin claude/nube falla con 403 y la API de GitHub responde \"Resource not accessible by integration\" al crear una ref",
       "causa": "El GITHUB_TOKEN del entorno (prefijo ghu_) es un token de instalación de solo lectura para este repositorio: la API de lectura da admin:true pero ninguna escritura está permitida (E010, ya visto en sesiones anteriores)",
       "solucion": "No se puede empujar desde esta sesión. El trabajo queda en commits locales de la rama claude/nube; se registra en la bitácora y se reintenta el push en la siguiente sesión. No se afirma que el progreso esté asegurado"
+    },
+    {
+      "id": "E013",
+      "t": "2026-10-21T15:30:50.464Z",
+      "estado": "resuelto",
+      "fase": "P3b1",
+      "sintoma": "el SDF salia positivo en toda la imagen aunque no hubiera camino trazado",
+      "causa": "la distancia al conjunto «dentro» de un material ausente es infinita y la distancia a «fuera» es 0, asi que dentro - fuera daba +infinito; el signo estaba invertido",
+      "solucion": "se calcula fuera - dentro (positivo dentro del material, negativo fuera) y los tests del signo lo fijan"
     }
   ],
   "faltantes": [
@@ -2706,6 +2764,13 @@
       "fase": "P4a",
       "texto": "El A* de la rejilla vive en logic/navegacion.ts y comparte montículo con el hexagonal (logic/monticulo.ts). La ruta se suaviza a vértices y el movimiento continuo se interpola con puntoEnRuta. No cortar esquina es obligatorio: dos unidades cruzando un cruce en diagonal romperían el y-sort determinista de §4",
       "porque": "La rejilla de ocupación es la única fuente de verdad (D040): el A* hexagonal de rutas.ts sigue para el terreno del mundo, pero la colocación y el paso por puertas se deciden en la rejilla"
+    },
+    {
+      "id": "D042",
+      "t": "2026-10-21T15:24:19.522Z",
+      "fase": "P3b",
+      "texto": "Se divide P3b en P3b1 y P3b2: el pintor por distancia con signo de D039 (mascara -> SDF -> tonos por material) es un modulo puro con sus tests, y la capa por trozos, el reordenado de la aldea y el bench van aparte",
+      "porque": "P3b mezclaba cinco criterios y mas de seis archivos; el protocolo de /fase pide dividir lo que pasa de ~300 lineas o dos resultados distintos"
     }
   ],
   "conceptos": [
@@ -2861,6 +2926,30 @@
     }
   ],
   "actividad": [
+    {
+      "t": "2026-10-21T15:30:50.464Z",
+      "texto": "Error E013 (resuelto): el SDF salia positivo en toda la imagen aunque no hubiera camino trazado"
+    },
+    {
+      "t": "2026-10-21T15:30:50.429Z",
+      "texto": "Fase P3b1 → hecha: Mascara de caminos y pintor por distancia"
+    },
+    {
+      "t": "2026-10-21T15:24:25.067Z",
+      "texto": "Fase P3b2 creada: Capa de suelo de caminos y aldea ordenada"
+    },
+    {
+      "t": "2026-10-21T15:24:25.026Z",
+      "texto": "Fase P3b1 creada: Mascara de caminos y pintor por distancia"
+    },
+    {
+      "t": "2026-10-21T15:24:19.522Z",
+      "texto": "Decisión: Se divide P3b en P3b1 y P3b2: el pintor por distancia con signo de D039 (mascara -> SDF -> tonos por material) es un modulo puro con sus tests, y la capa por trozos, el reordenado de la aldea y el bench van aparte"
+    },
+    {
+      "t": "2026-10-21T15:24:19.488Z",
+      "texto": "Fase P3b → hecha: Caminos de tierra y de roca"
+    },
     {
       "t": "2026-10-21T15:23:13.610Z",
       "texto": "Fase P4b actualizada: Ciudadanos que caminan por la rejilla"
@@ -3454,5 +3543,5 @@
       "texto": "Roadmap reiniciado desde cero (textos del 19-10). Bitácora anterior archivada"
     }
   ],
-  "actualizado": "2026-10-21T15:23:13.610Z"
+  "actualizado": "2026-10-21T15:30:50.464Z"
 }

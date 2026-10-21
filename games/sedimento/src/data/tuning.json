@@ -577,5 +577,21 @@
     "esperaIdle": 40,
     "ticksDentro": 60,
     "esperaBloqueado": 100
+  },
+  "caminoPintor": {
+    "subceldas": 4,
+    "celdaCanto": 5.4,
+    "ruidoBordeRoca": 1.5,
+    "ruidoBordeTierra": 2.2,
+    "umbralTierra": 0.3,
+    "radioRoca": 1.0,
+    "radioTierra": 0.5,
+    "rodadaDist": 1.25,
+    "rodadaAncho": 0.34,
+    "crestaDist": 2.1,
+    "grasaHierba": 0.45,
+    "escalaRuidoGrueso": 0.09,
+    "escalaRuidoFino": 0.31,
+    "pasoLado": 128
   }
 }
